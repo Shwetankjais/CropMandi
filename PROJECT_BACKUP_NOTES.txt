@@ -1,0 +1,15 @@
+CropMandi full project backup
+
+This archive contains the complete project source and integrated Hindi/English/Kannada voice assistant, with a dependency pin for the reported PyAV/faster-whisper transcription error.
+
+The machine-specific .venv folder and .env secrets are intentionally not included. Recreate the environment with:
+
+  python -m venv .venv
+  .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+  Copy-Item .env.example .env
+
+Before running, review .env and set DATABASE_URL as described in README.md. To run the API:
+
+  .\.venv\Scripts\python.exe -m uvicorn apps.api.main:app --reload --host 127.0.0.1 --port 8001
+
+Serve the frontend separately from the frontend directory on port 5500.

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CropMandi AI - Authentication</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Roboto+Slab:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#722000",
+                    "surface-container-low": "#f4f4f0",
+                    "primary-fixed-dim": "#8bd6b6",
+                    "surface-container-highest": "#e3e2df",
+                    "on-background": "#1b1c1a",
+                    "on-surface-variant": "#3f4944",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#dbdad6",
+                    "surface-tint": "#1b6b51",
+                    "on-primary-fixed-variant": "#00513b",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#a6f2d1",
+                    "on-tertiary-fixed": "#390c00",
+                    "on-primary-fixed": "#002116",
+                    "on-secondary-container": "#6f5100",
+                    "secondary-fixed-dim": "#f9bd22",
+                    "inverse-on-surface": "#f2f1ed",
+                    "on-tertiary-fixed-variant": "#832600",
+                    "primary": "#004532",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#faf9f5",
+                    "outline-variant": "#bec9c2",
+                    "background": "#faf9f5",
+                    "surface": "#faf9f5",
+                    "surface-variant": "#e3e2df",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "outline": "#6f7973",
+                    "tertiary-fixed": "#ffdbd0",
+                    "secondary-container": "#ffc329",
+                    "surface-container-high": "#e9e8e4",
+                    "on-primary-container": "#8bd6b7",
+                    "inverse-surface": "#2f312e",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#efeeea",
+                    "on-secondary-fixed-variant": "#5c4300",
+                    "on-tertiary-container": "#ffb79f",
+                    "inverse-primary": "#8bd6b6",
+                    "error": "#ba1a1a",
+                    "tertiary-container": "#992e00",
+                    "secondary-fixed": "#ffdf9f",
+                    "secondary": "#795900",
+                    "on-surface": "#1b1c1a",
+                    "on-secondary-fixed": "#261a00",
+                    "tertiary-fixed-dim": "#ffb59d",
+                    "primary-container": "#065f46"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "panel-padding": "20px",
+                    "gutter": "16px",
+                    "container-margin": "24px"
+            },"fontFamily": {
+                            "body-md": [
+                                    "Roboto"
+                            ],
+                            "data-tabular": [
+                                    "Roboto"
+                            ],
+                            "label-sm": [
+                                    "Roboto"
+                            ],
+                            "headline-md": [
+                                    "Roboto Slab"
+                            ],
+                            "headline-xl": [
+                                    "Roboto Slab"
+                            ],
+                            "body-lg": [
+                                    "Roboto"
+                            ],
+                            "headline-lg": [
+                                    "Roboto Slab"
+                            ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "data-tabular": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "1",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-xl": [
+                            "40px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+.auth-card {
+    box-shadow: 0 10px 30px rgba(0, 69, 50, 0.08);
+}
+.auth-input {
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.brand-panel {
+    background-color: #004532;
+    background-image: linear-gradient(160deg, rgba(0, 45, 32, 0.82), rgba(0, 69, 50, 0.55)), url("../assests/farmer.png");
+    background-size: cover;
+    background-position: center;
+}
+.auth-panel {
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    overscroll-behavior: contain;
+    container-type: size;
+}
+.auth-stage {
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    box-sizing: border-box;
+    padding: max(2.5rem, calc((100cqh - 30.25rem) / 2)) 1rem 2.5rem;
+}
+</style>
+  <link rel="stylesheet" href="../styles/voice-assistant.css?v=voice-1"/>
+</head>
+<body class="h-full overflow-hidden bg-background font-body-md text-on-background antialiased">
+<div class="h-full min-h-0 overflow-hidden flex flex-col md:flex-row">
+<aside class="brand-panel relative w-full shrink-0 md:w-[42%] lg:w-1/2 md:h-full overflow-hidden text-on-primary flex items-center">
+<div class="relative z-10 w-full px-6 py-8 md:px-8 lg:px-12 max-w-xl">
+<p class="text-sm font-medium tracking-wide text-primary-fixed mb-3">Coffee &amp; Pepper</p>
+<h1 class="font-headline-xl text-[32px] leading-tight md:text-[30px] lg:text-[40px] text-white mb-3">CropMandi AI</h1>
+<p class="text-base md:text-lg text-white/95 max-w-md mb-3">Know the price. Choose the right market. Sell smarter.</p>
+<p class="text-sm md:text-base text-primary-fixed-dim max-w-md mb-6">Verified market intelligence for Coffee &amp; Pepper growers.</p>
+<ul class="space-y-2 text-sm text-white/90">
+<li class="flex items-center gap-2"><span aria-hidden="true">✓</span> Verified Prices</li>
+<li class="flex items-center gap-2"><span aria-hidden="true">✓</span> Market Comparison</li>
+<li class="flex items-center gap-2"><span aria-hidden="true">✓</span> AI Insights</li>
+</ul>
+</div>
+</aside>
+<main class="auth-panel relative flex-1 min-h-0 w-full md:w-[58%] lg:w-1/2 bg-surface" id="auth-panel">
+<div class="absolute top-5 right-5 md:top-6 md:right-6 z-30">
+<button type="button" class="flex items-center gap-2 bg-white border border-outline-variant/40 px-3.5 py-2 rounded-full text-xs font-semibold text-on-surface-variant shadow-sm">
+<span class="material-symbols-outlined text-[18px]">language</span>
+English
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+<div class="auth-stage sm:px-6">
+<div class="w-full max-w-[440px] bg-white rounded-2xl p-6 sm:p-8 auth-card" id="auth-container">
+<p class="text-label-sm font-label-sm text-error mb-4 hidden" id="auth-message"></p>
+<div class="grid grid-cols-2 gap-1 p-1 mb-6 bg-surface-container rounded-xl" role="tablist">
+<button class="py-2.5 rounded-lg text-sm font-semibold bg-white text-primary shadow-sm" id="tab-login" type="button" role="tab" aria-selected="true" onclick="switchTab('login')">Log In</button>
+<button class="py-2.5 rounded-lg text-sm font-medium text-on-surface-variant" id="tab-register" type="button" role="tab" aria-selected="false" onclick="switchTab('register')">Register</button>
+</div>
+<form class="space-y-5 block" id="form-login">
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1.5" for="login-identifier">Phone Number or Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">person</span>
+<input class="auth-input w-full bg-surface-container-low border border-outline-variant/40 rounded-xl py-3 pl-11 pr-4 text-body-md text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none placeholder:text-outline" id="login-identifier" placeholder="Enter phone or email" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1.5" for="login-password">Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">lock</span>
+<input class="auth-input w-full bg-surface-container-low border border-outline-variant/40 rounded-xl py-3 pl-11 pr-11 text-body-md text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none placeholder:text-outline" id="login-password" placeholder="Enter password" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary" type="button" aria-label="Show password" onclick="togglePassword('login-password', this)">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between gap-3">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded text-primary focus:ring-primary bg-white border-outline-variant w-4 h-4" type="checkbox"/>
+<span class="text-sm text-on-surface-variant">Remember Me</span>
+</label>
+<a class="text-xs font-semibold text-primary hover:underline shrink-0" href="#">Forgot Password?</a>
+</div>
+<button type="submit" id="btn-access-dashboard" class="w-full bg-primary text-on-primary text-base font-semibold rounded-xl py-3.5 shadow-sm hover:bg-primary-container">Access Dashboard →</button>
+<p class="text-center text-xs text-on-surface-variant">🔒 Secure access</p>
+<p class="text-center text-sm text-on-surface-variant">New to CropMandi? <button class="text-primary font-semibold hover:underline" type="button" onclick="switchTab('register')">Create an account</button></p>
+</form>
+<form class="space-y-5 hidden" id="form-register">
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1.5" for="reg-name">Full Name</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">badge</span>
+<input class="auth-input w-full bg-surface-container-low border border-outline-variant/40 rounded-xl py-3 pl-11 pr-4 text-body-md text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none placeholder:text-outline" id="reg-name" placeholder="e.g. Ramesh Kumar" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1.5" for="reg-location">Farm Location</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">location_on</span>
+<input class="auth-input w-full bg-surface-container-low border border-outline-variant/40 rounded-xl py-3 pl-11 pr-4 text-body-md text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none placeholder:text-outline" id="reg-location" placeholder="Village, District" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1.5" for="reg-crop">Primary Crop</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">grass</span>
+<select class="auth-input w-full bg-surface-container-low border border-outline-variant/40 rounded-xl py-3 pl-11 pr-10 text-body-md text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none" id="reg-crop">
+<option disabled="" selected="" value="">Select main crop</option>
+<option value="wheat">Wheat</option>
+<option value="rice">Rice (Paddy)</option>
+<option value="cotton">Cotton</option>
+<option value="sugarcane">Sugarcane</option>
+<option value="other">Other</option>
+</select>
+<span class="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[20px]">expand_more</span>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1.5" for="reg-phone">Mobile Number</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">call</span>
+<input class="auth-input w-full bg-surface-container-low border border-outline-variant/40 rounded-xl py-3 pl-11 pr-4 text-body-md text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none placeholder:text-outline" id="reg-phone" placeholder="+91" type="tel"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1.5" for="reg-email">Email (optional)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">mail</span>
+<input class="auth-input w-full bg-surface-container-low border border-outline-variant/40 rounded-xl py-3 pl-11 pr-4 text-body-md text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none placeholder:text-outline" id="reg-email" placeholder="Enter email" type="email"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1.5" for="reg-password">Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">lock</span>
+<input class="auth-input w-full bg-surface-container-low border border-outline-variant/40 rounded-xl py-3 pl-11 pr-11 text-body-md text-on-background focus:border-primary focus:ring-1 focus:ring-primary outline-none placeholder:text-outline" id="reg-password" placeholder="Create a password" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary" type="button" aria-label="Show password" onclick="togglePassword('reg-password', this)">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary text-base font-semibold rounded-xl py-3.5 shadow-sm hover:bg-primary-container" type="submit" id="btn-create-account">Create Farmer Account →</button>
+<p class="text-center text-xs text-on-surface-variant">🔒 Secure access</p>
+<p class="text-center text-xs text-on-surface-variant">By registering, you agree to our <a class="text-primary hover:underline" href="#">Terms &amp; Privacy</a>.</p>
+<p class="text-center text-sm text-on-surface-variant">Already have an account? <button class="text-primary font-semibold hover:underline" type="button" onclick="switchTab('login')">Log in</button></p>
+</form>
+</div>
+</div>
+</main>
+</div>
+<script>
+        function setTabState(tab, active) {
+            tab.classList.toggle('bg-white', active);
+            tab.classList.toggle('text-primary', active);
+            tab.classList.toggle('font-semibold', active);
+            tab.classList.toggle('shadow-sm', active);
+            tab.classList.toggle('text-on-surface-variant', !active);
+            tab.classList.toggle('font-medium', !active);
+            tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        }
+
+        function switchTab(tab) {
+            const loginForm = document.getElementById('form-login');
+            const registerForm = document.getElementById('form-register');
+            const loginTab = document.getElementById('tab-login');
+            const registerTab = document.getElementById('tab-register');
+            const showLogin = tab === 'login';
+
+            loginForm.classList.toggle('hidden', !showLogin);
+            loginForm.classList.toggle('block', showLogin);
+            registerForm.classList.toggle('hidden', showLogin);
+            registerForm.classList.toggle('block', !showLogin);
+            setTabState(loginTab, showLogin);
+            setTabState(registerTab, !showLogin);
+            const panel = document.getElementById('auth-panel');
+            if (panel) {
+                panel.scrollTop = 0;
+            }
+        }
+
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('.material-symbols-outlined');
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            icon.textContent = show ? 'visibility_off' : 'visibility';
+            button.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        }
+    </script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+
+<script>
+  window.CropMandiVoiceConfig = Object.assign({}, window.CropMandiVoiceConfig || {}, {
+    endpoint: "http://127.0.0.1:8001/api/voice/command",
+    autoSpeak: true
+  });
+</script>
+<script src="../js/voice-assistant.js?v=voice-2" defer></script>
+</body></html>

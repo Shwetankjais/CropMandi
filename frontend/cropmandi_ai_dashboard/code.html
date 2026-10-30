@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="CropMandi AI Dashboard — Real-time market prices, AI predictions, and cold storage for Coffee and Pepper growers."/>
+  <title>Dashboard — CropMandi AI</title>
+
+  <!-- Tailwind CSS (existing) -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Tailwind config — shared color system -->
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary":                "#004532",
+            "primary-light":          "#065f46",
+            "primary-dim":            "#8bd6b6",
+            "primary-fixed":          "#a6f2d1",
+            "primary-container":      "#065f46",
+            "on-primary":             "#ffffff",
+            "on-primary-container":   "#8bd6b7",
+            "secondary":              "#795900",
+            "secondary-container":    "#ffc329",
+            "secondary-fixed-dim":    "#f9bd22",
+            "on-secondary":           "#ffffff",
+            "tertiary":               "#722000",
+            "tertiary-container":     "#992e00",
+            "on-tertiary":            "#ffffff",
+            "background":             "#faf9f5",
+            "surface":                "#faf9f5",
+            "surface-bright":         "#ffffff",
+            "surface-container-low":  "#f4f4f0",
+            "surface-container":      "#efeeea",
+            "surface-container-high": "#e9e8e4",
+            "surface-container-highest":"#e3e2df",
+            "surface-dim":            "#dbdad6",
+            "on-background":          "#1b1c1a",
+            "on-surface":             "#1b1c1a",
+            "on-surface-variant":     "#3f4944",
+            "outline":                "#6f7973",
+            "outline-variant":        "#bec9c2",
+            "error":                  "#ba1a1a",
+            "error-container":        "#ffdad6",
+            "surface-tint":           "#1b6b51",
+            "inverse-primary":        "#8bd6b6"
+          },
+          borderRadius: {
+            DEFAULT: "0.5rem",
+            sm:  "0.625rem",
+            md:  "0.875rem",
+            lg:  "1.125rem",
+            xl:  "1.375rem",
+            "2xl":"1.75rem",
+            full:"9999px"
+          },
+          spacing: {
+            "container-margin": "24px",
+            "panel-padding":    "20px",
+            "gutter":           "16px"
+          },
+          fontFamily: {
+            sans: ["Roboto", "Noto Sans", "Noto Sans Devanagari", "Noto Sans Kannada", "sans-serif"],
+            slab: ["Roboto Slab", "Noto Sans", "serif"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Roboto, Roboto Slab, Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Roboto+Slab:wght@400;500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Shared design system -->
+  <link rel="stylesheet" href="../styles/shared.css"/>
+
+  <style>
+    /* ── Dashboard-specific enhancements ─────────────────── */
+
+    /* Card used across the dashboard */
+    .dash-card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid rgba(190, 201, 194, 0.3);
+      box-shadow: 0 4px 16px rgba(0, 69, 50, 0.05), 0 1px 4px rgba(0,0,0,0.03);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .dash-card:hover {
+      box-shadow: 0 8px 24px rgba(0, 69, 50, 0.08), 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    /* Inset input */
+    .soft-inset {
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Stat card accent */
+    .stat-accent-green {
+      border-left: 3.5px solid #004532;
+    }
+
+    .stat-accent-amber {
+      border-left: 3.5px solid #f9bd22;
+    }
+
+    /* Hold status glow */
+    .status-hold {
+      box-shadow: 0 0 14px rgba(249, 189, 34, 0.35);
+    }
+
+    /* Razorpay overlay fix */
+    html.razorpay-checkout-open,
+    body.razorpay-checkout-open { overflow: visible !important; }
+    html.razorpay-checkout-open .razorpay-container,
+    html.razorpay-checkout-open .razorpay-backdrop {
+      display: block !important;
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: none !important;
+      max-height: none !important;
+      z-index: 2147483647 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+    html.razorpay-checkout-open iframe.razorpay-checkout-frame {
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      min-width: 100vw !important;
+      min-height: 100vh !important;
+      border: 0 !important;
+    }
+
+    /* ── Sidebar nav link active state ── */
+    .nav-link-active {
+      background: #065f46 !important;
+      color: #fff !important;
+      box-shadow: inset 3px 0 0 #8bd6b6;
+    }
+
+    /* Mobile top bar */
+    .mobile-topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 56px;
+      background: rgba(250,249,245,0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(190,201,194,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 40;
+    }
+
+    /* Select appearance fix */
+    select {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    /* ── KPI cards grid ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 500px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="../styles/voice-assistant.css?v=voice-1"/>
+</head>
+
+<body class="bg-background text-on-surface antialiased min-h-screen overflow-x-hidden"
+      style="font-family:'Roboto','Noto Sans','Noto Sans Devanagari','Noto Sans Kannada',sans-serif;">
+
+<!-- ═══════════════════════════════════════════════════════
+     DESKTOP SIDEBAR
+═══════════════════════════════════════════════════════ -->
+<aside class="cm-sidebar hidden md:flex" id="main-sidebar" role="navigation" aria-label="Main navigation">
+  <!-- Brand -->
+  <div class="cm-sidebar__brand">
+    <div class="cm-sidebar__logo">
+      <span class="material-symbols-outlined text-primary text-2xl font-bold">eco</span>
+    </div>
+    <div>
+      <p class="cm-sidebar__brand-name" data-i18n="brand.name">CropMandi AI</p>
+      <p class="cm-sidebar__brand-tag" data-i18n="brand.tagline">Agricultural Intelligence</p>
+    </div>
+  </div>
+
+  <!-- Navigation links -->
+  <nav class="cm-sidebar__nav" aria-label="Sidebar navigation">
+    <a class="cm-sidebar__link nav-link-active" href="../cropmandi_ai_dashboard/code.html"
+       aria-current="page">
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">dashboard</span>
+      <span data-i18n="nav.dashboard">Dashboard</span>
+    </a>
+    <a class="cm-sidebar__link" href="../cropmandi_ai_my_crops/code.html">
+      <span class="material-symbols-outlined">agriculture</span>
+      <span data-i18n="nav.myCrops">My Crops</span>
+    </a>
+    <a class="cm-sidebar__link" href="../cropmandi_ai_analytics/code.html">
+      <span class="material-symbols-outlined">analytics</span>
+      <span data-i18n="nav.analytics">Analytics</span>
+    </a>
+    <a class="cm-sidebar__link" href="../harvestroute/code.html">
+      <span class="material-symbols-outlined">route</span>
+      <span>HarvestRoute</span>
+    </a>
+    <a class="cm-sidebar__link" href="../cropmandi_ai_farm_calendar/code.html">
+      <span class="material-symbols-outlined">calendar_today</span>
+      <span data-i18n="nav.farmCalendar">Farm Calendar</span>
+    </a>
+    <a class="cm-sidebar__link" href="../cropmandi_ai_alert_center/code.html">
+      <span class="material-symbols-outlined">notifications</span>
+      <span data-i18n="nav.alerts">Alerts</span>
+    </a>
+    <a class="cm-sidebar__link" href="../cropmandi_ai_settings/code.html" style="margin-top:16px">
+      <span class="material-symbols-outlined">settings</span>
+      <span data-i18n="nav.settings">Settings</span>
+    </a>
+  </nav>
+
+  <!-- Footer actions -->
+  <div class="cm-sidebar__footer">
+    <button type="button"
+      class="w-full py-2.5 mb-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2
+             border border-white/20 text-primary-fixed-dim hover:bg-white/10 transition-colors">
+      <span class="material-symbols-outlined text-[18px]">mic</span>
+      <span data-i18n="voiceAssistant">Voice Assistant</span>
+    </button>
+    <a class="cm-sidebar__link" href="../cropmandi_ai_login_register/code.html">
+      <span class="material-symbols-outlined">logout</span>
+      <span data-i18n="nav.logout">Logout</span>
+    </a>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════
+     DESKTOP TOP NAVIGATION BAR
+═══════════════════════════════════════════════════════ -->
+<nav class="cm-topnav hidden md:flex" id="main-topnav" role="navigation" aria-label="Top navigation">
+      <a class="cm-topnav__link" href="../harvestroute/code.html">HarvestRoute</a>
+  <div class="cm-topnav__left">
+    <h2 class="text-lg font-bold text-primary" style="margin:0"
+        data-i18n="brand.name">CropMandi AI</h2>
+    <div class="flex gap-5">
+      <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors"
+         href="../cropmandi_ai_dashboard/code.html" data-i18n="nav.market">Market</a>
+      <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors"
+         href="#" data-i18n="nav.weather">Weather</a>
+      <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors"
+         href="#" data-i18n="nav.help">Help</a>
+    </div>
+  </div>
+
+  <div class="cm-topnav__right">
+    <!-- Language Switcher -->
+    <div data-lang-mount id="topnav-lang-mount" aria-label="Language switcher"></div>
+
+    <!-- Notification bell -->
+    <button class="cm-icon-btn" type="button"
+            data-i18n-aria-label="common.notifications" aria-label="Notifications">
+      <span class="material-symbols-outlined text-xl">notifications</span>
+    </button>
+
+    <!-- Profile avatar -->
+    <img class="w-9 h-9 rounded-full object-cover border-2 border-primary/20 cursor-pointer"
+         src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz7Uux5XKPALdrCO0R6uUrkbF-aERr8gUObf6S62-wmCR1nGUI3kO6omKJFvqedk3UwPYrt4G2yWJzTCFnb5BOohMF5Xl1grdSBrJ7c3NjiAUQQWw3o-gafLseJvCMW4eBggwFBImIrdKwIgpOqMxdKDFmqVajarduvNEphOVqKKTnRmraQeHAx3wmPqti3CHv5imTdQNFnhdGbjDtgIrmwVQwQttJLITs46oH36rQkwnFDE7XDNfj"
+         alt="User profile"
+         data-i18n-aria-label="common.profile"/>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     MOBILE TOP BAR
+═══════════════════════════════════════════════════════ -->
+<div class="mobile-topbar md:hidden" role="banner">
+  <div class="flex items-center gap-2">
+    <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+      <span class="material-symbols-outlined text-white text-sm">eco</span>
+    </div>
+    <span class="font-bold text-primary text-base" data-i18n="brand.name">CropMandi AI</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <div data-lang-mount id="mobile-lang-mount" aria-label="Language switcher"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MOBILE BOTTOM NAVIGATION
+═══════════════════════════════════════════════════════ -->
+<nav class="cm-bottom-nav md:hidden" role="navigation" aria-label="Mobile navigation">
+  <a class="cm-bottom-nav__item cm-bottom-nav__item--active"
+     href="../cropmandi_ai_dashboard/code.html" aria-current="page">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">home</span>
+    <span data-i18n="nav.home">Home</span>
+  </a>
+  <a class="cm-bottom-nav__item" href="../cropmandi_ai_my_crops/code.html">
+    <span class="material-symbols-outlined">grass</span>
+    <span data-i18n="nav.crops">Crops</span>
+  </a>
+  <a class="cm-bottom-nav__item" href="#">
+    <span class="material-symbols-outlined">mic</span>
+    <span data-i18n="nav.voice">Voice</span>
+  </a>
+  <a class="cm-bottom-nav__item" href="../cropmandi_ai_alert_center/code.html">
+    <span class="material-symbols-outlined">notifications_active</span>
+    <span data-i18n="nav.alerts">Alerts</span>
+  </a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════════════════ -->
+<main class="cm-main" id="main-content" style="padding-left:0">
+  <div class="cm-page-content" style="max-width:1100px; margin:0 auto">
+
+    <!-- ── Page Header ─────────────────────────────────── -->
+    <header class="mb-5">
+      <h1 class="text-xl font-bold text-on-background" id="dash-greeting"
+          style="font-family:'Roboto Slab',serif; margin:0 0 4px">Good morning, Hemalatha</h1>
+      <p class="text-sm font-semibold text-primary flex flex-wrap items-center gap-1 mt-1">
+        <span id="dash-location-label">—</span>
+        <span class="text-outline" aria-hidden="true">→</span>
+        <span id="dash-rec-crop">—</span>
+        <span class="text-outline" aria-hidden="true">→</span>
+        <span id="dash-rec-variety">—</span>
+      </p>
+    </header>
+
+    <!-- ── Crop Controls Card ─────────────────────────── -->
+    <section class="dash-card p-4 mb-5" aria-label="Crop selection controls">
+      <div class="flex flex-col md:flex-row gap-3 items-end">
+        <!-- Commodity -->
+        <div class="w-full md:flex-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2"
+                 for="dash-crop" data-i18n="dashboard.commodity">Commodity</label>
+          <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent
+                      focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <select class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background
+                           p-3 pr-10 cursor-pointer" id="dash-crop">
+              <option value="">Loading...</option>
+              <option value="coffee" data-i18n-option="dashboard.coffee">Coffee</option>
+              <option value="pepper" data-i18n-option="dashboard.blackPepper">Black Pepper</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-3.5 text-outline pointer-events-none text-lg">
+              expand_more</span>
+          </div>
+        </div>
+
+        <!-- Variety -->
+        <div class="w-full md:flex-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2"
+                 for="dash-series" data-i18n="dashboard.variety">Variety</label>
+          <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent
+                      focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <select class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background
+                           p-3 pr-10 cursor-pointer" id="dash-series">
+              <option value="">Loading...</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-3.5 text-outline pointer-events-none text-lg">
+              expand_more</span>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="w-full md:flex-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2"
+                 for="dash-location" data-i18n="dashboard.location">Location</label>
+          <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent
+                      focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <select class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background
+                           p-3 pr-10 cursor-pointer" id="dash-location">
+              <option value="" data-i18n-option="dashboard.loadingLocations">Loading locations…</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-3.5 text-outline pointer-events-none text-lg">
+              expand_more</span>
+          </div>
+        </div>
+
+        <!-- Quantity -->
+        <div class="w-full md:flex-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2"
+                 for="dash-quantity" data-i18n="dashboard.quantity">Quantity (Quintals)</label>
+          <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent
+                      focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all
+                      flex items-center">
+            <button class="p-3 text-outline hover:text-primary transition-colors" type="button"
+                    aria-label="Decrease quantity" id="dash-qty-dec">
+              <span class="material-symbols-outlined text-lg">remove</span></button>
+            <input class="w-full bg-transparent border-none focus:ring-0 text-sm text-center
+                          text-on-background p-3" type="number" value="50" min="1" id="dash-quantity"/>
+            <button class="p-3 text-outline hover:text-primary transition-colors" type="button"
+                    aria-label="Increase quantity" id="dash-qty-inc">
+              <span class="material-symbols-outlined text-lg">add</span></button>
+          </div>
+        </div>
+
+        <!-- Update button -->
+        <div class="w-full md:flex-1">
+          <button class="w-full bg-primary text-white py-3 px-4 rounded-xl text-xs font-bold uppercase
+                         tracking-wider shadow-md hover:bg-primary-light active:scale-98 transition-all
+                         flex justify-center items-center gap-2"
+                  id="dash-refresh" type="button">
+            <span class="material-symbols-outlined text-lg">sync</span>
+            <span data-i18n="dashboard.updateDashboard">Update Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hidden data carriers (unchanged from original) -->
+    <p class="hidden" id="dash-rec-body"></p>
+    <p class="hidden" id="dash-rec-location"></p>
+    <p class="hidden" id="dash-rec-predicted"></p>
+    <p class="hidden" id="dash-rec-confidence"></p>
+    <h3 class="hidden" id="dash-rec-title">Price Outlook</h3>
+
+    <!-- ── KPI Cards ────────────────────────────────────── -->
+    <div class="kpi-grid" role="region" aria-label="Key price metrics">
+
+      <!-- Current Price -->
+      <div class="dash-card p-4 stat-accent-green">
+        <span class="text-xs font-bold uppercase tracking-wider text-primary block mb-1"
+              data-i18n="dashboard.currentPrice">Current price</span>
+        <span class="text-xs font-semibold text-on-surface-variant block"
+              id="dash-price-status"></span>
+        <span class="text-2xl font-bold text-primary block mt-1" id="dash-latest-price">…</span>
+        <span class="text-xs text-on-surface-variant mt-1 block" id="dash-latest-unit"></span>
+      </div>
+
+      <!-- Top APMC -->
+      <div class="dash-card p-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant block mb-1"
+              data-i18n="dashboard.topObservedCentre">Top observed centre</span>
+        <span class="text-sm font-semibold text-on-background block mt-2 leading-snug"
+              id="dash-best-apmc">—</span>
+        <span class="text-sm text-primary font-semibold block mt-1"
+              id="dash-best-apmc-price"></span>
+      </div>
+
+      <!-- Price Date -->
+      <div class="dash-card p-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant block mb-1"
+              data-i18n="dashboard.priceDate">Price date</span>
+        <span class="text-sm font-semibold text-on-background block mt-2"
+              id="dash-price-date">—</span>
+        <span class="text-xs text-on-surface-variant block mt-1" id="dash-latest-meta"></span>
+      </div>
+
+      <!-- Source -->
+      <div class="dash-card p-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant block mb-1"
+              data-i18n="dashboard.source">Source</span>
+        <span class="text-sm font-semibold text-on-background block mt-2 leading-snug"
+              id="dash-price-source">—</span>
+        <span class="text-xs text-on-surface-variant block mt-1" id="dash-source-note"></span>
+      </div>
+    </div>
+
+    <!-- ── Price Estimate Row ─────────────────────────── -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <!-- Latest Observed -->
+      <div class="dash-card p-4 flex flex-col stat-accent-green">
+        <p class="text-xs font-bold uppercase tracking-wider text-primary"
+           data-i18n="dashboard.latestObserved">Latest observed</p>
+        <p class="text-xs text-on-surface-variant mt-0.5"
+           data-i18n="dashboard.recordedMarketPrice">Recorded market price</p>
+        <p class="text-2xl font-bold text-primary mt-2" id="dash-est-latest-price">…</p>
+        <p class="text-xs text-on-surface-variant mt-auto pt-3">
+          <span data-i18n="dashboard.date">Date</span>
+          <span id="dash-est-latest-date"> —</span> ·
+          <span id="dash-est-unit">—</span>
+        </p>
+      </div>
+
+      <!-- Next Session Estimate -->
+      <div class="rounded-2xl border border-dashed border-outline/40 p-4 flex flex-col bg-surface"
+           id="dash-est-body">
+        <p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant"
+           data-i18n="dashboard.nextSessionEstimate">Next-session estimate</p>
+        <p class="text-xs text-on-surface-variant mt-0.5"
+           data-i18n="dashboard.baselineOutput">Baseline output, not an observed price</p>
+        <p class="text-2xl font-bold text-on-background mt-2" id="dash-est-next-price">…</p>
+        <p class="text-xs text-on-surface-variant mt-2">
+          <span data-i18n="dashboard.target">Target</span>
+          <span id="dash-est-target"> —</span>
+        </p>
+        <p class="text-xs text-on-background mt-2" id="dash-est-method"></p>
+        <p class="text-xs text-on-surface-variant" id="dash-est-model-status"></p>
+        <p class="text-xs text-on-surface-variant mt-1" id="dash-est-note"></p>
+        <p class="hidden" id="dash-est-warning"></p>
+      </div>
+    </div>
+    <p class="text-xs text-on-surface-variant mb-1">
+      <span id="dash-est-series">—</span> · <span id="dash-est-location"></span></p>
+    <p class="text-xs text-primary mb-3 hidden" id="dash-est-status"
+       data-i18n="dashboard.loading">Loading next-session estimate...</p>
+    <p class="text-xs text-error mb-3 hidden" id="dash-est-error"></p>
+
+    <!-- ── Weather + Actions Card ─────────────────────── -->
+    <section class="dash-card mb-4 overflow-hidden" aria-label="Weather information">
+      <div class="flex flex-col sm:flex-row">
+        <!-- Weather info panel -->
+        <div class="flex-1 p-4 flex items-start gap-4" style="background:linear-gradient(135deg,#e8f5ee 0%,#f0faf5 100%)">
+          <!-- Weather icon placeholder (emoji set by JS) -->
+          <div id="dash-weather-icon"
+               style="font-size:42px;line-height:1;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(0,69,50,0.2))">
+            🌤️
+          </div>
+          <div class="min-w-0">
+            <!-- Temperature -->
+            <p class="text-3xl font-black text-primary leading-none" id="dash-weather-temp"
+               style="font-family:'Roboto Slab',serif"></p>
+            <!-- Condition -->
+            <p class="text-sm font-semibold text-on-background mt-1" id="dash-weather-desc">
+              Fetching weather…
+            </p>
+            <!-- Humidity -->
+            <p class="text-xs text-on-surface-variant mt-1 flex items-center gap-1"
+               id="dash-weather-humidity"></p>
+            <!-- Location tag -->
+            <p class="text-xs font-semibold text-primary mt-2" id="dash-weather-note"></p>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="p-4 flex flex-col justify-between gap-3 sm:w-48 border-t sm:border-t-0 sm:border-l border-outline-variant/20">
+          <div class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1"
+               data-i18n="dashboard.priceOutlook">Price Outlook</div>
+          <button class="w-full bg-surface-container-high text-on-surface py-2.5 px-3 rounded-xl
+                         text-xs font-bold border border-outline-variant/30 hover:bg-surface-container-highest
+                         transition-colors flex items-center justify-center gap-1.5"
+                  id="dash-set-alert" type="button">
+            <span class="material-symbols-outlined text-base">notifications_active</span>
+            <span data-i18n="dashboard.setAlert">Set Alert</span>
+          </button>
+          <button class="w-full bg-primary text-white py-2.5 px-3 rounded-xl text-xs font-bold
+                         hover:bg-primary-light transition-colors flex items-center justify-center gap-1.5"
+                  id="dash-save-prediction" type="button">
+            <span class="material-symbols-outlined text-base">bookmark</span>
+            <span data-i18n="dashboard.savePrediction">Save</span>
+          </button>
+          <p class="text-xs text-primary hidden" id="dash-action-feedback"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Market Comparison Table ─────────────────────── -->
+    <section class="dash-card overflow-hidden mb-4" aria-label="Market price comparison">
+      <div class="px-4 py-3 border-b border-outline-variant/20 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-on-background" style="font-family:'Roboto Slab',serif;margin:0"
+              data-i18n="dashboard.marketComparison">Market comparison</h2>
+          <p class="text-xs text-on-surface-variant mt-0.5" id="dash-table-note"></p>
+        </div>
+        <p class="text-xs text-primary hidden" id="dash-table-status"
+           data-i18n="dashboard.loadingMarketPrices">Loading market prices...</p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm" role="table">
+          <thead>
+            <tr class="border-b border-outline-variant/20 bg-surface-container-low">
+              <th class="px-4 py-2.5 text-xs font-bold text-on-surface-variant uppercase tracking-wider"
+                  id="dash-col-series" data-i18n="dashboard.centre">Centre</th>
+              <th class="px-4 py-2.5 text-xs font-bold text-on-surface-variant text-right uppercase tracking-wider"
+                  id="dash-col-latest" data-i18n="dashboard.price">Price</th>
+              <th class="px-4 py-2.5 text-xs font-bold text-on-surface-variant text-right uppercase tracking-wider"
+                  id="dash-col-asof" data-i18n="dashboard.priceDate2">Date</th>
+              <th class="px-4 py-2.5 text-xs font-bold text-on-surface-variant uppercase tracking-wider"
+                  data-i18n="dashboard.source">Source</th>
+            </tr>
+          </thead>
+          <tbody id="dash-price-rows">
+            <tr>
+              <td class="px-4 py-5 text-center text-on-surface-variant" colspan="4"
+                  data-i18n="dashboard.loadingMarketPrices">Loading market prices...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="px-4 py-3 border-t border-outline-variant/20">
+        <p class="text-xs font-bold text-on-surface-variant"
+           data-i18n="dashboard.mappedCentres">Mapped centres</p>
+        <p class="text-xs text-on-surface-variant" id="dash-centres-location"></p>
+        <ul class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs text-on-background"
+            id="dash-centres"></ul>
+      </div>
+    </section>
+
+    <!-- ── Highest Price Market Rankings ────────────────── -->
+    <section class="dash-card overflow-hidden mb-4" aria-label="Highest price market rankings">
+      <div class="px-4 py-3 border-b border-outline-variant/20">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
+          <div class="min-w-0">
+            <h2 class="text-base font-bold text-on-background"
+                style="font-family:'Roboto Slab',serif;margin:0"
+                id="dash-market-ranking-title">Top 5 highest-price markets</h2>
+            <p class="text-xs text-on-surface-variant mt-1" id="dash-market-ranking-method">
+              Latest stored observation per market, ranked high to low — not a live quote. Historical records are flagged; verify today's rate before selling.
+            </p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full lg:w-[430px]">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1"
+                     for="dash-market-ranking-crop">Crop</label>
+              <select class="w-full rounded-xl bg-surface-container-low border border-outline-variant/30
+                             text-sm text-on-background p-2.5"
+                      id="dash-market-ranking-crop">
+                <option value="coffee">Coffee</option>
+                <option value="pepper">Black Pepper</option>
+                <option value="rice">Rice</option>
+                <option value="tomato">Tomato</option>
+                <option value="maize">Maize</option>
+                <option value="paddy">Paddy</option>
+                <option value="potato">Potato</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1"
+                     for="dash-market-ranking-series">Variety / Grade</label>
+              <select class="w-full rounded-xl bg-surface-container-low border border-outline-variant/30
+                             text-sm text-on-background p-2.5"
+                      id="dash-market-ranking-series" disabled>
+                <option value="">Loading…</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-4 py-3">
+        <p class="text-xs font-semibold text-primary mb-2 hidden" id="dash-market-ranking-status"
+           role="status" aria-live="polite">Loading market rankings…</p>
+        <p class="text-xs text-error mb-2 hidden" id="dash-market-ranking-error" role="alert"></p>
+        <p class="text-xs text-on-surface-variant mb-3" id="dash-market-ranking-note"></p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm" role="table">
+            <thead>
+              <tr class="border-b border-outline-variant/20 bg-surface-container-low">
+                <th class="px-3 py-2.5 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Rank</th>
+                <th class="px-3 py-2.5 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Market centre / buyer or Mandi</th>
+                <th class="px-3 py-2.5 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Location</th>
+                <th class="px-3 py-2.5 text-xs font-bold text-on-surface-variant text-right uppercase tracking-wider">Recorded price</th>
+                <th class="px-3 py-2.5 text-xs font-bold text-on-surface-variant text-right uppercase tracking-wider">Price date</th>
+              </tr>
+            </thead>
+            <tbody id="dash-market-ranking-rows">
+              <tr>
+                <td class="px-3 py-5 text-center text-on-surface-variant" colspan="5">Loading…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs text-on-surface-variant mt-3" id="dash-market-ranking-source"></p>
+      </div>
+    </section>
+
+    <!-- ── Cold Storage Section ────────────────────────── -->
+    <section class="dash-card p-4 mb-4" aria-label="Cold storage search">
+      <div class="mb-4">
+        <h2 class="text-base font-bold text-on-background" style="font-family:'Roboto Slab',serif;margin:0 0 4px"
+            id="dash-storage-heading" data-i18n="dashboard.coldStorage">Cold Storage</h2>
+        <p class="text-xs text-on-surface-variant" data-i18n="dashboard.coldStorageDesc">
+          Uses the location selected above. Nearby facilities are labelled when they are not in that village.
+          Availability is never assumed.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end mb-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2"
+                 for="dash-storage-crop" data-i18n="dashboard.crop">Crop</label>
+          <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent">
+            <select class="w-full bg-transparent border-none focus:ring-0 text-sm
+                           text-on-background p-3 pr-10 cursor-pointer" id="dash-storage-crop">
+              <option value="coffee" data-i18n-option="dashboard.coffee">Coffee</option>
+              <option value="pepper" data-i18n-option="dashboard.blackPepper">Black Pepper</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-3.5 text-outline pointer-events-none text-lg">
+              expand_more</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2"
+                 for="dash-storage-qty" data-i18n="dashboard.quantityKg">Quantity (kg)</label>
+          <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent">
+            <input class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background p-3"
+                   id="dash-storage-qty" min="0"
+                   data-i18n-placeholder="common.noData"
+                   placeholder="Optional" type="number"/>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2"
+                 data-i18n="dashboard.farmerLocation">Farmer location</label>
+          <p class="text-sm text-on-background p-3" id="dash-storage-location-label"
+             data-i18n="dashboard.fromLocationSelector">From location selector</p>
+        </div>
+
+        <div>
+          <button class="w-full bg-primary text-white py-3 px-4 rounded-xl text-xs font-bold uppercase
+                         tracking-wider shadow-md hover:bg-primary-light transition-all"
+                  id="dash-storage-search" type="button"
+                  data-i18n="dashboard.searchNearby">Search nearby</button>
+        </div>
+      </div>
+
+      <p class="text-xs font-bold text-primary mb-2 hidden" id="dash-storage-status"
+         data-i18n="dashboard.searching">Searching nearby cold storages...</p>
+      <p class="text-xs font-bold text-error mb-2 hidden" id="dash-storage-error"></p>
+      <p class="text-xs text-on-surface-variant mb-2" id="dash-storage-count"></p>
+      <p class="text-xs text-on-surface-variant mb-4" id="dash-storage-routing"></p>
+      <ul class="grid grid-cols-1 lg:grid-cols-2 gap-3" id="dash-storage-list"></ul>
+    </section>
+
+    <!-- ── Demo Payment Section ────────────────────────── -->
+    <section class="rounded-2xl border border-outline-variant/40 bg-surface-container-low p-4 mb-4"
+             aria-label="Demo payment">
+      <div class="mb-3">
+        <h3 class="text-sm font-bold text-on-surface-variant" style="margin:0 0 4px"
+            data-i18n="dashboard.demoPayment">Demo Payment — Razorpay Test Mode</h3>
+        <p class="text-xs text-on-surface-variant"
+           data-i18n="dashboard.demoPaymentDesc">
+          Uses crop and quantity from the Cold Storage section above. Amount is a fixed demo value, not a market price.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+        <div>
+          <span class="text-xs text-on-surface-variant block" data-i18n="dashboard.crop">Crop</span>
+          <span class="text-sm text-on-background font-semibold"
+                data-i18n="dashboard.fromColdStorageCrop">From Cold Storage crop selector</span>
+        </div>
+        <div>
+          <span class="text-xs text-on-surface-variant block"
+                data-i18n="dashboard.quantityKgLabel">Quantity (kg)</span>
+          <span class="text-sm text-on-background font-semibold"
+                data-i18n="dashboard.fromColdStorageQty">From Cold Storage quantity (default 10 kg if blank)</span>
+        </div>
+        <div>
+          <span class="text-xs text-on-surface-variant block"
+                data-i18n="dashboard.amount">Amount</span>
+          <span class="text-sm font-bold text-on-background"
+                data-i18n="dashboard.demoAmount">₹100 · fixed demo amount</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3 items-center">
+        <button class="border border-outline text-on-surface py-2 px-4 rounded-xl text-xs font-bold
+                       hover:bg-white transition-colors"
+                id="dash-pay-button" type="button"
+                data-i18n="dashboard.payButton">Pay ₹100 (Test Mode)</button>
+      </div>
+      <p class="text-xs font-bold text-primary mt-4 hidden" id="dash-pay-status"></p>
+      <p class="text-xs font-bold text-error mt-4 hidden" id="dash-pay-error"></p>
+      <p class="text-sm text-on-background mt-4 hidden" id="dash-pay-success"></p>
+      <p class="text-xs text-on-surface-variant mt-4"
+         data-i18n="dashboard.demoDisclaimer">
+        Demo payment only. This does not represent a real crop sale, storage booking, or production authentication.
+        The backend uses a demo identity, not a real login.
+      </p>
+    </section>
+
+  </div><!-- end .cm-page-content -->
+</main>
+
+<!-- ── Scripts ─────────────────────────────────────────── -->
+<script src="https://checkout.razorpay.com/v1/checkout.js" onerror="window.__razorpayScriptFailed=true"></script>
+<script src="../js/api.js?v=pay-rzp-1"></script>
+<script src="../js/auth.js"></script>
+<script src="../i18n/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script src="../js/dashboard-latest.js?v=ui-3"></script>
+<script src="../js/market-rankings.js?v=rank-1"></script>
+<script src="../js/dashboard-estimate.js?v=ui-1"></script>
+<script src="../js/dashboard-ui.js"></script>
+<script src="../js/dashboard-storage.js?v=ui-1"></script>
+<script src="../js/dashboard-payment.js?v=pay-rzp-1"></script>
+
+<script>
+  // Quantity increment/decrement buttons
+  document.addEventListener('DOMContentLoaded', function() {
+    var qtyInput = document.getElementById('dash-quantity');
+    var decBtn = document.getElementById('dash-qty-dec');
+    var incBtn = document.getElementById('dash-qty-inc');
+    if (decBtn && qtyInput) {
+      decBtn.addEventListener('click', function() {
+        var v = parseInt(qtyInput.value, 10) || 1;
+        if (v > 1) qtyInput.value = v - 1;
+      });
+    }
+    if (incBtn && qtyInput) {
+      incBtn.addEventListener('click', function() {
+        var v = parseInt(qtyInput.value, 10) || 0;
+        qtyInput.value = v + 1;
+      });
+    }
+  });
+</script>
+
+<script>
+  window.CropMandiVoiceConfig = Object.assign({}, window.CropMandiVoiceConfig || {}, {
+    endpoint: "http://127.0.0.1:8001/api/voice/command",
+    autoSpeak: true,
+    selectors: {
+      crop: "#dash-crop",
+      variety: "#dash-series",
+      market: "#dash-location",
+      quantity: "#dash-quantity",
+      state: "",
+      district: ""
+    }
+  });
+</script>
+<script src="../js/voice-assistant.js?v=voice-2" defer></script>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="CropMandi AI — AI-powered market intelligence that helps Indian farmers sell at the right place and the right time."/>
+  <title>CropMandi AI — Smart Decisions, Better Returns</title>
+
+  <!-- Tailwind CSS (existing) -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Shared design system (multi-script fonts, tokens, components) -->
+  <link rel="stylesheet" href="styles/shared.css"/>
+
+  <style>
+    /* ── Landing Page Specific Styles ─────────────────── */
+    body {
+      font-family: 'Roboto', 'Noto Sans', 'Noto Sans Devanagari', 'Noto Sans Kannada', sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    .hero-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .hero-bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* Layered overlays for rich visual depth */
+    .hero-overlay-green {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg,
+        rgba(0,45,32,0.72) 0%,
+        rgba(0,69,50,0.55) 40%,
+        rgba(0,50,36,0.25) 70%,
+        transparent 100%);
+    }
+
+    .hero-overlay-dark {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right,
+        rgba(0,0,0,0.55) 0%,
+        rgba(0,0,0,0.25) 55%,
+        rgba(0,0,0,0.1) 100%);
+    }
+
+    .hero-overlay-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 280px;
+      background: linear-gradient(to top,
+        rgba(0,0,0,0.75) 0%,
+        rgba(0,0,0,0.3) 50%,
+        transparent 100%);
+    }
+
+    /* ── Header ───────────────────────────────────────── */
+    .landing-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 40px 0;
+    }
+
+    @media (max-width: 640px) {
+      .landing-header { padding: 20px 20px 0; }
+    }
+
+    /* ── Logo ─────────────────────────────────────────── */
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+
+    .logo-icon svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .logo-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .logo-tagline {
+      font-size: 11px;
+      color: rgba(255,255,255,0.75);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Hero Content ─────────────────────────────────── */
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 40px 40px;
+      max-width: 700px;
+    }
+
+    @media (max-width: 640px) {
+      .hero-content {
+        padding: 40px 20px 30px;
+      }
+    }
+
+    .hero-headline {
+      font-size: clamp(44px, 8vw, 80px);
+      font-weight: 900;
+      line-height: 1.06;
+      color: #fff;
+      margin: 0 0 24px;
+      text-shadow: 0 3px 16px rgba(0,0,0,0.35);
+      letter-spacing: -0.03em;
+    }
+
+    :lang(hi) .hero-headline,
+    :lang(kn) .hero-headline {
+      font-size: clamp(32px, 6vw, 58px);
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+    }
+
+    .hero-highlight {
+      color: #f9bd22; /* warm amber/gold for agricultural theme */
+      display: inline;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(15px, 2.2vw, 19px);
+      color: rgba(255,255,255,0.88);
+      margin: 0 0 36px;
+      max-width: 480px;
+      line-height: 1.65;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+    }
+
+    /* ── CTA Buttons ───────────────────────────────────── */
+    .cta-group {
+      display: flex;
+      flex-direction: row;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn-cta-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #065f46;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 9999px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.18s, box-shadow 0.18s, transform 0.14s;
+      box-shadow: 0 0 24px rgba(6, 95, 70, 0.6), 0 4px 12px rgba(0,0,0,0.2);
+      letter-spacing: 0.01em;
+    }
+
+    .btn-cta-primary:hover {
+      background: #047857;
+      box-shadow: 0 0 32px rgba(6, 95, 70, 0.7), 0 6px 16px rgba(0,0,0,0.25);
+      transform: translateY(-1px);
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .btn-cta-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-cta-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 9999px;
+      text-decoration: none;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s, transform 0.14s;
+      backdrop-filter: blur(8px);
+      letter-spacing: 0.01em;
+    }
+
+    .btn-cta-secondary:hover {
+      background: rgba(255,255,255,0.22);
+      border-color: rgba(255,255,255,0.5);
+      transform: translateY(-1px);
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .btn-cta-secondary:active {
+      transform: scale(0.98);
+    }
+
+    /* ── Feature Bar ───────────────────────────────────── */
+    .feature-bar {
+      position: relative;
+      z-index: 10;
+      margin-top: auto;
+      padding: 24px 40px;
+    }
+
+    @media (max-width: 640px) {
+      .feature-bar {
+        padding: 16px 16px 24px;
+      }
+    }
+
+    .feature-bar-inner {
+      background: rgba(10, 12, 10, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 20px 28px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+    }
+
+    @media (max-width: 900px) {
+      .feature-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .feature-bar-inner {
+        padding: 16px 20px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+    }
+
+    .feature-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 12px 8px;
+      gap: 10px;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .feature-item:last-child {
+      border-right: none;
+    }
+
+    @media (max-width: 900px) {
+      .feature-item:nth-child(3) { border-right: none; }
+      .feature-item:nth-child(4) { border-right: 1px solid rgba(255,255,255,0.1); }
+    }
+
+    @media (max-width: 500px) {
+      .feature-item { border-right: none !important; }
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .feature-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: rgba(255,255,255,0.8);
+    }
+
+    .feature-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.4;
+      white-space: pre-line;
+    }
+
+    :lang(hi) .feature-label,
+    :lang(kn) .feature-label {
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    /* ── Language Switcher (dark variant for landing) ──── */
+    #landing-lang-mount .lang-switcher__btn {
+      background: rgba(255,255,255,0.12) !important;
+      border-color: rgba(255,255,255,0.3) !important;
+      color: #fff !important;
+    }
+    #landing-lang-mount .lang-switcher__btn:hover {
+      background: rgba(255,255,255,0.22) !important;
+    }
+    #landing-lang-mount .lang-switcher__dropdown {
+      right: 0;
+    }
+
+    /* Page wrapper */
+    .page-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+  <link rel="stylesheet" href="styles/voice-assistant.css?v=voice-1"/>
+</head>
+
+<body>
+<!-- ── Background Image + Overlays ────────────────────────── -->
+<div class="hero-bg" aria-hidden="true">
+  <img alt="Smiling Indian farmer in a coffee plantation at sunrise" src="assests/farmer.png"/>
+  <div class="hero-overlay-green"></div>
+  <div class="hero-overlay-dark"></div>
+  <div class="hero-overlay-bottom"></div>
+</div>
+
+<!-- ── Page wrapper ────────────────────────────────────────── -->
+<div class="page-wrap">
+
+  <!-- ── Header ───────────────────────────────────────────── -->
+  <header class="landing-header" role="banner">
+    <!-- Logo -->
+    <div class="logo-wrap">
+      <div class="logo-icon" aria-hidden="true">
+        <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 22C12 22 19 18 19 12C19 6 12 2 12 2C12 2 5 6 5 12C5 18 12 22 12 22Z" fill="#004532"/>
+          <path d="M12 22V2" stroke="white" stroke-width="2"/>
+          <path d="M12 12C12 12 16 10 16 7" stroke="white" stroke-linecap="round" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name" data-i18n="brand.name">CropMandi AI</span>
+        <span class="logo-tagline" data-i18n="brand.subtitle">Smart Decisions, Better Returns</span>
+      </div>
+    </div>
+
+    <!-- Language Switcher (dark variant) -->
+    <div id="landing-lang-mount" data-lang-mount aria-label="Language selection"></div>
+  </header>
+
+  <!-- ── Hero Content ───────────────────────────────────────── -->
+  <main class="hero-content" id="main-content">
+    <h1 class="hero-headline" id="hero-heading">
+      <span data-i18n="landing.hero1">Know</span> <span class="hero-highlight" data-i18n="landing.hero1highlight">Where.</span><br/>
+      <span data-i18n="landing.hero2">Know</span> <span class="hero-highlight" data-i18n="landing.hero2highlight">When.</span><br/>
+      <span data-i18n="landing.hero3">Earn</span> <span class="hero-highlight" data-i18n="landing.hero3highlight">More.</span>
+    </h1>
+
+    <p class="hero-subtitle" data-i18n="landing.heroSubtitle">
+      AI-powered market intelligence that helps farmers sell at the right place and the right time.
+    </p>
+
+    <div class="cta-group">
+      <!-- Primary CTA -->
+      <a href="cropmandi_ai_login_register/code.html"
+         class="btn-cta-primary"
+         id="cta-get-started">
+        <span data-i18n="landing.getStarted">Get Started</span>
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </svg>
+      </a>
+
+      <!-- Secondary CTA -->
+      <a href="cropmandi_ai_dashboard/code.html"
+         class="btn-cta-secondary"
+         id="cta-explore-dashboard">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </svg>
+        <span data-i18n="landing.exploreDashboard">Explore Dashboard</span>
+      </a>
+    </div>
+  </main>
+
+  <!-- ── Features Footer Bar ────────────────────────────────── -->
+  <footer class="feature-bar" role="contentinfo">
+    <div class="feature-bar-inner">
+      <nav class="feature-grid" aria-label="Platform features">
+        <!-- Feature 1: APMC -->
+        <div class="feature-item">
+          <div class="feature-icon" aria-hidden="true">
+            <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <span class="feature-label" data-i18n="landing.features.apmc">Best APMC
+Recommendation</span>
+        </div>
+
+        <!-- Feature 2: Price -->
+        <div class="feature-item">
+          <div class="feature-icon" aria-hidden="true">
+            <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <span class="feature-label" data-i18n="landing.features.price">Price Prediction
+&amp; Trends</span>
+        </div>
+
+        <!-- Feature 3: Profit -->
+        <div class="feature-item">
+          <div class="feature-icon" aria-hidden="true">
+            <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <span class="feature-label" data-i18n="landing.features.profit">Expected Profit
+Calculator</span>
+        </div>
+
+        <!-- Feature 4: Voice -->
+        <div class="feature-item">
+          <div class="feature-icon" aria-hidden="true">
+            <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <span class="feature-label" data-i18n="landing.features.voice">Voice Assistant
+Support</span>
+        </div>
+
+        <!-- Feature 5: Payments -->
+        <div class="feature-item">
+          <div class="feature-icon" aria-hidden="true">
+            <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2" stroke-width="1.5"/>
+              <line x1="1" y1="10" x2="23" y2="10" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <span class="feature-label" data-i18n="landing.features.payments">Secure Payments
+with Stripe</span>
+        </div>
+      </nav>
+    </div>
+  </footer>
+
+</div><!-- end .page-wrap -->
+
+<!-- ── Scripts ────────────────────────────────────────────── -->
+<script src="js/api.js"></script>
+<script src="i18n/i18n.js"></script>
+<script src="js/lang-switcher.js"></script>
+
+<script>
+  window.CropMandiVoiceConfig = Object.assign({}, window.CropMandiVoiceConfig || {}, {
+    endpoint: "http://127.0.0.1:8001/api/voice/command",
+    autoSpeak: true
+  });
+</script>
+<script src="js/voice-assistant.js?v=voice-2" defer></script>
+</body>
+</html>

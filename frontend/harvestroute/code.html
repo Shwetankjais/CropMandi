@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="CropMandi HarvestRoute: crop price intelligence, farmer location, mandi routing and estimated net returns." />
+  <title>HarvestRoute — CropMandi AI</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Slab:wght@400;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/shared.css" />
+  <style>
+    :root { --cm-green:#004532; --cm-bg:#faf9f5; --cm-muted:#68736d; --cm-border:#e1e7e2; }
+    body { background:var(--cm-bg); font-family:Roboto, sans-serif; color:#1b1c1a; }
+    .panel { background:#fff; border:1px solid var(--cm-border); border-radius:18px; box-shadow:0 5px 22px rgba(0,69,50,.045); }
+    .eyebrow { font-size:11px; letter-spacing:.12em; font-weight:700; color:#60736a; text-transform:uppercase; }
+    .field { width:100%; border:1px solid #d9e1dc; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; color:#1b1c1a; }
+    .field:focus { outline:2px solid #8bd6b6; border-color:#065f46; }
+    .btn-primary { background:var(--cm-green); color:#fff; border-radius:11px; padding:10px 15px; font-weight:700; font-size:13px; }
+    .btn-secondary { background:#edf4ef; color:var(--cm-green); border:1px solid #d8e6dc; border-radius:11px; padding:10px 15px; font-weight:700; font-size:13px; }
+    .btn-primary:disabled,.btn-secondary:disabled { opacity:.5; cursor:not-allowed; }
+    .metric { border:1px solid var(--cm-border); background:#fbfcfa; border-radius:14px; padding:14px; min-width:0; }
+    .metric strong { display:block; font-family:'Roboto Slab',serif; font-size:22px; color:var(--cm-green); }
+    .pill { display:inline-flex; align-items:center; border-radius:99px; background:#eff4f0; color:#245640; padding:4px 9px; font-size:11px; font-weight:700; }
+    .warning { color:#865c00; background:#fff7df; border:1px solid #f5e4aa; border-radius:12px; padding:10px 12px; font-size:12px; }
+    .muted { color:var(--cm-muted); }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th { text-align:left; color:#68736d; font-size:10px; text-transform:uppercase; letter-spacing:.08em; padding:10px; background:#f6f8f5; white-space:nowrap; }
+    td { padding:11px 10px; border-top:1px solid #edf0ed; vertical-align:middle; }
+    #map { height:360px; width:100%; border-radius:14px; background:linear-gradient(135deg,#e8f0e9,#f5f5eb); overflow:hidden; }
+    .map-placeholder { height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:24px; color:#60736a; }
+    .spinner { width:15px;height:15px;border:2px solid #bdd3c6;border-top-color:#004532;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;vertical-align:middle; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @media (max-width:760px) { #map {height:280px;} }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="sticky top-0 z-30 border-b border-emerald-950/10 bg-white/95 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <a href="../cropmandi_ai_dashboard/code.html" class="flex items-center gap-3 no-underline">
+        <div class="w-10 h-10 rounded-xl bg-emerald-950 text-white flex items-center justify-center"><span class="material-symbols-outlined">eco</span></div>
+        <div><div class="font-bold text-emerald-950" style="font-family:'Roboto Slab',serif">CropMandi AI</div><div class="text-[10px] uppercase tracking-widest muted">HarvestRoute</div></div>
+      </a>
+      <nav class="hidden md:flex items-center gap-5 text-sm font-semibold">
+        <a class="text-slate-600 hover:text-emerald-900" href="../cropmandi_ai_dashboard/code.html">Dashboard</a>
+        <a class="text-slate-600 hover:text-emerald-900" href="../cropmandi_ai_analytics/code.html">Analytics</a>
+        <a class="text-slate-600 hover:text-emerald-900" href="../cropmandi_ai_my_crops/code.html">My Crops</a>
+        <a class="text-emerald-900" href="./code.html">HarvestRoute</a>
+        <a class="text-slate-600 hover:text-emerald-900" href="../cropmandi_ai_settings/code.html">Settings</a>
+      </nav>
+      <span class="pill"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600 mr-1.5"></span> Crop intelligence</span>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-7 space-y-6">
+    <section class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+      <div>
+        <p class="eyebrow mb-2">Market intelligence · location · transport economics</p>
+        <h1 class="text-3xl sm:text-4xl font-bold text-emerald-950" style="font-family:'Roboto Slab',serif">HarvestRoute</h1>
+        <p class="muted mt-2 max-w-3xl text-sm">Compare recorded crop prices, inspect experimental model outputs, discover nearby mandis and estimate the net return after transportation.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a class="btn-secondary no-underline" href="../cropmandi_ai_dashboard/code.html">Back to dashboard</a>
+        <button class="btn-primary" id="refresh-models">Refresh model status</button>
+      </div>
+    </section>
+
+    <div id="global-notice" class="warning hidden" role="status"></div>
+
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="model-status-cards" aria-label="Crop model status">
+      <div class="metric"><span class="eyebrow">Models</span><strong>Loading…</strong><span class="text-xs muted">Checking model files</span></div>
+    </section>
+
+    <section class="grid grid-cols-1 xl:grid-cols-5 gap-5">
+      <div class="panel p-4 sm:p-5 xl:col-span-2 space-y-4">
+        <div class="flex items-start justify-between gap-2"><div><p class="eyebrow">Crop model</p><h2 class="text-xl font-bold text-emerald-950" style="font-family:'Roboto Slab',serif">Price intelligence</h2></div><span class="pill">Historical data</span></div>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="text-xs font-bold muted">Crop<select id="crop-select" class="field mt-1"><option value="tomato">Tomato</option><option value="maize">Maize</option><option value="paddy">Paddy</option><option value="potato">Potato</option></select></label>
+          <label class="text-xs font-bold muted">Market<select id="market-select" class="field mt-1"><option>Loading…</option></select></label>
+          <label class="text-xs font-bold muted">Variety<select id="variety-select" class="field mt-1"><option>Loading…</option></select></label>
+          <label class="text-xs font-bold muted">Grade<select id="grade-select" class="field mt-1"><option>Loading…</option></select></label>
+        </div>
+        <div class="flex items-center justify-between gap-2"><div><p class="eyebrow">Selected series</p><p class="font-semibold text-sm" id="series-caption">Loading market series…</p></div><button id="load-history" class="btn-secondary">Load history</button></div>
+        <div class="table-wrap max-h-64 border border-slate-100 rounded-xl">
+          <table><thead><tr><th>Date</th><th>Arrivals</th><th>Min</th><th>Max</th><th>Modal</th></tr></thead><tbody id="history-rows"><tr><td colspan="5" class="muted text-center">Choose a crop series.</td></tr></tbody></table>
+        </div>
+        <button id="run-prediction" class="btn-primary w-full">Run selected crop model</button>
+        <div id="prediction-result" class="rounded-xl bg-emerald-50/70 border border-emerald-100 p-4 text-sm" aria-live="polite"><p class="muted">Select a market, variety and grade to run a prediction using its recent history.</p></div>
+        <div class="warning">Model outputs are experimental. The pickle files do not contain verified target definitions or forecast horizons. Maize, paddy and potato feature formulas are inferred from feature names. This is not a validated price quote.</div>
+      </div>
+
+      <div class="panel p-4 sm:p-5 xl:col-span-3 space-y-4">
+        <div class="flex items-start justify-between gap-2"><div><p class="eyebrow">Farmer location</p><h2 class="text-xl font-bold text-emerald-950" style="font-family:'Roboto Slab',serif">Find nearby mandis</h2></div><span id="mappls-status" class="pill">Checking Mappls…</span></div>
+        <div class="flex flex-wrap gap-2"><button id="use-gps" class="btn-primary">Use my current location</button><button id="find-nearby" class="btn-secondary" disabled>Find nearby mandis</button></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label class="text-xs font-bold muted">Latitude<input id="latitude" class="field mt-1" type="number" step="any" placeholder="12.2958" /></label>
+          <label class="text-xs font-bold muted">Longitude<input id="longitude" class="field mt-1" type="number" step="any" placeholder="76.6394" /></label>
+        </div>
+        <div class="flex gap-2"><input id="manual-address" class="field" placeholder="Or enter village / farm address" /><button id="geocode-address" class="btn-secondary whitespace-nowrap">Find address</button></div>
+        <div class="flex flex-wrap items-center justify-between gap-2 text-xs muted"><span id="location-caption">Location is not stored by this page. Browser permission is optional.</span><label class="flex items-center gap-2">Search radius<select id="radius-select" class="field !w-auto !py-1"><option value="25">25 km</option><option value="50">50 km</option><option value="100" selected>100 km</option><option value="200">200 km</option></select></label></div>
+        <div id="map"><div class="map-placeholder"><span class="material-symbols-outlined text-4xl mb-2">map</span><strong>Map view</strong><span class="text-xs mt-1">Configure a domain-restricted MAPPLS_MAP_SDK_KEY to load the Mappls map.</span></div></div>
+        <div id="nearby-results" class="table-wrap"><p class="text-xs muted">Nearby mandi results will appear here after you set a location.</p></div>
+        <div class="warning">Mandi names came from the uploaded market reports. Coordinates start unverified. Mappls geocoding results also remain unverified until someone checks the actual mandi gate/location on the map.</div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 xl:grid-cols-5 gap-5">
+      <div class="panel p-4 sm:p-5 xl:col-span-2 space-y-4">
+        <div><p class="eyebrow">Mandi directory maintenance</p><h2 class="text-xl font-bold text-emerald-950" style="font-family:'Roboto Slab',serif">Geocode market records</h2><p class="muted text-xs mt-1">Use Mappls to suggest coordinates for a market, then verify the point before recommendations.</p></div>
+        <label class="text-xs font-bold muted">Market / mandi<select id="mandi-select" class="field mt-1"><option>Loading directory…</option></select></label>
+        <button id="geocode-mandi" class="btn-secondary w-full">Geocode selected market with Mappls</button>
+        <div id="geocode-result" class="text-xs muted" aria-live="polite">No mandi selected.</div>
+        <label class="text-xs font-bold muted">Mandi coordinate admin token<input id="admin-coordinate-token" class="field mt-1" type="password" autocomplete="off" placeholder="Server-configured admin token" /></label>
+        <button id="confirm-mandi" class="btn-primary w-full" disabled>Confirm coordinates (admin review)</button>
+        <p class="text-[11px] muted">Approval is protected by the server-side MANDI_COORDINATE_ADMIN_TOKEN. Use HTTPS and do not share this token with farmers.</p>
+      </div>
+      <div class="panel p-4 sm:p-5 xl:col-span-3 space-y-4">
+        <div><p class="eyebrow">HarvestRoute optimizer</p><h2 class="text-xl font-bold text-emerald-950" style="font-family:'Roboto Slab',serif">Which mandi gives the best estimated net return?</h2><p class="muted text-xs mt-1">Uses the latest recorded price per market and the transport assumptions below.</p></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <label class="text-xs font-bold muted">Quantity (quintals)<input id="quantity-qtl" class="field mt-1" type="number" min="0.1" step="0.1" value="10" /></label>
+          <label class="text-xs font-bold muted">Transport rate (₹/km)<input id="rate-km" class="field mt-1" type="number" min="0" step="1" value="20" /><span class="block text-[10px] font-normal mt-1">Example only; replace with a local transporter quote.</span></label>
+          <label class="text-xs font-bold muted">Fixed vehicle fee (₹)<input id="fixed-cost" class="field mt-1" type="number" min="0" step="10" value="0" /></label>
+          <label class="text-xs font-bold muted">Handling (₹)<input id="handling-cost" class="field mt-1" type="number" min="0" step="10" value="0" /></label>
+          <label class="text-xs font-bold muted">Market fee (%)<input id="market-fee" class="field mt-1" type="number" min="0" max="100" step="0.1" value="0" /></label>
+          <label class="text-xs font-bold muted">Produce loss (%)<input id="loss-pct" class="field mt-1" type="number" min="0" max="99" step="0.1" value="0" /></label>
+          <label class="text-xs font-bold muted">Vehicle routing<select id="route-profile" class="field mt-1"><option value="trucking">Truck</option><option value="driving">Car</option><option value="biking">Two-wheeler</option></select></label>
+          <label class="flex items-center gap-2 text-xs font-bold muted pt-5"><input id="round-trip" type="checkbox" checked /> Round-trip transport</label>
+        </div>
+        <button id="run-optimizer" class="btn-primary">Calculate net-return ranking</button>
+        <div id="optimizer-notice" class="text-xs muted" role="status"></div>
+        <div id="optimizer-results" class="table-wrap"><p class="text-xs muted">Set your location and confirm mandi coordinates to calculate a market comparison.</p></div>
+      </div>
+    </section>
+
+    <footer class="text-xs muted flex flex-col sm:flex-row justify-between gap-2 py-2"><span>CropMandi AI · HarvestRoute</span><span>Historical data · experimental models · user-configured transport costs</span></footer>
+  </main>
+
+  <script src="../js/api.js?v=harvestroute-1"></script>
+  <script src="../js/harvestroute.js?v=harvestroute-1"></script>
+</body>
+</html>
