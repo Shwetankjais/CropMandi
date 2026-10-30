@@ -48,7 +48,7 @@
   }
 
   function commodity() {
-    return cropSelect && cropSelect.value === "pepper" ? "pepper" : "coffee";
+    return cropSelect && cropSelect.value ? cropSelect.value : "coffee";
   }
 
   function selectedSeries() {
@@ -174,27 +174,29 @@
       errorEl.classList.add("hidden");
       errorEl.textContent = "";
     }
+    var observedPrice = payload.latest_observed_price !== undefined ? payload.latest_observed_price : payload.price;
+    var predPrice = payload.predicted_price !== undefined ? payload.predicted_price : payload.next_session_estimate;
+
     if (latestPriceEl) {
-      latestPriceEl.textContent = formatPrice(payload.latest_observed_price);
+      latestPriceEl.textContent = formatPrice(observedPrice);
     }
     if (nextPriceEl) {
-      nextPriceEl.textContent = formatPrice(payload.next_session_estimate);
+      nextPriceEl.textContent = formatPrice(predPrice);
     }
     if (latestDateEl) {
       latestDateEl.textContent = formatDate(payload.latest_observation_date);
     }
     if (targetEl) {
-      if (payload.next_session_known && (payload.target_session || payload.next_session)) {
-        targetEl.textContent = formatDate(payload.target_session || payload.next_session);
-      } else {
-        targetEl.textContent = "—";
-      }
+      var targetDateVal = payload.prediction_date || payload.target_session || payload.next_session;
+      targetEl.textContent = targetDateVal ? formatDate(targetDateVal) : "—";
     }
     if (unitEl) {
-      unitEl.textContent = unitLabel(payload.unit);
+      unitEl.textContent = payload.unit_display || unitLabel(payload.unit);
     }
     if (methodEl) {
-      methodEl.textContent = payload.method
+      methodEl.textContent = payload.model_name
+        ? "Model: " + payload.model_name
+        : payload.method
         ? "Method: " + String(payload.method).replace(/_/g, " ")
         : "";
     }
@@ -204,55 +206,103 @@
         : "";
     }
     if (noteEl) {
-      noteEl.textContent = payload.note || "";
+      noteEl.textContent = payload.prediction_type === "ML prediction"
+        ? "Trained ExtraTreesRegressor pipeline on 73k+ records. 15 features evaluated."
+        : payload.note || "Baseline estimate repeating latest observed rate.";
     }
     if (warningEl) {
       warningEl.textContent = "";
     }
+
+    // Difference pill
+    var diffPill = $("dash-est-diff-pill");
+    if (diffPill) {
+      if (payload.price_diff !== undefined && payload.pct_change !== undefined) {
+        var diff = payload.price_diff;
+        var pct = payload.pct_change;
+        var sign = diff > 0 ? "+" : "";
+        diffPill.textContent = sign + formatPrice(diff) + " (" + sign + pct.toFixed(2) + "%)";
+        diffPill.className = "text-xs font-bold px-2.5 py-0.5 rounded-full " + (diff > 0 ? "bg-primary/10 text-primary" : diff < 0 ? "bg-error/10 text-error" : "bg-surface-variant/20 text-on-surface-variant");
+        diffPill.classList.remove("hidden");
+      } else {
+        diffPill.classList.add("hidden");
+      }
+    }
+
+    // Gross Revenue card
+    var grossEl = $("dash-est-gross-value");
+    if (grossEl && payload.estimated_gross_value !== undefined) {
+      grossEl.textContent = "₹" + Number(payload.estimated_gross_value).toLocaleString("en-IN");
+    }
+    var grossSub = $("dash-est-gross-sub");
+    if (grossSub && payload.quantity) {
+      grossSub.textContent = payload.quantity + " Quintals @ " + formatPrice(predPrice) + " / " + (payload.unit_display || payload.unit || "quintal");
+    }
+
     var recCrop = $("dash-rec-crop");
     var recVariety = $("dash-rec-variety");
     if (recCrop) {
-      recCrop.textContent = commodity() === "pepper" ? "Black Pepper" : "Coffee";
+      recCrop.textContent = payload.commodity || (commodity() === "pepper" ? "Black Pepper" : commodity().charAt(0).toUpperCase() + commodity().slice(1));
     }
     if (recVariety) {
-      recVariety.textContent = payload.series || selectedSeries() || "—";
+      recVariety.textContent = payload.variety || payload.series || selectedSeries() || "—";
     }
     updateContext();
   }
 
   function loadEstimate() {
-    if (!window.CropMandiAPI || !CropMandiAPI.getNextSessionEstimate) {
-      showError(ERROR_MESSAGE);
-      return;
-    }
+    var code = commodity();
     var series = selectedSeries();
-    if (!series) {
-      return;
-    }
+    var location = locationSelect ? locationSelect.value : "";
+    var targetDateInput = $("dash-date");
+    var targetDate = (targetDateInput && targetDateInput.value) ? targetDateInput.value : null;
+    var qtyInput = $("dash-quantity");
+    var quantity = qtyInput ? parseFloat(qtyInput.value) || 50 : 50;
+
     var seq = ++requestSeq;
     updateContext();
     setLoading(true);
-    CropMandiAPI.getNextSessionEstimate(commodity(), series)
-      .then(function (payload) {
-        if (seq !== requestSeq) {
-          return;
-        }
-        if (!payload) {
-          showError(ERROR_MESSAGE);
-          return;
-        }
-        render(payload);
-      })
-      .catch(function (err) {
-        if (seq !== requestSeq) {
-          return;
-        }
-        if (err && (err.status === 404 || err.code === "no_available_observations")) {
-          showError(INSUFFICIENT_MESSAGE);
-          return;
-        }
-        showError(INSUFFICIENT_MESSAGE);
-      });
+
+    if (window.CropMandiAPI && CropMandiAPI.predictPrice) {
+      var payload = {
+        commodity: code,
+        variety: series || "DEFAULT",
+        grade: "AVERAGE",
+        market: location || "DEFAULT",
+        prediction_date: targetDate,
+        quantity: quantity,
+        quantity_unit: "quintal",
+        user_id: window.CropMandiAuth ? CropMandiAuth.firstName() : "default_farmer"
+      };
+
+      CropMandiAPI.predictPrice(payload)
+        .then(function (result) {
+          if (seq !== requestSeq) return;
+          if (!result || !result.success) {
+            showError(ERROR_MESSAGE);
+            return;
+          }
+          render(result);
+        })
+        .catch(function () {
+          if (seq !== requestSeq) return;
+          // Fallback to legacy endpoint if available
+          if (CropMandiAPI.getNextSessionEstimate && (code === "coffee" || code === "pepper")) {
+            CropMandiAPI.getNextSessionEstimate(code, series)
+              .then(function (legacy) {
+                if (seq !== requestSeq) return;
+                render(legacy);
+              })
+              .catch(function () {
+                showError(INSUFFICIENT_MESSAGE);
+              });
+          } else {
+            showError(INSUFFICIENT_MESSAGE);
+          }
+        });
+    } else {
+      showError(ERROR_MESSAGE);
+    }
   }
 
   function init() {
@@ -277,10 +327,15 @@
     if (!cropSelect || !seriesSelect || !bodyEl) {
       return;
     }
-    cropSelect.addEventListener("change", loadEstimate);
+    cropSelect.addEventListener("change", function () {
+      setTimeout(loadEstimate, 200);
+    });
     seriesSelect.addEventListener("change", loadEstimate);
     if (locationSelect) {
-      locationSelect.addEventListener("change", updateContext);
+      locationSelect.addEventListener("change", function () {
+        updateContext();
+        loadEstimate();
+      });
       if (window.MutationObserver) {
         new MutationObserver(updateContext).observe(locationSelect, {
           childList: true,
@@ -289,10 +344,30 @@
         });
       }
     }
+    var dateInput = $("dash-date");
+    if (dateInput) {
+      dateInput.addEventListener("change", loadEstimate);
+    }
+    var qtyInput = $("dash-quantity");
+    if (qtyInput) {
+      qtyInput.addEventListener("change", loadEstimate);
+    }
+    var qtyInc = $("dash-qty-inc");
+    if (qtyInc) {
+      qtyInc.addEventListener("click", function () {
+        setTimeout(loadEstimate, 100);
+      });
+    }
+    var qtyDec = $("dash-qty-dec");
+    if (qtyDec) {
+      qtyDec.addEventListener("click", function () {
+        setTimeout(loadEstimate, 100);
+      });
+    }
     if (refreshButton) {
       refreshButton.addEventListener("click", loadEstimate);
     }
-    loadEstimate();
+    setTimeout(loadEstimate, 300);
   }
 
   if (document.readyState === "loading") {

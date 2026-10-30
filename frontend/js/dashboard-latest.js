@@ -57,28 +57,64 @@
   }
 
   function commodity() {
-    return cropSelect && cropSelect.value === "pepper" ? "pepper" : "coffee";
+    return cropSelect && cropSelect.value ? cropSelect.value : "coffee";
   }
 
   function seriesForCommodity(code) {
-    return code === "pepper" ? PEPPER_SERIES : COFFEE_SERIES;
+    if (code === "pepper") return PEPPER_SERIES;
+    if (code === "coffee") return COFFEE_SERIES;
+    return [];
   }
 
-  function fillSeriesOptions() {
+  function fillSeriesOptions(callback) {
     if (!seriesSelect) {
+      if (callback) callback();
       return;
     }
-    var names = seriesForCommodity(commodity());
-    var previous = seriesSelect.value;
-    seriesSelect.innerHTML = "";
-    names.forEach(function (name) {
-      var opt = document.createElement("option");
-      opt.value = name;
-      opt.textContent = name;
-      seriesSelect.appendChild(opt);
-    });
-    if (names.indexOf(previous) !== -1) {
-      seriesSelect.value = previous;
+    var code = commodity();
+    var previous = seriesSelect.value || localStorage.getItem("cropmandi_dash_variety") || "";
+
+    if (code === "coffee" || code === "pepper") {
+      var names = seriesForCommodity(code);
+      seriesSelect.innerHTML = "";
+      names.forEach(function (name) {
+        var opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        seriesSelect.appendChild(opt);
+      });
+      if (names.indexOf(previous) !== -1) {
+        seriesSelect.value = previous;
+      } else if (names.length > 0) {
+        seriesSelect.value = names[0];
+      }
+      if (callback) callback();
+      return;
+    }
+
+    if (window.CropMandiAPI && CropMandiAPI.getCommodityOptions) {
+      CropMandiAPI.getCommodityOptions(code)
+        .then(function (res) {
+          var names = (res && res.varieties) || ["LOCAL"];
+          seriesSelect.innerHTML = "";
+          names.forEach(function (name) {
+            var opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = name;
+            seriesSelect.appendChild(opt);
+          });
+          if (names.indexOf(previous) !== -1) {
+            seriesSelect.value = previous;
+          } else if (names.length > 0) {
+            seriesSelect.value = names[0];
+          }
+          if (callback) callback();
+        })
+        .catch(function () {
+          if (callback) callback();
+        });
+    } else {
+      if (callback) callback();
     }
   }
 
@@ -572,10 +608,51 @@
     // For Coffee, we need to filter locations by variety
     if (code === "coffee") {
       loadLocationsForCoffeeVariety(seq, previous);
-    } else {
+    } else if (code === "pepper") {
       // For Pepper, use existing behavior
       loadLocationsForCommodity(code, seq, previous);
+    } else {
+      // For Tomato, Potato, Maize, Paddy
+      loadLocationsForVegetable(code, seq, previous);
     }
+  }
+
+  function loadLocationsForVegetable(code, seq, previous) {
+    if (!window.CropMandiAPI || !CropMandiAPI.getCommodityOptions) {
+      showError(ERROR_MESSAGE);
+      return;
+    }
+    CropMandiAPI.getCommodityOptions(code)
+      .then(function (options) {
+        if (seq !== requestSeq) return;
+        var locations = options.locations || [];
+        var markets = options.markets || [];
+        locationSelect.innerHTML = "";
+        if (!locations.length) {
+          showEmpty();
+          return;
+        }
+        locations.forEach(function (loc) {
+          var opt = document.createElement("option");
+          opt.value = loc.market;
+          opt.textContent = loc.market + (loc.district ? " (" + loc.district + ")" : "");
+          locationSelect.appendChild(opt);
+        });
+        if (previous && markets.indexOf(previous) !== -1) {
+          locationSelect.value = previous;
+        } else if (markets.length > 0) {
+          locationSelect.value = markets[0];
+        }
+        locationSelect.disabled = false;
+        if (locationSelect.value) {
+          localStorage.setItem("cropmandi_dash_location", locationSelect.value);
+        }
+        loadLocationData(seq);
+      })
+      .catch(function () {
+        if (seq !== requestSeq) return;
+        showError(ERROR_MESSAGE);
+      });
   }
 
   function loadLocationsForCommodity(code, seq, previous) {
@@ -733,10 +810,6 @@
   }
 
   function loadLocationData(existingSeq) {
-    if (!window.CropMandiAPI || !CropMandiAPI.getMarketCentres || !CropMandiAPI.getMarketPrices) {
-      showError(ERROR_MESSAGE);
-      return;
-    }
     var code = commodity();
     var location = locationSelect.value;
     if (!location) {
@@ -744,6 +817,32 @@
     }
     var seq = existingSeq || ++requestSeq;
     setLoading(true);
+
+    if (code !== "coffee" && code !== "pepper") {
+      if (!window.CropMandiAPI || !CropMandiAPI.getAnalytics) {
+        showError(ERROR_MESSAGE);
+        return;
+      }
+      CropMandiAPI.getAnalytics(code, location, 30)
+        .then(function (payload) {
+          if (seq !== requestSeq) return;
+          setLoading(false);
+          tableStatus.classList.add("hidden");
+          renderVegetableData(code, location, payload);
+        })
+        .catch(function () {
+          if (seq !== requestSeq) return;
+          setLoading(false);
+          tableStatus.classList.add("hidden");
+          showError(ERROR_MESSAGE);
+        });
+      return;
+    }
+
+    if (!window.CropMandiAPI || !CropMandiAPI.getMarketCentres || !CropMandiAPI.getMarketPrices) {
+      showError(ERROR_MESSAGE);
+      return;
+    }
     Promise.all([
       CropMandiAPI.getMarketCentres(code, location),
       CropMandiAPI.getMarketPrices(code, location),
@@ -775,6 +874,95 @@
         tableStatus.classList.add("hidden");
         showError(ERROR_MESSAGE);
       });
+  }
+
+  function renderVegetableData(code, location, payload) {
+    if (!payload || !payload.available) {
+      showEmpty();
+      return;
+    }
+    var latest = payload.latest || {};
+    var price = latest.price;
+    var unit = latest.unit || "Rs./Quintal";
+    var date = latest.date;
+
+    if (latestPriceEl) {
+      latestPriceEl.textContent = Number.isFinite(price) ? "₹" + Number(price).toLocaleString("en-IN") : "—";
+    }
+    if (latestUnitEl) {
+      latestUnitEl.textContent = unit;
+    }
+    if (latestMetaEl) {
+      latestMetaEl.textContent = (seriesSelect ? seriesSelect.value : code.toUpperCase()) + " · " + unit + " · " + location + (date ? " · as of " + date : "");
+    }
+    var priceDateEl = $("dash-price-date");
+    if (priceDateEl) {
+      priceDateEl.textContent = date || "—";
+    }
+    var priceSourceEl = $("dash-price-source");
+    if (priceSourceEl) {
+      priceSourceEl.textContent = "AGMARKNET 2025-2026 dataset";
+    }
+    if (locationLabelEl) {
+      locationLabelEl.textContent = location;
+    }
+    if (recCropEl) {
+      recCropEl.textContent = code.charAt(0).toUpperCase() + code.slice(1);
+    }
+    if (recVarietyEl) {
+      recVarietyEl.textContent = (seriesSelect ? seriesSelect.value : "LOCAL");
+    }
+
+    var comparisons = payload.market_comparison || [];
+    tableBody.innerHTML = "";
+    if (comparisons.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="4" class="px-3 py-4 text-center text-on-surface-variant">No comparison markets found</td></tr>';
+    } else {
+      comparisons.forEach(function (row) {
+        var tr = document.createElement("tr");
+        tr.className = "border-b border-outline-variant/10";
+        var tdName = document.createElement("td");
+        tdName.className = "px-3 py-2 text-on-background font-medium";
+        tdName.textContent = row.centre + (row.district ? " (" + row.district + ")" : "");
+
+        var tdPrice = document.createElement("td");
+        tdPrice.className = "px-3 py-2 text-right text-on-background font-semibold";
+        tdPrice.textContent = Number.isFinite(row.price) ? "₹" + Number(row.price).toLocaleString("en-IN") : "—";
+
+        var tdDate = document.createElement("td");
+        tdDate.className = "px-3 py-2 text-right text-on-surface-variant";
+        tdDate.textContent = row.date || "—";
+
+        var tdSource = document.createElement("td");
+        tdSource.className = "px-3 py-2 text-on-surface-variant";
+        tdSource.textContent = "AGMARKNET";
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdPrice);
+        tr.appendChild(tdDate);
+        tr.appendChild(tdSource);
+        tableBody.appendChild(tr);
+      });
+
+      var best = comparisons[0];
+      if (bestApmcEl) {
+        bestApmcEl.textContent = best.centre + (best.district ? " (" + best.district + ")" : "");
+      }
+      if (bestApmcPriceEl) {
+        bestApmcPriceEl.textContent = "₹" + Number(best.price).toLocaleString("en-IN") + " · " + (best.unit || "Rs./Quintal");
+      }
+    }
+
+    if (centresList) {
+      centresList.innerHTML = "";
+      var li = document.createElement("li");
+      li.className = "truncate text-on-surface-variant";
+      li.textContent = location + " (Direct APMC Mandi)";
+      centresList.appendChild(li);
+    }
+    if (centresLocationEl) {
+      centresLocationEl.textContent = "Mandi: " + location;
+    }
   }
 
   function refreshSelectedHighlight() {
@@ -812,66 +1000,62 @@
       return;
     }
     
-    // First, populate the commodity dropdown with proper options
+    // Populate the commodity dropdown with all 6 supported commodities
+    var commodities = [
+      { value: "coffee", label: "Coffee" },
+      { value: "pepper", label: "Black Pepper" },
+      { value: "potato", label: "Potato" },
+      { value: "tomato", label: "Tomato" },
+      { value: "maize", label: "Maize" },
+      { value: "paddy", label: "Paddy" },
+    ];
     cropSelect.innerHTML = "";
-    var coffeeOpt = document.createElement("option");
-    coffeeOpt.value = "coffee";
-    coffeeOpt.textContent = "Coffee";
-    cropSelect.appendChild(coffeeOpt);
-    var pepperOpt = document.createElement("option");
-    pepperOpt.value = "pepper";
-    pepperOpt.textContent = "Black Pepper";
-    cropSelect.appendChild(pepperOpt);
+    commodities.forEach(function (c) {
+      var opt = document.createElement("option");
+      opt.value = c.value;
+      opt.textContent = c.label;
+      cropSelect.appendChild(opt);
+    });
     
-    // Restore saved state from localStorage IMMEDIATELY
+    // Restore saved state from localStorage
     var savedCommodity = localStorage.getItem("cropmandi_dash_commodity");
-    console.log("Dashboard init - saved commodity:", savedCommodity);
-    if (savedCommodity && (savedCommodity === "coffee" || savedCommodity === "pepper")) {
+    var validCodes = ["coffee", "pepper", "potato", "tomato", "maize", "paddy"];
+    if (savedCommodity && validCodes.indexOf(savedCommodity) !== -1) {
       cropSelect.value = savedCommodity;
-      console.log("Dashboard init - restored commodity to:", cropSelect.value);
     } else {
-      // Only set default if no saved state exists
       cropSelect.value = "coffee";
-      console.log("Dashboard init - no saved commodity, defaulting to coffee");
+    }
+
+    // Set default target prediction date if empty
+    var dateInput = $("dash-date");
+    if (dateInput && !dateInput.value) {
+      var tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      dateInput.value = tomorrow.toISOString().split("T")[0];
     }
     
     // Fill series options based on restored commodity
-    fillSeriesOptions();
-    
-    var savedVariety = localStorage.getItem("cropmandi_dash_variety");
-    console.log("Dashboard init - saved variety:", savedVariety);
-    if (savedVariety) {
-      // Check if the saved variety exists in the current options
-      var varietyExists = false;
-      for (var i = 0; i < seriesSelect.options.length; i++) {
-        if (seriesSelect.options[i].value === savedVariety) {
-          seriesSelect.value = savedVariety;
-          varietyExists = true;
-          console.log("Dashboard init - restored variety to:", seriesSelect.value);
-          break;
+    fillSeriesOptions(function () {
+      var savedVariety = localStorage.getItem("cropmandi_dash_variety");
+      if (savedVariety) {
+        for (var i = 0; i < seriesSelect.options.length; i++) {
+          if (seriesSelect.options[i].value === savedVariety) {
+            seriesSelect.value = savedVariety;
+            break;
+          }
         }
       }
-    } else {
-      // Only set default variety if no saved state exists
-      if (seriesSelect.options.length > 0) {
-        seriesSelect.value = seriesSelect.options[0].value;
-        console.log("Dashboard init - no saved variety, defaulting to first option");
-      }
-    }
+    });
     
     var savedQuantity = localStorage.getItem("cropmandi_dash_quantity");
-    console.log("Dashboard init - saved quantity:", savedQuantity);
     if (savedQuantity && quantityInput) {
       quantityInput.value = savedQuantity;
-      console.log("Dashboard init - restored quantity to:", quantityInput.value);
     } else if (quantityInput) {
-      // Only set default quantity if no saved state exists
       quantityInput.value = "50";
-      console.log("Dashboard init - no saved quantity, defaulting to 50");
     }
     
     function persistDashboardSelection() {
-      if (cropSelect && (cropSelect.value === "coffee" || cropSelect.value === "pepper")) {
+      if (cropSelect && cropSelect.value) {
         localStorage.setItem("cropmandi_dash_commodity", cropSelect.value);
       }
       if (seriesSelect && seriesSelect.value) {
@@ -890,6 +1074,12 @@
 
     cropSelect.addEventListener("change", function () {
       localStorage.setItem("cropmandi_dash_commodity", cropSelect.value);
+      fillSeriesOptions(function () {
+        persistDashboardSelection();
+        updateOutlookSelection();
+        loadLocations();
+      });
+    });
       fillSeriesOptions();
       persistDashboardSelection();
       updateOutlookSelection();

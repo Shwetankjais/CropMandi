@@ -27,6 +27,29 @@
       { id: "Cochin Garbled", name: "Cochin Garbled" },
       { id: "Malabar Garbled", name: "Malabar Garbled" },
     ],
+    potato: [
+      { id: "Jyothi", name: "Jyothi" },
+      { id: "Potato", name: "Local / Common Potato" },
+      { id: "Other", name: "Other Grades" },
+    ],
+    tomato: [
+      { id: "Hybrid", name: "Hybrid Tomato" },
+      { id: "Local", name: "Local Desi Tomato" },
+      { id: "Tomato", name: "Common Mandi Grade" },
+    ],
+    maize: [
+      { id: "Hybrid", name: "Hybrid Maize" },
+      { id: "Local", name: "Local Desi Maize" },
+      { id: "Yellow", name: "Yellow Maize" },
+      { id: "Maize", name: "Common Mandi Grade" },
+    ],
+    paddy: [
+      { id: "Sona Masuri", name: "Sona Masuri" },
+      { id: "Basmati", name: "Basmati" },
+      { id: "Common", name: "Common Paddy" },
+      { id: "IR 64", name: "IR 64" },
+      { id: "Raw", name: "Raw Paddy" },
+    ],
   };
 
   // Geo APMC Centers across Southern India
@@ -181,6 +204,108 @@
       trend: "+0.9% Neutral",
       type: "Interstate Agro Hub",
     },
+    {
+      id: "kolar",
+      name: "Kolar APMC Market",
+      state: "Karnataka",
+      district: "Kolar",
+      x: 255,
+      y: 225,
+      coffeePrice: 22000,
+      coffeeUnit: "50kg",
+      pepperPrice: 730,
+      pepperUnit: "kg",
+      vegPrices: { tomato: 1250, potato: 2100, maize: 2150, paddy: 2450 },
+      vegUnit: "Qtl",
+      tier: "high",
+      trend: "+2.4% Bullish",
+      type: "Asia's 2nd Largest Tomato Mandi",
+    },
+    {
+      id: "bengaluru",
+      name: "Bengaluru (Binny Mill / Yeshwanthpur)",
+      state: "Karnataka",
+      district: "Bengaluru Urban",
+      x: 232,
+      y: 235,
+      coffeePrice: 23000,
+      coffeeUnit: "50kg",
+      pepperPrice: 740,
+      pepperUnit: "kg",
+      vegPrices: { tomato: 1300, potato: 2150, maize: 2200, paddy: 2500 },
+      vegUnit: "Qtl",
+      tier: "high",
+      trend: "+1.8% Bullish",
+      type: "State Capital Terminal Mandi",
+    },
+    {
+      id: "belagavi",
+      name: "Belagavi APMC",
+      state: "Karnataka",
+      district: "Belagavi",
+      x: 125,
+      y: 110,
+      coffeePrice: 21000,
+      coffeeUnit: "50kg",
+      pepperPrice: 725,
+      pepperUnit: "kg",
+      vegPrices: { tomato: 1150, potato: 1980, maize: 2100, paddy: 2420 },
+      vegUnit: "Qtl",
+      tier: "mid",
+      trend: "+0.9% Neutral",
+      type: "Northern Karnataka Hub",
+    },
+    {
+      id: "davanagere",
+      name: "Davanagere APMC",
+      state: "Karnataka",
+      district: "Davanagere",
+      x: 175,
+      y: 175,
+      coffeePrice: 21500,
+      coffeeUnit: "50kg",
+      pepperPrice: 730,
+      pepperUnit: "kg",
+      vegPrices: { tomato: 1100, potato: 1950, maize: 2220, paddy: 2510 },
+      vegUnit: "Qtl",
+      tier: "high",
+      trend: "+1.6% Bullish",
+      type: "Major Grain & Pulse Mandi",
+    },
+    {
+      id: "raichur",
+      name: "Raichur APMC",
+      state: "Karnataka",
+      district: "Raichur",
+      x: 220,
+      y: 105,
+      coffeePrice: 20500,
+      coffeeUnit: "50kg",
+      pepperPrice: 720,
+      pepperUnit: "kg",
+      vegPrices: { tomato: 1080, potato: 1900, maize: 2190, paddy: 2550 },
+      vegUnit: "Qtl",
+      tier: "high",
+      trend: "+1.3% Bullish",
+      type: "Tungabhadra Basin Rice Mandi",
+    },
+    {
+      id: "arakalgud",
+      name: "Arakalgud APMC",
+      state: "Karnataka",
+      district: "Hassan",
+      x: 185,
+      y: 240,
+      coffeePrice: 22500,
+      coffeeUnit: "50kg",
+      pepperPrice: 735,
+      pepperUnit: "kg",
+      vegPrices: { tomato: 1120, potato: 2020, maize: 2240, paddy: 2460 },
+      vegUnit: "Qtl",
+      tier: "high",
+      trend: "+1.5% Bullish",
+      type: "Hassan District Grain Centre",
+    },
   ];
 
   // DOM Elements
@@ -258,26 +383,74 @@
       currentSeries = series;
       currentDays = days;
 
-      // Parallel API calls
-      const [historyRes, latestRes, estimateRes, marketsRes] = await Promise.allSettled([
-        CropMandiAPI.getPriceHistory(commodity, series),
-        CropMandiAPI.getLatestPrices(commodity),
-        CropMandiAPI.getNextSessionEstimate(commodity, series),
-        CropMandiAPI.getMarketPrices(commodity, "Sakleshpur"),
-      ]);
+      const isVegetable = ["potato", "tomato", "maize", "paddy"].includes(commodity.toLowerCase());
 
-      const historyData = historyRes.status === "fulfilled" ? historyRes.value : null;
-      const latestData = latestRes.status === "fulfilled" ? latestRes.value : null;
-      const estimateData = estimateRes.status === "fulfilled" ? estimateRes.value : null;
-      const marketsData = marketsRes.status === "fulfilled" ? marketsRes.value : null;
+      let observations = [];
+      let latestData = null;
+      let estimateData = null;
+      let marketsData = null;
 
-      // 1. Process Observations
-      const observations = (historyData && Array.isArray(historyData.observations))
-        ? historyData.observations
-        : [];
+      if (isVegetable) {
+        const analyticsRes = await CropMandiAPI.getAnalytics(commodity, null, days);
+        if (analyticsRes && analyticsRes.available) {
+          observations = (analyticsRes.historical || []).map(h => ({
+            observation_date: h.date,
+            date: h.date,
+            price: h.price,
+            unit: h.unit,
+            series: h.series,
+          }));
+
+          latestData = {
+            prices: [{
+              series: series,
+              price: analyticsRes.latest ? analyticsRes.latest.price : 0,
+              unit: analyticsRes.latest ? analyticsRes.latest.unit : "Rs./Quintal",
+            }]
+          };
+
+          if (analyticsRes.prediction) {
+            estimateData = {
+              estimate: analyticsRes.prediction.estimate,
+              percentage_change: analyticsRes.prediction.percentage_change,
+              method: analyticsRes.prediction.method,
+              note: analyticsRes.prediction.note,
+              target_session: analyticsRes.prediction.target_session,
+            };
+          }
+
+          marketsData = {
+            centres: (analyticsRes.market_comparison || []).map(m => ({
+              centre: m.centre,
+              location: m.centre,
+              price: m.price,
+              unit: m.unit,
+              type: m.variety || series,
+              district: m.district,
+            }))
+          };
+        }
+      } else {
+        // Parallel API calls for Coffee & Pepper
+        const [historyRes, latestRes, estimateRes, marketsRes] = await Promise.allSettled([
+          CropMandiAPI.getPriceHistory(commodity, series),
+          CropMandiAPI.getLatestPrices(commodity),
+          CropMandiAPI.getNextSessionEstimate(commodity, series),
+          CropMandiAPI.getMarketPrices(commodity, "Sakleshpur"),
+        ]);
+
+        const historyData = historyRes.status === "fulfilled" ? historyRes.value : null;
+        latestData = latestRes.status === "fulfilled" ? latestRes.value : null;
+        estimateData = estimateRes.status === "fulfilled" ? estimateRes.value : null;
+        marketsData = marketsRes.status === "fulfilled" ? marketsRes.value : null;
+
+        observations = (historyData && Array.isArray(historyData.observations))
+          ? historyData.observations
+          : [];
+      }
 
       // Sort chronological
-      observations.sort((a, b) => new Date(a.observation_date) - new Date(b.observation_date));
+      observations.sort((a, b) => new Date(a.observation_date || a.date) - new Date(b.observation_date || b.date));
 
       // Slice to selected timeframe (last N days)
       const slicedPoints = observations.slice(-Math.max(days, 7));
@@ -293,6 +466,9 @@
 
       // 5. Update Southern India Vector Heatmap
       renderSouthernIndiaHeatmap(commodity);
+
+      // 6. Refresh Prediction Audit History
+      loadPredictionHistory();
 
     } catch (err) {
       console.error("Failed to load analytics data:", err);
@@ -510,7 +686,8 @@
     el.comparisonTbody.innerHTML = "";
 
     const rows = [];
-    const unit = commodity === "coffee" ? "50kg" : "kg";
+    const isVeg = ["potato", "tomato", "maize", "paddy"].includes(commodity.toLowerCase());
+    const unit = isVeg ? "Qtl" : (commodity === "coffee" ? "50kg" : "kg");
 
     // 1. Gather from backend centres if available
     if (marketsData && Array.isArray(marketsData.centres) && marketsData.centres.length > 0) {
@@ -528,8 +705,16 @@
 
     // 2. Add representative Southern APMC centers
     SOUTHERN_INDIA_APMCS.forEach(apmc => {
-      const price = commodity === "coffee" ? apmc.coffeePrice : apmc.pepperPrice;
-      const u = commodity === "coffee" ? apmc.coffeeUnit : apmc.pepperUnit;
+      let price = commodity === "coffee" ? apmc.coffeePrice : apmc.pepperPrice;
+      let u = commodity === "coffee" ? apmc.coffeeUnit : apmc.pepperUnit;
+      if (isVeg) {
+        if (apmc.vegPrices && apmc.vegPrices[commodity.toLowerCase()]) {
+          price = apmc.vegPrices[commodity.toLowerCase()];
+          u = apmc.vegUnit || "Qtl";
+        } else {
+          return;
+        }
+      }
       const isTop = apmc.tier === "high";
       rows.push({
         market: apmc.name,
@@ -593,9 +778,19 @@
     if (!el.mapPinsLayer) return;
     el.mapPinsLayer.innerHTML = "";
 
+    const isVeg = ["potato", "tomato", "maize", "paddy"].includes(commodity.toLowerCase());
+
     SOUTHERN_INDIA_APMCS.forEach(apmc => {
-      const price = commodity === "coffee" ? apmc.coffeePrice : apmc.pepperPrice;
-      const unit = commodity === "coffee" ? apmc.coffeeUnit : apmc.pepperUnit;
+      let price = commodity === "coffee" ? apmc.coffeePrice : apmc.pepperPrice;
+      let unit = commodity === "coffee" ? apmc.coffeeUnit : apmc.pepperUnit;
+      if (isVeg) {
+        if (apmc.vegPrices && apmc.vegPrices[commodity.toLowerCase()]) {
+          price = apmc.vegPrices[commodity.toLowerCase()];
+          unit = apmc.vegUnit || "Qtl";
+        } else {
+          return;
+        }
+      }
       const isHigh = apmc.tier === "high";
       const pinColor = isHigh ? "#004532" : apmc.tier === "mid" ? "#795900" : "#1b6b51";
 
@@ -622,6 +817,21 @@
         <circle cx="${apmc.x}" cy="${apmc.y}" r="2.5" fill="${pinColor}"/>
         <!-- Text Label -->
         <text x="${apmc.x + 9}" y="${apmc.y + 4}" font-family="'Roboto', sans-serif" font-size="9" font-weight="700" fill="#004532" class="drop-shadow-sm select-none">
+          ${apmc.name.split(" ")[0]}
+        </text>
+      `;
+
+      // Hover / interaction events
+      g.addEventListener("mouseenter", (e) => showTooltip(e, apmc, price, unit));
+      g.addEventListener("mousemove", (e) => positionTooltip(e));
+      g.addEventListener("mouseleave", hideTooltip);
+      g.addEventListener("click", () => {
+        showTooltip(null, apmc, price, unit, true);
+      });
+
+      el.mapPinsLayer.appendChild(g);
+    });
+  }
           ${apmc.name.split(" ")[0]}
         </text>
       `;
@@ -783,8 +993,97 @@
       el.resetMapView.addEventListener("click", hideTooltip);
     }
 
-    // Load initial analytics
+    // Load initial analytics & prediction history
     loadAllAnalytics();
+    loadPredictionHistory();
+  }
+
+  // Fetch and display prediction history
+  async function loadPredictionHistory() {
+    const tbody = document.getElementById("prediction-history-tbody");
+    const countBadge = document.getElementById("history-count-badge");
+    if (!tbody) return;
+
+    try {
+      const data = await CropMandiAPI.getPredictionHistory();
+      const list = (data && Array.isArray(data.history)) ? data.history : [];
+
+      if (countBadge) {
+        countBadge.textContent = `${list.length} Prediction${list.length === 1 ? '' : 's'}`;
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="p-6 text-center text-on-surface-variant">
+              No farmer predictions logged yet. Run predictions from the <a href="../cropmandi_ai_dashboard/code.html" class="text-primary font-bold hover:underline">Dashboard</a>.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = "";
+      list.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-surface-container-low/60 transition-colors border-b border-outline-variant/15";
+
+        const dt = p.created_at ? new Date(p.created_at).toLocaleString("en-IN", {
+          month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
+        }) : "Recent";
+
+        const unit = p.quantity_unit || "quintal";
+        const isPositive = (p.price_diff || 0) >= 0;
+        const diffText = (p.pct_change !== null && p.pct_change !== undefined)
+          ? `${isPositive ? '+' : ''}${p.pct_change.toFixed(1)}%`
+          : '—';
+
+        tr.innerHTML = `
+          <td class="p-4 text-xs text-on-surface-variant whitespace-nowrap">${dt}</td>
+          <td class="p-4 font-semibold text-on-surface">
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase">
+              ${p.commodity || '—'}
+            </span>
+            <span class="text-xs text-on-surface-variant ml-1">${p.variety || ''}</span>
+          </td>
+          <td class="p-4 text-sm font-medium text-on-surface">
+            ${p.market || '—'}
+            <span class="block text-xs text-on-surface-variant">${p.district || ''}</span>
+          </td>
+          <td class="p-4 text-xs font-semibold text-primary">${p.prediction_date || '—'}</td>
+          <td class="p-4 text-sm font-semibold text-on-surface">
+            ₹${formatINR(p.latest_observed_price)}
+          </td>
+          <td class="p-4 text-sm font-bold text-primary">
+            ₹${formatINR(p.predicted_price)}
+            <span class="block text-[11px] font-semibold ${isPositive ? 'text-surface-tint' : 'text-error'}">
+              ${diffText}
+            </span>
+          </td>
+          <td class="p-4 text-sm font-bold text-on-surface">
+            ₹${formatINR(p.estimated_gross_value)}
+            <span class="block text-[10px] text-on-surface-variant">${p.quantity || 50} ${unit}s</span>
+          </td>
+          <td class="p-4 text-xs">
+            <span class="px-2 py-1 rounded-md text-[11px] font-medium bg-surface-container-high text-on-surface">
+              ${p.model_name || 'ML Model'}
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (err) {
+      console.error("Failed to load prediction history:", err);
+      if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="p-4 text-center text-error">
+              Could not load prediction audit history.
+            </td>
+          </tr>
+        `;
+      }
+    }
   }
 
   if (document.readyState === "loading") {

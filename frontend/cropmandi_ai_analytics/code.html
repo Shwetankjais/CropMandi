@@ -258,6 +258,10 @@
 <select id="analytics-commodity" class="appearance-none bg-surface-container-low border border-transparent focus:border-primary rounded-lg py-2 pl-3 pr-8 text-label-sm font-label-sm text-on-surface shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] focus:ring-0 cursor-pointer outline-none hover:bg-surface-container transition-colors">
 <option value="coffee" selected>Crop: Coffee</option>
 <option value="pepper">Crop: Black Pepper</option>
+<option value="potato">Crop: Potato</option>
+<option value="tomato">Crop: Tomato</option>
+<option value="maize">Crop: Maize</option>
+<option value="paddy">Crop: Paddy</option>
 </select>
 <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-sm" data-icon="expand_more">expand_more</span>
 </div>
@@ -543,6 +547,40 @@ Export CSV <span class="material-symbols-outlined text-sm" data-icon="download">
 <tr>
 <td colspan="5" class="p-4 text-center text-on-surface-variant">
 Loading verified market data...
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- Data Table: Farmer Prediction History -->
+<section class="bg-surface-container-lowest rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.03)] border-t border-white/60 overflow-hidden mb-8">
+<div class="p-6 border-b border-outline-variant/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface">Farmer Prediction Audit History</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">Logged ML predictions and baseline estimates from farmer sessions</p>
+</div>
+<span class="text-xs font-semibold px-3 py-1 bg-primary/10 text-primary rounded-full" id="history-count-badge">0 Predictions</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">
+<th class="p-4 font-semibold border-b border-outline-variant/20">Timestamp</th>
+<th class="p-4 font-semibold border-b border-outline-variant/20">Commodity</th>
+<th class="p-4 font-semibold border-b border-outline-variant/20">Market / Mandi</th>
+<th class="p-4 font-semibold border-b border-outline-variant/20">Target Date</th>
+<th class="p-4 font-semibold border-b border-outline-variant/20">Observed Rate</th>
+<th class="p-4 font-semibold border-b border-outline-variant/20">Predicted Rate</th>
+<th class="p-4 font-semibold border-b border-outline-variant/20">Est. Gross Revenue</th>
+<th class="p-4 font-semibold border-b border-outline-variant/20">Model Engine</th>
+</tr>
+</thead>
+<tbody class="text-body-md font-data-tabular" id="prediction-history-tbody">
+<tr>
+<td colspan="8" class="p-4 text-center text-on-surface-variant">
+Loading prediction history...
 </td>
 </tr>
 </tbody>

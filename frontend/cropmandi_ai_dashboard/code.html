@@ -357,9 +357,12 @@
                       focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <select class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background
                            p-3 pr-10 cursor-pointer" id="dash-crop">
-              <option value="">Loading...</option>
-              <option value="coffee" data-i18n-option="dashboard.coffee">Coffee</option>
+              <option value="coffee" data-i18n-option="dashboard.coffee" selected>Coffee</option>
               <option value="pepper" data-i18n-option="dashboard.blackPepper">Black Pepper</option>
+              <option value="potato">Potato</option>
+              <option value="tomato">Tomato</option>
+              <option value="maize">Maize</option>
+              <option value="paddy">Paddy</option>
             </select>
             <span class="material-symbols-outlined absolute right-3 top-3.5 text-outline pointer-events-none text-lg">
               expand_more</span>
@@ -369,7 +372,7 @@
         <!-- Variety -->
         <div class="w-full md:flex-1">
           <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2"
-                 for="dash-series" data-i18n="dashboard.variety">Variety</label>
+                 for="dash-series" data-i18n="dashboard.variety">Variety / Grade</label>
           <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent
                       focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <select class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background
@@ -384,7 +387,7 @@
         <!-- Location -->
         <div class="w-full md:flex-1">
           <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2"
-                 for="dash-location" data-i18n="dashboard.location">Location</label>
+                 for="dash-location" data-i18n="dashboard.location">Location (Mandi)</label>
           <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent
                       focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <select class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background
@@ -393,6 +396,17 @@
             </select>
             <span class="material-symbols-outlined absolute right-3 top-3.5 text-outline pointer-events-none text-lg">
               expand_more</span>
+          </div>
+        </div>
+
+        <!-- Target Prediction Date -->
+        <div class="w-full md:flex-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2"
+                 for="dash-date">Target Date</label>
+          <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent
+                      focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <input class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background
+                          p-3 cursor-pointer" type="date" id="dash-date"/>
           </div>
         </div>
 
@@ -466,13 +480,12 @@
         <span class="text-xs text-on-surface-variant block mt-1" id="dash-latest-meta"></span>
       </div>
 
-      <!-- Source -->
-      <div class="dash-card p-4">
-        <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant block mb-1"
-              data-i18n="dashboard.source">Source</span>
-        <span class="text-sm font-semibold text-on-background block mt-2 leading-snug"
-              id="dash-price-source">—</span>
-        <span class="text-xs text-on-surface-variant block mt-1" id="dash-source-note"></span>
+      <!-- Expected Revenue -->
+      <div class="dash-card p-4 stat-accent-amber">
+        <span class="text-xs font-bold uppercase tracking-wider text-secondary block mb-1">
+          Est. Gross Revenue</span>
+        <span class="text-2xl font-bold text-on-background block mt-1" id="dash-est-gross-value">₹—</span>
+        <span class="text-xs text-on-surface-variant block mt-1" id="dash-est-gross-sub">Price × Quantity</span>
       </div>
     </div>
 
@@ -495,13 +508,15 @@
       <!-- Next Session Estimate -->
       <div class="rounded-2xl border border-dashed border-outline/40 p-4 flex flex-col bg-surface"
            id="dash-est-body">
-        <p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant"
-           data-i18n="dashboard.nextSessionEstimate">Next-session estimate</p>
-        <p class="text-xs text-on-surface-variant mt-0.5"
-           data-i18n="dashboard.baselineOutput">Baseline output, not an observed price</p>
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant"
+             data-i18n="dashboard.nextSessionEstimate">Predicted Price</p>
+          <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary hidden" id="dash-est-diff-pill">+0%</span>
+        </div>
+        <p class="text-xs text-on-surface-variant mt-0.5" id="dash-est-type-label">Model forecast output</p>
         <p class="text-2xl font-bold text-on-background mt-2" id="dash-est-next-price">…</p>
         <p class="text-xs text-on-surface-variant mt-2">
-          <span data-i18n="dashboard.target">Target</span>
+          <span data-i18n="dashboard.target">Target Date</span>
           <span id="dash-est-target"> —</span>
         </p>
         <p class="text-xs text-on-background mt-2" id="dash-est-method"></p>

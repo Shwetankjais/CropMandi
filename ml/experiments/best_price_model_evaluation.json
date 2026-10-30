@@ -1,0 +1,65 @@
+{
+  "model_artifact": "ml/artifacts/best_price_model.joblib",
+  "feature_columns_artifact": "ml/artifacts/feature_columns.joblib",
+  "algorithm": "ExtraTreesRegressor (100 estimators, max_depth=10)",
+  "preprocessing_pipeline": "ColumnTransformer (StandardScaler on 12 numerics, OneHotEncoder on crop/market/district)",
+  "target_variable": "relative_return ((modal_next - modal_today) / modal_today)",
+  "prediction_formula": "predicted_price = modal_today * (1.0 + predicted_return)",
+  "evaluation_split": {
+    "strategy": "Chronological holdout (no lookahead leakage)",
+    "split_date": "2026-08-01",
+    "test_sample_count": 8854,
+    "date_range_test": "2026-08-01 to 2026-10-30"
+  },
+  "overall_metrics": {
+    "model_mae": 297.22,
+    "naive_mae": 341.28,
+    "model_rmse": 668.99,
+    "naive_rmse": 829.22,
+    "model_mape_pct": 11.99,
+    "naive_mape_pct": 13.69,
+    "overall_improvement_mae": 44.06
+  },
+  "commodity_breakdown": {
+    "MAIZE": {
+      "samples": 3097,
+      "model_mae": 239.32,
+      "naive_mae": 274.61,
+      "model_rmse": 535.93,
+      "naive_rmse": 678.39,
+      "model_mape_pct": 8.36,
+      "naive_mape_pct": 9.69,
+      "mae_improvement": 35.29
+    },
+    "PADDY": {
+      "samples": 2509,
+      "model_mae": 501.93,
+      "naive_mae": 599.2,
+      "model_rmse": 966.6,
+      "naive_rmse": 1197.46,
+      "model_mape_pct": 15.66,
+      "naive_mape_pct": 19.17,
+      "mae_improvement": 97.27
+    },
+    "POTATO": {
+      "samples": 1231,
+      "model_mae": 168.16,
+      "naive_mae": 189.42,
+      "model_rmse": 304.46,
+      "naive_rmse": 378.17,
+      "model_mape_pct": 9.13,
+      "naive_mape_pct": 10.31,
+      "mae_improvement": 21.26
+    },
+    "TOMATO": {
+      "samples": 2017,
+      "model_mae": 210.26,
+      "naive_mae": 215.52,
+      "model_rmse": 552.06,
+      "naive_rmse": 663.91,
+      "model_mape_pct": 14.75,
+      "naive_mape_pct": 15.08,
+      "mae_improvement": 5.26
+    }
+  }
+}

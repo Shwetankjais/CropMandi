@@ -24,6 +24,10 @@
     paymentHistory: "/api/payment/history",
     paymentStatus: "/api/payment/status",
     paymentCancel: "/api/payment/cancel",
+    commoditiesList: "/api/commodities/list",
+    commodityOptions: "/api/commodities/options",
+    predictPrice: "/api/predictions/price",
+    predictionHistory: "/api/predictions/history",
   };
 
   function endpoint(path, query) {
@@ -177,6 +181,26 @@
     return postJson(API_PATHS.paymentCancel, { razorpay_order_id: orderId });
   }
 
+  function getCommoditiesList() {
+    return getJson(API_PATHS.commoditiesList);
+  }
+
+  function getCommodityOptions(commodity) {
+    return getJson(API_PATHS.commodityOptions, { commodity: commodity });
+  }
+
+  function predictPrice(payload) {
+    return postJson(API_PATHS.predictPrice, payload);
+  }
+
+  function getPredictionHistory(userId, commodity, limit) {
+    return getJson(API_PATHS.predictionHistory, {
+      user_id: userId || "default_farmer",
+      commodity: commodity,
+      limit: limit || 20,
+    });
+  }
+
   global.CropMandiAPI = {
     baseUrl: API_BASE_URL,
     paths: API_PATHS,
@@ -201,5 +225,9 @@
     getPaymentHistory: getPaymentHistory,
     getPaymentStatus: getPaymentStatus,
     cancelPayment: cancelPayment,
+    getCommoditiesList: getCommoditiesList,
+    getCommodityOptions: getCommodityOptions,
+    predictPrice: predictPrice,
+    getPredictionHistory: getPredictionHistory,
   };
 })(window);

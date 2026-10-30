@@ -39,8 +39,13 @@ def analytics_response(
     All data is verified from real sources - no hardcoded values.
     """
     # Cardamom is not currently supported
-    if commodity == "cardamom":
+    commodity_code = commodity.strip().lower()
+    if commodity_code == "cardamom":
         return _no_data_response(commodity, location, "Cardamom data not currently available")
+
+    # Grain & Vegetable crops: Tomato, Maize, Paddy, Potato
+    if commodity_code in {"tomato", "maize", "paddy", "potato"}:
+        return _vegetable_analytics_response(session, commodity_code, location, days)
     
     # For Coffee and Pepper, fetch real data from existing providers
     try:
@@ -255,3 +260,169 @@ def _build_regional_data(commodity: str, location: str, market_data: dict) -> li
             })
     
     return regional
+
+
+def _vegetable_analytics_response(
+    session: Session,
+    crop_code: str,
+    location: str | None,
+    days: int,
+) -> dict[str, Any]:
+    from sqlalchemy import desc, func, select
+    from cropmandi.db.models import CropMarketObservation
+    from ml.unified_prediction_service import predict_price
+
+    default_markets = {
+        "tomato": "KOLAR",
+        "potato": "BENGALURU",
+        "maize": "ARAKALGUD",
+        "paddy": "SHIVAMOGGA",
+    }
+    market_name = (location or default_markets.get(crop_code, "KOLAR")).strip().upper()
+
+    stmt = (
+        select(CropMarketObservation)
+        .where(
+            CropMarketObservation.crop_code == crop_code,
+            func.upper(CropMarketObservation.market_name) == market_name,
+        )
+        .order_by(desc(CropMarketObservation.market_date))
+    )
+    rows = session.scalars(stmt.limit(max(days, 30))).all()
+    if not rows:
+        stmt_fallback = (
+            select(CropMarketObservation)
+            .where(CropMarketObservation.crop_code == crop_code)
+            .order_by(desc(CropMarketObservation.market_date))
+        )
+        rows = session.scalars(stmt_fallback.limit(max(days, 30))).all()
+        if rows:
+            market_name = rows[0].market_name.upper()
+
+    if not rows:
+        return _no_data_response(crop_code, location, f"No observations found for {crop_code}")
+
+    chronological = list(reversed(rows))
+    latest = chronological[-1]
+    latest_price = float(latest.modal_price)
+    unit_label = "Rs./Quintal"
+    latest_date = latest.market_date.isoformat()
+
+    historical = [
+        {
+            "date": r.market_date.isoformat(),
+            "price": float(r.modal_price),
+            "unit": unit_label,
+            "series": r.variety or crop_code.title(),
+        }
+        for r in chronological
+    ]
+
+    trend = "NEUTRAL"
+    trend_percentage = 0.0
+    if len(chronological) >= 2:
+        first_p = float(chronological[0].modal_price)
+        last_p = float(chronological[-1].modal_price)
+        if first_p > 0:
+            trend_percentage = round(((last_p - first_p) / first_p) * 100, 2)
+            if trend_percentage > 2.0:
+                trend = "BULLISH"
+            elif trend_percentage < -2.0:
+                trend = "BEARISH"
+
+    prediction = None
+    try:
+        pred_res = predict_price(
+            session=session,
+            commodity=crop_code,
+            variety=latest.variety,
+            grade=latest.grade,
+            market=market_name,
+            district=latest.district,
+            state=latest.state,
+            prediction_date=None,
+            quantity=50.0,
+            persist=False,
+        )
+        prediction = {
+            "estimate": pred_res["predicted_price"],
+            "percentage_change": pred_res["pct_change"],
+            "method": pred_res["model_name"],
+            "note": "AI multi-crop regression forecast",
+            "target_session": pred_res["prediction_date"],
+        }
+    except Exception as exc:
+        pass
+
+    sub_q = (
+        select(
+            CropMarketObservation.market_name,
+            CropMarketObservation.district,
+            func.max(CropMarketObservation.market_date).label("max_date"),
+        )
+        .where(CropMarketObservation.crop_code == crop_code)
+        .group_by(CropMarketObservation.market_name, CropMarketObservation.district)
+        .subquery()
+    )
+    comp_stmt = (
+        select(CropMarketObservation)
+        .join(
+            sub_q,
+            (CropMarketObservation.market_name == sub_q.c.market_name)
+            & (CropMarketObservation.market_date == sub_q.c.max_date),
+        )
+        .where(CropMarketObservation.crop_code == crop_code)
+        .order_by(desc(CropMarketObservation.modal_price))
+        .limit(6)
+    )
+    comp_rows = session.scalars(comp_stmt).all()
+    market_comparison = [
+        {
+            "centre": r.market_name,
+            "district": r.district,
+            "price": float(r.modal_price),
+            "unit": unit_label,
+            "date": r.market_date.isoformat(),
+            "variety": r.variety,
+        }
+        for r in comp_rows
+    ]
+
+    regional_data = [
+        {
+            "location": r.market_name,
+            "price": float(r.modal_price),
+            "unit": unit_label,
+            "date": r.market_date.isoformat(),
+        }
+        for r in comp_rows
+    ]
+
+    source_info = {
+        "data_status": "AGMARKNET_VERIFIED_EXPORT",
+        "data_usage": "ML_PREDICTION_AND_HISTORICAL_ANALYSIS",
+        "provenance": "AGMARKNET 2025-2026 dataset",
+        "observation_date": latest_date,
+    }
+
+    return {
+        "available": True,
+        "commodity": crop_code,
+        "location": market_name,
+        "days": days,
+        "latest": {
+            "price": latest_price,
+            "unit": unit_label,
+            "date": latest_date,
+        },
+        "historical": historical,
+        "trend": trend,
+        "trend_percentage": trend_percentage,
+        "prediction": prediction,
+        "market_comparison": market_comparison,
+        "regional_data": regional_data,
+        "source": source_info,
+        "data_status": "AGMARKNET_VERIFIED_EXPORT",
+        "data_usage": "ML_PREDICTION_AND_HISTORICAL_ANALYSIS",
+        "provenance": "AGMARKNET 2025-2026 dataset",
+    }

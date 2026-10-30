@@ -287,3 +287,36 @@ class MandiLocation(Base):
     source: Mapped[str] = mapped_column(String(255), nullable=False, default="AGMARKNET report market name")
     mappls_eloc: Mapped[str | None] = mapped_column(String(64), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+
+class PredictionHistory(Base):
+    """Persisted prediction record for farmer audit and analytics integration."""
+
+    __tablename__ = "prediction_history"
+    __table_args__ = (
+        Index("ix_prediction_history_user_date", "user_id", "created_at"),
+        Index("ix_prediction_history_crop", "commodity", "market"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(64), nullable=False, default="default_farmer")
+    commodity: Mapped[str] = mapped_column(String(64), nullable=False)
+    variety: Mapped[str] = mapped_column(String(128), nullable=False)
+    grade: Mapped[str] = mapped_column(String(128), nullable=False, default="AVERAGE")
+    state: Mapped[str] = mapped_column(String(128), nullable=False, default="Karnataka")
+    district: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    market: Mapped[str] = mapped_column(String(255), nullable=False)
+    prediction_date: Mapped[date] = mapped_column(Date, nullable=False)
+    latest_observed_price: Mapped[float | None] = mapped_column(Numeric(14, 4), nullable=True)
+    predicted_price: Mapped[float] = mapped_column(Numeric(14, 4), nullable=False)
+    predicted_return: Mapped[float | None] = mapped_column(Numeric(10, 6), nullable=True)
+    price_diff: Mapped[float | None] = mapped_column(Numeric(14, 4), nullable=True)
+    pct_change: Mapped[float | None] = mapped_column(Numeric(10, 4), nullable=True)
+    quantity: Mapped[float] = mapped_column(Numeric(14, 4), nullable=False, default=50.0)
+    quantity_unit: Mapped[str] = mapped_column(String(32), nullable=False, default="quintal")
+    estimated_gross_value: Mapped[float | None] = mapped_column(Numeric(16, 4), nullable=True)
+    model_name: Mapped[str] = mapped_column(String(128), nullable=False)
+    model_version: Mapped[str] = mapped_column(String(64), nullable=False, default="v1.0")
+    input_features_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+

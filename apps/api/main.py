@@ -11,6 +11,7 @@ from apps.api.errors import ApiError
 from apps.api.market_centres import available_payload, centres_payload, locations_payload, prices_payload
 from apps.api.market_rankings import market_rankings_payload
 from apps.api.payments import router as payment_router
+from apps.api.prediction_routes import router as prediction_router
 from apps.api.services import estimate_response, history_response, latest_response, parse_commodity
 from apps.api.weather import weather_payload
 from cropmandi.db.session import create_all, make_session_factory
@@ -27,6 +28,7 @@ app = FastAPI(
 app.state.session_factory = SessionLocal
 app.include_router(payment_router, prefix="/api/payment")
 app.include_router(crop_intelligence_router)
+app.include_router(prediction_router)
 app.include_router(
     create_voice_router(
         price_lookup=make_project_price_lookup(SessionLocal),
@@ -211,6 +213,6 @@ def analytics_data(
 ):
     session = _db()
     try:
-        return analytics_response(session, parse_commodity(commodity), location, days)
+        return analytics_response(session, commodity.strip().lower(), location, days)
     finally:
         session.close()
