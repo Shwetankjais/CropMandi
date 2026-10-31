@@ -73,7 +73,7 @@ PEPPER_SERIES = (
 
 RICE_SERIES = ()
 
-SUPPORTED_COMMODITIES = frozenset({"coffee", "pepper", "rice"})
+SUPPORTED_COMMODITIES = frozenset({"coffee", "pepper", "rice", "potato", "tomato", "maize", "paddy"})
 
 
 def series_for(commodity: str, session: Any = None) -> tuple[SeriesSpec, ...]:
@@ -87,6 +87,16 @@ def series_for(commodity: str, session: Any = None) -> tuple[SeriesSpec, ...]:
 
             return rice_series_specs(session)
         return RICE_SERIES
+    if commodity in {"potato", "tomato", "maize", "paddy"}:
+        return (
+            SeriesSpec(
+                series_id=f"{commodity}_common",
+                commodity=commodity,
+                display_name=commodity.title(),
+                unit="INR/quintal",
+                aliases=(commodity.lower(),),
+            ),
+        )
     return ()
 
 

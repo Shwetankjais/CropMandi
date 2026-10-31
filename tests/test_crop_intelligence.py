@@ -111,7 +111,7 @@ def test_mappls_matrix_parses_mocked_provider_response_and_coordinate_order():
 
 
 def test_mandi_coordinate_confirmation_requires_server_token(monkeypatch):
-    monkeypatch.delenv("MANDI_COORDINATE_ADMIN_TOKEN", raising=False)
+    monkeypatch.setenv("MANDI_COORDINATE_ADMIN_TOKEN", "")
     disabled = client.post("/api/mandis/999999/confirm", json={"latitude": 12.0, "longitude": 76.0})
     assert disabled.status_code == 503
 

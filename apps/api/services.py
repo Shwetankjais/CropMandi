@@ -111,6 +111,25 @@ def latest_response(session: Session, commodity: str) -> dict:
                 }
             )
             observations.append(item)
+        elif commodity in {"potato", "tomato", "maize", "paddy"}:
+            from cropmandi.db.models import CropMarketObservation
+            from sqlalchemy import desc, select
+            latest_row = session.scalars(
+                select(CropMarketObservation)
+                .where(CropMarketObservation.crop_code == commodity)
+                .order_by(desc(CropMarketObservation.market_date))
+                .limit(1)
+            ).first()
+            if latest_row:
+                observations.append({
+                    "series_id": f"{commodity}_{latest_row.variety or 'common'}",
+                    "series": latest_row.variety or commodity.title(),
+                    "price": float(latest_row.modal_price),
+                    "unit": "Rs./Quintal",
+                    "observation_date": latest_row.market_date.isoformat(),
+                    "data_status": "AGMARKNET_VERIFIED",
+                    "provenance": "AGMARKNET 2025-2026 dataset",
+                })
     if not observations:
         raise ApiError(
             404,

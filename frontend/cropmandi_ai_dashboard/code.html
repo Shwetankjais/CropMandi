@@ -81,6 +81,9 @@
 
   <style>
     /* ── Dashboard-specific enhancements ─────────────────── */
+    html {
+      scroll-behavior: smooth;
+    }
 
     /* Card used across the dashboard */
     .dash-card {
@@ -232,6 +235,11 @@
       <span class="material-symbols-outlined">notifications</span>
       <span data-i18n="nav.alerts">Alerts</span>
     </a>
+    <!-- ── Mandi Price AI nav link (additive — no existing code modified) ── -->
+    <a class="cm-sidebar__link" href="#mandi-price-ai" id="sidebar-mandi-price-link">
+      <span class="material-symbols-outlined">monitoring</span>
+      <span>Mandi Price AI</span>
+    </a>
     <a class="cm-sidebar__link" href="../cropmandi_ai_settings/code.html" style="margin-top:16px">
       <span class="material-symbols-outlined">settings</span>
       <span data-i18n="nav.settings">Settings</span>
@@ -264,6 +272,8 @@
     <div class="flex gap-5">
       <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors"
          href="../cropmandi_ai_dashboard/code.html" data-i18n="nav.market">Market</a>
+      <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors"
+         href="#mandi-price-ai">Mandi Price AI</a>
       <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors"
          href="#" data-i18n="nav.weather">Weather</a>
       <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors"
@@ -334,7 +344,7 @@
   <div class="cm-page-content" style="max-width:1100px; margin:0 auto">
 
     <!-- ── Page Header ─────────────────────────────────── -->
-    <header class="mb-5">
+    <header class="mb-4">
       <h1 class="text-xl font-bold text-on-background" id="dash-greeting"
           style="font-family:'Roboto Slab',serif; margin:0 0 4px">Good morning, Hemalatha</h1>
       <p class="text-sm font-semibold text-primary flex flex-wrap items-center gap-1 mt-1">
@@ -346,8 +356,52 @@
       </p>
     </header>
 
+    <!-- ── Unified Commodity Intelligence Hub ─────────── -->
+    <section class="dash-card p-3 mb-5 flex flex-wrap items-center justify-between gap-3 bg-surface-container-low border border-outline-variant/30" aria-label="Commodity Navigation Hub">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-xl">hub</span>
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant block">Commodity Intelligence Hub</span>
+          <span class="text-[11px] text-outline">Unified access to Market Centres & ML Price Forecasting</span>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="#plantation-commodity-section"
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-primary shadow-sm border border-outline-variant/30 hover:border-primary hover:bg-emerald-50/50 transition-all">
+          <span>☕ Coffee & 🌶️ Black Pepper</span>
+          <span class="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Live APMC</span>
+        </a>
+        <a href="#mandi-price-ai"
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-primary text-white shadow-sm hover:bg-primary-light active:scale-98 transition-all">
+          <span>🌾 Mandi Price AI</span>
+          <span class="text-[10px] font-semibold bg-emerald-300 text-emerald-950 px-2 py-0.5 rounded-full">Paddy · Tomato · Potato · Maize (ML)</span>
+        </a>
+        <a href="#dash-market-ranking-title"
+           class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined text-base">leaderboard</span>
+          <span>Rankings</span>
+        </a>
+        <a href="#dash-storage-heading"
+           class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined text-base">ac_unit</span>
+          <span>Cold Storage</span>
+        </a>
+      </div>
+    </section>
+
     <!-- ── Crop Controls Card ─────────────────────────── -->
-    <section class="dash-card p-4 mb-5" aria-label="Crop selection controls">
+    <section class="dash-card p-4 mb-5 scroll-mt-20" id="plantation-commodity-section" aria-label="Crop selection controls">
+      <div class="flex items-center justify-between mb-3 border-b border-outline-variant/20 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-lg">storefront</span>
+          <h2 class="text-sm font-bold text-on-background uppercase tracking-wider" style="margin:0">
+            Plantation Commodities — Market Centre Intelligence
+          </h2>
+        </div>
+        <span class="text-[11px] font-semibold text-primary bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+          Coffee & Pepper
+        </span>
+      </div>
       <div class="flex flex-col md:flex-row gap-3 items-end">
         <!-- Commodity -->
         <div class="w-full md:flex-1">
@@ -357,12 +411,9 @@
                       focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <select class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background
                            p-3 pr-10 cursor-pointer" id="dash-crop">
-              <option value="coffee" data-i18n-option="dashboard.coffee" selected>Coffee</option>
+              <option value="">Loading...</option>
+              <option value="coffee" data-i18n-option="dashboard.coffee">Coffee</option>
               <option value="pepper" data-i18n-option="dashboard.blackPepper">Black Pepper</option>
-              <option value="potato">Potato</option>
-              <option value="tomato">Tomato</option>
-              <option value="maize">Maize</option>
-              <option value="paddy">Paddy</option>
             </select>
             <span class="material-symbols-outlined absolute right-3 top-3.5 text-outline pointer-events-none text-lg">
               expand_more</span>
@@ -611,6 +662,222 @@
       </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════════════════
+         MANDI PRICE AI — 4-CROP ML PRICE FORECASTING SECTION
+    ═══════════════════════════════════════════════════════ -->
+    <section id="mandi-price-ai" class="mb-5 scroll-mt-20" aria-label="Mandi Price AI Forecasting">
+      <!-- Section Banner -->
+      <div class="dash-card p-4 md:p-5 mb-4 stat-accent-green" style="background:linear-gradient(135deg, rgba(232,245,238,0.7) 0%, #ffffff 60%)">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-primary text-white">
+                <span class="material-symbols-outlined text-base">psychology</span>
+              </span>
+              <span class="text-xs font-bold uppercase tracking-wider text-primary">ML Price Intelligence</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase tracking-wide">ExtraTreesRegressor</span>
+            </div>
+            <h2 class="text-lg md:text-xl font-bold text-on-background" style="font-family:'Roboto Slab',serif; margin:0 0 4px">
+              🌾 Mandi Price AI — Multi-Crop Price Forecasting
+            </h2>
+            <p class="text-xs text-on-surface-variant max-w-3xl leading-relaxed m-0">
+              Predict modal market prices for <strong>Paddy, Tomato, Potato, and Maize</strong> across Karnataka mandis.
+              Trained on AGMARKNET historical records with 15 engineered momentum, ratio, and cyclical features.
+            </p>
+          </div>
+          <div class="flex-shrink-0">
+            <div id="mpa-health" role="status" aria-live="polite" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+              ⏳ Checking model…
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main 2-Column Forecast Workspace: Controls (Left) + Result Output (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-4">
+        <!-- Left: Prediction Controls -->
+        <div class="lg:col-span-5 dash-card p-4 md:p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3 border-b border-outline-variant/20 pb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5" style="margin:0">
+                <span class="material-symbols-outlined text-base">tune</span>
+                Forecast Parameters
+              </h3>
+              <span class="text-[11px] font-medium text-on-surface-variant">4 Supported Crops</span>
+            </div>
+
+            <!-- Quick Crop Tabs -->
+            <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Select Commodity</label>
+            <div class="mpa-crop-tabs flex flex-wrap gap-2 mb-4" role="group" aria-label="Crop selection tabs">
+              <button class="mpa-crop-tab active" data-crop="paddy" onclick="setCrop(this,'paddy')" type="button">🌾 Paddy</button>
+              <button class="mpa-crop-tab" data-crop="tomato" onclick="setCrop(this,'tomato')" type="button">🍅 Tomato</button>
+              <button class="mpa-crop-tab" data-crop="potato" onclick="setCrop(this,'potato')" type="button">🥔 Potato</button>
+              <button class="mpa-crop-tab" data-crop="maize" onclick="setCrop(this,'maize')" type="button">🌽 Maize</button>
+            </div>
+
+            <!-- Crop Dropdown -->
+            <div class="mpa-form-group mb-3">
+              <label for="mpa-crop" class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Commodity</label>
+              <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                <select id="mpa-crop" class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background p-3 pr-10 cursor-pointer" aria-label="Select crop">
+                  <option value="paddy">Paddy (Rice / ಭತ್ತ)</option>
+                  <option value="tomato">Tomato (ಟೊಮೇಟೊ)</option>
+                  <option value="potato">Potato (ಆಲೂಗಡ್ಡೆ)</option>
+                  <option value="maize">Maize (ಮೆಕ್ಕೆಜೋಳ)</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-3 top-3.5 text-outline pointer-events-none text-lg">expand_more</span>
+              </div>
+            </div>
+
+            <!-- Market Dropdown -->
+            <div class="mpa-form-group mb-3">
+              <div class="flex items-center justify-between mb-1">
+                <label for="mpa-market" class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Mandi / Market Centre</label>
+                <button type="button" id="mpa-load-markets" class="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5">
+                  <span class="material-symbols-outlined text-xs">refresh</span> Reload
+                </button>
+              </div>
+              <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                <select id="mpa-market" class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background p-3 pr-10 cursor-pointer" aria-label="Select market">
+                  <option value="">— select a crop first —</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-3 top-3.5 text-outline pointer-events-none text-lg">expand_more</span>
+              </div>
+            </div>
+
+            <!-- Target Date Input -->
+            <div class="mpa-form-group mb-4">
+              <label for="mpa-date" class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">
+                Target Forecast Date <span class="text-[11px] font-normal text-on-surface-variant">(Default: tomorrow)</span>
+              </label>
+              <div class="relative soft-inset rounded-xl bg-surface-container-low border border-transparent focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                <input type="date" id="mpa-date" class="w-full bg-transparent border-none focus:ring-0 text-sm text-on-background p-3 cursor-pointer" aria-label="Target date for prediction"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Predict Action Button -->
+          <div class="mt-2">
+            <button id="mpa-predict-btn" type="button" class="w-full bg-primary hover:bg-primary-light active:scale-98 text-white py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition-all flex justify-center items-center gap-2">
+              <span class="material-symbols-outlined text-lg">auto_graph</span>
+              Generate Forecast
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Forecast Output Card -->
+        <div class="lg:col-span-7 dash-card p-4 md:p-5 flex flex-col justify-between" id="mpa-result-card">
+          <div>
+            <div class="flex items-center justify-between mb-3 border-b border-outline-variant/20 pb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5" style="margin:0">
+                <span class="material-symbols-outlined text-base">price_check</span>
+                Forecast Output & Market Details
+              </h3>
+              <span class="text-[11px] font-semibold text-primary-light">ExtraTrees Pipeline</span>
+            </div>
+
+            <div id="mpa-result" class="min-h-[220px] flex flex-col justify-center">
+              <div class="text-center py-8 px-4">
+                <span class="material-symbols-outlined text-4xl text-outline-variant mb-2">query_stats</span>
+                <p class="text-sm font-semibold text-on-background">No forecast computed yet</p>
+                <p class="text-xs text-on-surface-variant mt-1 max-w-sm mx-auto">
+                  Select a crop, market centre, and target date on the left, then click <strong>Generate Forecast</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dataset Coverage Card -->
+      <div class="dash-card p-4 md:p-5 mb-4">
+        <div class="flex items-center justify-between mb-3 border-b border-outline-variant/20 pb-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5" style="margin:0">
+            <span class="material-symbols-outlined text-base">database</span>
+            Historical Dataset Coverage (AGMARKNET)
+          </h3>
+          <span class="text-xs text-on-surface-variant">4 Crop Training Sets</span>
+        </div>
+        <div id="mpa-summary">
+          <p class="text-xs text-on-surface-variant">Loading crop data coverage…</p>
+        </div>
+      </div>
+
+      <!-- Pipeline Architecture & Features Card -->
+      <div class="dash-card p-4 md:p-5 mb-4">
+        <div class="flex items-center justify-between mb-3 border-b border-outline-variant/20 pb-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5" style="margin:0">
+            <span class="material-symbols-outlined text-base">account_tree</span>
+            ML Pipeline Architecture & Engineered Features
+          </h3>
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">15 Features</span>
+        </div>
+
+        <div class="mpa-pipeline-steps flex items-center gap-2 overflow-x-auto py-2 mb-4" role="list" aria-label="Model pipeline steps">
+          <div class="mpa-step" role="listitem">📥 Raw CSV Data<br/><small class="text-xs font-normal opacity-90">Paddy · Tomato · Potato · Maize</small></div>
+          <div class="mpa-step" role="listitem">🔧 Feature Engineering<br/><small class="text-xs font-normal opacity-90">Returns, Lags, Arrivals, Calendar</small></div>
+          <div class="mpa-step" role="listitem">⚙️ ColumnTransformer<br/><small class="text-xs font-normal opacity-90">StandardScaler + OneHotEncoder</small></div>
+          <div class="mpa-step" role="listitem">🌲 ExtraTreesRegressor<br/><small class="text-xs font-normal opacity-90">Trained on % Price Return</small></div>
+          <div class="mpa-step" role="listitem">💰 Modal Forecast<br/><small class="text-xs font-normal opacity-90">modal_today × (1 + Δ%)</small></div>
+        </div>
+
+        <h4 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Inference Features (15 Total)</h4>
+        <div class="mpa-features-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+          <div class="mpa-feature-item"><strong>modal_today</strong><span>Current modal price</span></div>
+          <div class="mpa-feature-item"><strong>spread_ratio</strong><span>(max − min)/modal</span></div>
+          <div class="mpa-feature-item"><strong>return_1d</strong><span>1-day pct momentum</span></div>
+          <div class="mpa-feature-item"><strong>return_7d</strong><span>7-day pct momentum</span></div>
+          <div class="mpa-feature-item"><strong>arrival_anomaly</strong><span>arrivals / roll mean</span></div>
+          <div class="mpa-feature-item"><strong>modal_roll_std</strong><span>Rolling price std</span></div>
+          <div class="mpa-feature-item"><strong>arrivals_roll_mean</strong><span>Rolling mean arrivals</span></div>
+          <div class="mpa-feature-item"><strong>dow_sin / dow_cos</strong><span>Day-of-week cycles</span></div>
+          <div class="mpa-feature-item"><strong>month_sin / cos</strong><span>Month annual cycles</span></div>
+          <div class="mpa-feature-item"><strong>day_of_year</strong><span>Ordinal day</span></div>
+          <div class="mpa-feature-item"><strong>crop</strong><span>One-hot encoded</span></div>
+          <div class="mpa-feature-item"><strong>market</strong><span>One-hot encoded</span></div>
+          <div class="mpa-feature-item"><strong>district</strong><span>One-hot encoded</span></div>
+        </div>
+      </div>
+
+      <!-- Model Evaluation Plots Card -->
+      <div class="dash-card p-4 md:p-5 mb-4">
+        <div class="flex items-center justify-between mb-3 border-b border-outline-variant/20 pb-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5" style="margin:0">
+            <span class="material-symbols-outlined text-base">monitoring</span>
+            Model Validation & Diagnostic Plots
+          </h3>
+          <span class="text-xs text-on-surface-variant">Pilepine.ipynb Evaluation</span>
+        </div>
+        <img
+          class="mpa-eval-plot w-full rounded-xl border border-outline-variant/30 max-h-[500px] object-contain mx-auto"
+          src="http://127.0.0.1:8001/static/evaluation_plots.png"
+          onerror="this.style.display='none'; document.getElementById('mpa-plot-fallback').style.display='block';"
+          alt="4-panel evaluation chart: Forecast vs Actual, Residual Distribution, MAE Drift, Feature Importance"
+        />
+        <div id="mpa-plot-fallback" style="display:none;" class="p-4 rounded-xl bg-surface-container-low text-xs text-on-surface-variant text-center">
+          📊 Diagnostic plots available in <code>ml/artifacts/evaluation_plots.png</code> (Forecast vs Actual, Residual Distribution, MAE Drift, Feature Importance).
+        </div>
+        <p class="text-[11px] text-center text-outline mt-2">
+          2×2 grid: Forecast vs Actual | Residual Distribution | MAE Drift | Feature Importances — generated during model training.
+        </p>
+      </div>
+
+      <!-- Advisory Disclaimer -->
+      <div class="dash-card p-4 border-amber-300/80 bg-amber-50/60 stat-accent-amber">
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-amber-700 text-xl flex-shrink-0 mt-0.5">warning</span>
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-amber-800 mb-1">Important APMC & Advisory Disclaimer</h4>
+            <p class="text-xs text-amber-900/90 leading-relaxed m-0">
+              All forecasts are generated from <strong>AGMARKNET historical exports</strong> and represent statistical model approximations.
+              They are <strong>experimental decision-support tools</strong> — not official market quotes or guaranteed price commitments.
+              Uncertainty compounds for multi-day future horizons. Always confirm rates with your local APMC mandi before concluding trade transactions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ── Highest Price Market Rankings ────────────────── -->
     <section class="dash-card overflow-hidden mb-4" aria-label="Highest price market rankings">
       <div class="px-4 py-3 border-b border-outline-variant/20">
@@ -802,6 +1069,7 @@
 <script src="../js/dashboard-ui.js"></script>
 <script src="../js/dashboard-storage.js?v=ui-1"></script>
 <script src="../js/dashboard-payment.js?v=pay-rzp-1"></script>
+<script src="../js/mandi-price-ai.js"></script>
 
 <script>
   // Quantity increment/decrement buttons

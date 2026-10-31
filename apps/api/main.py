@@ -12,11 +12,16 @@ from apps.api.market_centres import available_payload, centres_payload, location
 from apps.api.market_rankings import market_rankings_payload
 from apps.api.payments import router as payment_router
 from apps.api.prediction_routes import router as prediction_router
+from apps.api.mandi_price_ai import router as mandi_price_ai_router
 from apps.api.services import estimate_response, history_response, latest_response, parse_commodity
 from apps.api.weather import weather_payload
 from cropmandi.db.session import create_all, make_session_factory
 from cropmandi_voice_assistant import create_voice_router
 from cropmandi_voice_assistant.project_adapter import make_project_price_lookup
+from starlette.staticfiles import StaticFiles
+from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parents[2]
 
 create_all()
 SessionLocal = make_session_factory()
@@ -29,6 +34,9 @@ app.state.session_factory = SessionLocal
 app.include_router(payment_router, prefix="/api/payment")
 app.include_router(crop_intelligence_router)
 app.include_router(prediction_router)
+app.include_router(mandi_price_ai_router)
+if (_ROOT / "ml" / "artifacts").exists():
+    app.mount("/static", StaticFiles(directory=str(_ROOT / "ml" / "artifacts")), name="static")
 app.include_router(
     create_voice_router(
         price_lookup=make_project_price_lookup(SessionLocal),
@@ -114,6 +122,18 @@ def price_history(
 
 @app.get("/api/markets")
 def list_markets(commodity: str = Query(..., min_length=1)):
+    c = commodity.strip().lower()
+    if c in {"potato", "tomato", "maize", "paddy"}:
+        session = _db()
+        try:
+            from ml.unified_prediction_service import get_commodity_options
+            opts = get_commodity_options(session, c)
+            return {
+                "commodity": c,
+                "locations": [{"name": m} for m in opts.get("markets", [])],
+            }
+        finally:
+            session.close()
     return locations_payload(parse_commodity(commodity))
 
 
@@ -122,6 +142,13 @@ def list_market_centres(
     commodity: str = Query(..., min_length=1),
     location: str = Query(..., min_length=1),
 ):
+    c = commodity.strip().lower()
+    if c in {"potato", "tomato", "maize", "paddy"}:
+        return {
+            "commodity": c,
+            "location": location,
+            "centres": [{"raw_market_centre": location, "types": [c.title()]}],
+        }
     return centres_payload(parse_commodity(commodity), location)
 
 
@@ -130,6 +157,13 @@ def list_market_available(
     commodity: str = Query(..., min_length=1),
     location: str = Query(..., min_length=1),
 ):
+    c = commodity.strip().lower()
+    if c in {"potato", "tomato", "maize", "paddy"}:
+        return {
+            "commodity": c,
+            "location": location,
+            "centres": [{"raw_market_centre": location, "types": [c.title()]}],
+        }
     return available_payload(parse_commodity(commodity), location)
 
 
@@ -138,6 +172,46 @@ def list_market_prices(
     commodity: str = Query(..., min_length=1),
     location: str = Query(..., min_length=1),
 ):
+    c = commodity.strip().lower()
+    if c in {"potato", "tomato", "maize", "paddy"}:
+        session = _db()
+        try:
+            from cropmandi.db.models import CropMarketObservation
+            from sqlalchemy import desc, func, select
+            loc_upper = location.strip().upper()
+            rows = session.scalars(
+                select(CropMarketObservation)
+                .where(
+                    CropMarketObservation.crop_code == c,
+                    func.upper(CropMarketObservation.market_name) == loc_upper,
+                )
+                .order_by(desc(CropMarketObservation.market_date))
+                .limit(20)
+            ).all()
+            if not rows:
+                rows = session.scalars(
+                    select(CropMarketObservation)
+                    .where(CropMarketObservation.crop_code == c)
+                    .order_by(desc(CropMarketObservation.market_date))
+                    .limit(20)
+                ).all()
+            return {
+                "commodity": c,
+                "location": location,
+                "unit": "Rs./Quintal",
+                "observations": [
+                    {
+                        "market_centre": r.market_name,
+                        "type": r.variety or "Average",
+                        "price": float(r.modal_price),
+                        "date": r.market_date.isoformat(),
+                        "source": "Agmarknet",
+                    }
+                    for r in rows
+                ],
+            }
+        finally:
+            session.close()
     return prices_payload(parse_commodity(commodity), location)
 
 
@@ -166,6 +240,21 @@ def next_session_estimate(
 ):
     session = _db()
     try:
+        c = commodity.strip().lower()
+        if c in {"potato", "tomato", "maize", "paddy"}:
+            from ml.unified_prediction_service import predict_price
+            res = predict_price(session, c, series or "DEFAULT", None, "DEFAULT", persist=False)
+            return {
+                "available": True,
+                "commodity": c,
+                "series": series or c.title(),
+                "next_session_estimate": res["predicted_price"],
+                "target_session": res["prediction_date"],
+                "unit": res["unit_display"],
+                "method": res["model_name"],
+                "model_status": res["model_status"],
+                "note": "AI multi-crop regression forecast (best_price_model.joblib)",
+            }
         return estimate_response(session, parse_commodity(commodity), series)
     finally:
         session.close()
