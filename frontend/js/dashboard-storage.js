@@ -19,6 +19,8 @@
   var countEl;
   var routingEl;
   var requestSeq = 0;
+  var storageMap = null;
+  var storageMarkers = [];
 
   function $(id) {
     return document.getElementById(id);
@@ -57,6 +59,8 @@
     if (countEl) {
       countEl.textContent = "";
     }
+    var mapElHide = document.getElementById("dash-storage-map");
+    if (mapElHide) { mapElHide.classList.add("hidden"); }
   }
 
   function capacityText(row) {
@@ -99,6 +103,8 @@
       empty.className = "text-on-surface-variant";
       empty.textContent = (payload && payload.message) || "NO VERIFIED COLD STORAGE FOUND WITHIN 75 KM";
       listEl.appendChild(empty);
+      var mapElHide = document.getElementById("dash-storage-map");
+      if (mapElHide) { mapElHide.classList.add("hidden"); }
       return;
     }
     rows.forEach(function (row) {
@@ -191,6 +197,64 @@
       }
       listEl.appendChild(li);
     });
+    renderStorageMap(rows);
+  }
+
+  function renderStorageMap(rows) {
+    if (typeof L === "undefined") { return; }
+    var mapEl = document.getElementById("dash-storage-map");
+    if (!mapEl) { return; }
+
+    // Gather rows that have coordinates
+    var pinnable = rows.filter(function (r) {
+      return typeof r.latitude === "number" && typeof r.longitude === "number"
+          && isFinite(r.latitude) && isFinite(r.longitude);
+    });
+
+    if (!pinnable.length) {
+      mapEl.classList.add("hidden");
+      return;
+    }
+
+    mapEl.classList.remove("hidden");
+
+    // Initialise or reuse map
+    if (!storageMap) {
+      storageMap = L.map("dash-storage-map");
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>",
+        maxZoom: 18,
+      }).addTo(storageMap);
+    }
+
+    // Clear previous markers
+    storageMarkers.forEach(function (m) { m.remove(); });
+    storageMarkers = [];
+
+    var bounds = [];
+    pinnable.forEach(function (row, idx) {
+      var lat = row.latitude;
+      var lng = row.longitude;
+      var label = row.name || "Cold Storage " + (idx + 1);
+      var capacity = row.capacity_mt ? " · " + row.capacity_mt + " MT" : "";
+      var dist = (row.distance_km !== null && row.distance_km !== undefined)
+        ? " · " + row.distance_km + " km" : "";
+      var popup = "<b>" + label + "</b><br>"
+        + (row.district || row.location || "") + dist + capacity;
+      var marker = L.marker([lat, lng])
+        .bindPopup(popup)
+        .addTo(storageMap);
+      storageMarkers.push(marker);
+      bounds.push([lat, lng]);
+    });
+
+    if (bounds.length === 1) {
+      storageMap.setView(bounds[0], 11);
+    } else {
+      storageMap.fitBounds(bounds, { padding: [28, 28] });
+    }
+    // Force redraw after reveal
+    setTimeout(function () { storageMap.invalidateSize(); }, 120);
   }
 
   function search() {

@@ -28,6 +28,7 @@
     commodityOptions: "/api/commodities/options",
     predictPrice: "/api/predictions/price",
     predictionHistory: "/api/predictions/history",
+    harvestRoutes: "/api/harvest/routes",
   };
 
   function endpoint(path, query) {
@@ -201,6 +202,10 @@
     });
   }
 
+  function planHarvestRoutes(payload) {
+    return postJson(API_PATHS.harvestRoutes, payload);
+  }
+
   global.CropMandiAPI = {
     baseUrl: API_BASE_URL,
     paths: API_PATHS,
@@ -229,5 +234,6 @@
     getCommodityOptions: getCommodityOptions,
     predictPrice: predictPrice,
     getPredictionHistory: getPredictionHistory,
+    planHarvestRoutes: planHarvestRoutes,
   };
 })(window);

@@ -832,22 +832,6 @@
       el.mapPinsLayer.appendChild(g);
     });
   }
-          ${apmc.name.split(" ")[0]}
-        </text>
-      `;
-
-      // Hover / interaction events
-      g.addEventListener("mouseenter", (e) => showTooltip(e, apmc, price, unit));
-      g.addEventListener("mousemove", (e) => positionTooltip(e));
-      g.addEventListener("mouseleave", hideTooltip);
-      g.addEventListener("click", () => {
-        // Highlight in table
-        showTooltip(null, apmc, price, unit, true);
-      });
-
-      el.mapPinsLayer.appendChild(g);
-    });
-  }
 
   function showTooltip(evt, apmc, price, unit, persistent = false) {
     if (!el.mapTooltip) return;

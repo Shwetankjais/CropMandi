@@ -187,6 +187,8 @@
       .kpi-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
+  <!-- Leaflet CSS for cold storage map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <link rel="stylesheet" href="../styles/voice-assistant.css?v=voice-1"/>
 </head>
 
@@ -223,7 +225,7 @@
       <span class="material-symbols-outlined">analytics</span>
       <span data-i18n="nav.analytics">Analytics</span>
     </a>
-    <a class="cm-sidebar__link" href="../harvestroute/code.html">
+    <a class="cm-sidebar__link" href="../cropmandi_ai_harvest_route/code.html">
       <span class="material-symbols-outlined">route</span>
       <span>HarvestRoute</span>
     </a>
@@ -265,7 +267,7 @@
      DESKTOP TOP NAVIGATION BAR
 ═══════════════════════════════════════════════════════ -->
 <nav class="cm-topnav hidden md:flex" id="main-topnav" role="navigation" aria-label="Top navigation">
-      <a class="cm-topnav__link" href="../harvestroute/code.html">HarvestRoute</a>
+      <a class="cm-topnav__link" href="../cropmandi_ai_harvest_route/code.html">HarvestRoute</a>
   <div class="cm-topnav__left">
     <h2 class="text-lg font-bold text-primary" style="margin:0"
         data-i18n="brand.name">CropMandi AI</h2>
@@ -1004,6 +1006,8 @@
       <p class="text-xs text-on-surface-variant mb-2" id="dash-storage-count"></p>
       <p class="text-xs text-on-surface-variant mb-4" id="dash-storage-routing"></p>
       <ul class="grid grid-cols-1 lg:grid-cols-2 gap-3" id="dash-storage-list"></ul>
+      <!-- Leaflet map for cold storage locations (shown after search) -->
+      <div id="dash-storage-map" class="hidden mt-4 rounded-xl overflow-hidden border border-outline-variant/30" style="height:320px;"></div>
     </section>
 
     <!-- ── Demo Payment Section ────────────────────────── -->
@@ -1067,6 +1071,7 @@
 <script src="../js/market-rankings.js?v=rank-1"></script>
 <script src="../js/dashboard-estimate.js?v=ui-1"></script>
 <script src="../js/dashboard-ui.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="../js/dashboard-storage.js?v=ui-1"></script>
 <script src="../js/dashboard-payment.js?v=pay-rzp-1"></script>
 <script src="../js/mandi-price-ai.js"></script>

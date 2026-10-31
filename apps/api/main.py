@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from apps.api.analytics import analytics_response
 from apps.api.crop_intelligence import router as crop_intelligence_router
+from apps.api.harvest_routes import HarvestRouteRequest, harvest_routes_payload, router as harvest_router
 from apps.api.cold_storage import location_payload, nearby_payload
 from apps.api.errors import ApiError
 from apps.api.market_centres import available_payload, centres_payload, locations_payload, prices_payload
@@ -33,6 +34,7 @@ app = FastAPI(
 app.state.session_factory = SessionLocal
 app.include_router(payment_router, prefix="/api/payment")
 app.include_router(crop_intelligence_router)
+app.include_router(harvest_router)
 app.include_router(prediction_router)
 app.include_router(mandi_price_ai_router)
 if (_ROOT / "ml" / "artifacts").exists():
@@ -303,5 +305,14 @@ def analytics_data(
     session = _db()
     try:
         return analytics_response(session, commodity.strip().lower(), location, days)
+    finally:
+        session.close()
+
+
+@app.post("/api/harvest/routes")
+def plan_harvest_routes(payload: HarvestRouteRequest):
+    session = _db()
+    try:
+        return harvest_routes_payload(session, payload)
     finally:
         session.close()
