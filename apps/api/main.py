@@ -14,6 +14,7 @@ from apps.api.market_rankings import market_rankings_payload
 from apps.api.payments import router as payment_router
 from apps.api.prediction_routes import router as prediction_router
 from apps.api.mandi_price_ai import router as mandi_price_ai_router
+from apps.api.ai_crop_predictions import router as ai_crop_prediction_router
 from apps.api.services import estimate_response, history_response, latest_response, parse_commodity
 from apps.api.weather import weather_payload
 from cropmandi.db.session import create_all, make_session_factory
@@ -37,6 +38,7 @@ app.include_router(crop_intelligence_router)
 app.include_router(harvest_router)
 app.include_router(prediction_router)
 app.include_router(mandi_price_ai_router)
+app.include_router(ai_crop_prediction_router)
 if (_ROOT / "ml" / "artifacts").exists():
     app.mount("/static", StaticFiles(directory=str(_ROOT / "ml" / "artifacts")), name="static")
 app.include_router(
