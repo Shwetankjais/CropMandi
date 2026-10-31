@@ -90,10 +90,9 @@ def series_for(commodity: str, session: Any = None) -> tuple[SeriesSpec, ...]:
     if commodity in {"potato", "tomato", "maize", "paddy"}:
         return (
             SeriesSpec(
-                series_id=f"{commodity}_common",
                 commodity=commodity,
+                series_id=f"{commodity}_common",
                 display_name=commodity.title(),
-                unit="INR/quintal",
                 aliases=(commodity.lower(),),
             ),
         )

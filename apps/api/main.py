@@ -227,6 +227,19 @@ def list_market_rankings(
 ):
     session = _db()
     try:
+        c = commodity.strip().lower()
+        if c in {"potato", "tomato", "maize", "paddy"}:
+            from ml.crop_prediction_service import crop_rankings
+            import json
+            variety, grade = None, None
+            if series:
+                try:
+                    parsed = json.loads(series)
+                    if isinstance(parsed, list) and len(parsed) >= 2:
+                        variety, grade = parsed[0], parsed[1]
+                except Exception:
+                    variety = series
+            return crop_rankings(session, c, variety, grade, limit=limit)
         return market_rankings_payload(
             session,
             parse_commodity(commodity),
