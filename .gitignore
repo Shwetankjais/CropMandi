@@ -46,5 +46,19 @@ data/reports/**
 # ML artifacts
 ml/artifacts/**
 !ml/artifacts/.gitkeep
-*.joblib
 *.log
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.DS_Store
+
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.DS_Store
