@@ -16,6 +16,7 @@ from apps.api.payments import router as payment_router
 from apps.api.prediction_routes import router as prediction_router
 from apps.api.mandi_price_ai import router as mandi_price_ai_router
 from apps.api.ai_crop_predictions import router as ai_crop_prediction_router
+from apps.api.farmer_crops import router as farmer_crops_router
 from apps.api.services import estimate_response, history_response, latest_response, parse_commodity
 from apps.api.weather import weather_payload
 from cropmandi.db.session import create_all, make_session_factory
@@ -40,6 +41,7 @@ app.include_router(harvest_router)
 app.include_router(prediction_router)
 app.include_router(mandi_price_ai_router)
 app.include_router(ai_crop_prediction_router)
+app.include_router(farmer_crops_router)
 if (_ROOT / "ml" / "artifacts").exists():
     app.mount("/static", StaticFiles(directory=str(_ROOT / "ml" / "artifacts")), name="static")
 app.include_router(
@@ -63,6 +65,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 
 @app.exception_handler(ApiError)
@@ -261,7 +273,8 @@ def next_session_estimate(
         c = commodity.strip().lower()
         if c in {"potato", "tomato", "maize", "paddy"}:
             from ml.unified_prediction_service import predict_price
-            res = predict_price(session, c, series or "DEFAULT", None, "DEFAULT", persist=False)
+            variety = series if series and series.strip().upper() != "DEFAULT" else None
+            res = predict_price(session, c, variety=variety, grade=None, market="", persist=False)
             return {
                 "available": True,
                 "commodity": c,

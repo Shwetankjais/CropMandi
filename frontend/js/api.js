@@ -31,6 +31,8 @@
     harvestRoutes: "/api/harvest/routes",
     harvestVehicles: "/api/harvest/vehicles",
     harvestFuelPrice: "/api/harvest/fuel-price",
+    farmerCrops: "/api/farmer/crops",
+    farmerCropsMetadata: "/api/farmer/crops/metadata",
   };
 
   function endpoint(path, query) {
@@ -216,6 +218,33 @@
     return getJson(API_PATHS.harvestFuelPrice);
   }
 
+  function getFarmerCrops() {
+    return getJson(API_PATHS.farmerCrops);
+  }
+
+  function addFarmerCrop(payload) {
+    return postJson(API_PATHS.farmerCrops, payload);
+  }
+
+  function updateFarmerCrop(cropId, payload) {
+    return fetch(endpoint(API_PATHS.farmerCrops + "/" + encodeURIComponent(cropId)), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload || {}),
+    }).then(parseJsonBody);
+  }
+
+  function deleteFarmerCrop(cropId) {
+    return fetch(endpoint(API_PATHS.farmerCrops + "/" + encodeURIComponent(cropId)), {
+      method: "DELETE",
+      headers: { Accept: "application/json" },
+    }).then(parseJsonBody);
+  }
+
+  function getCropMetadata() {
+    return getJson(API_PATHS.farmerCropsMetadata);
+  }
+
   global.CropMandiAPI = {
     baseUrl: API_BASE_URL,
     paths: API_PATHS,
@@ -247,5 +276,10 @@
     planHarvestRoutes: planHarvestRoutes,
     getHarvestVehicles: getHarvestVehicles,
     getHarvestFuelPrice: getHarvestFuelPrice,
+    getFarmerCrops: getFarmerCrops,
+    addFarmerCrop: addFarmerCrop,
+    updateFarmerCrop: updateFarmerCrop,
+    deleteFarmerCrop: deleteFarmerCrop,
+    getCropMetadata: getCropMetadata,
   };
 })(window);

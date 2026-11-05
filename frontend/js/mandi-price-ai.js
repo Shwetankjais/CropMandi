@@ -219,12 +219,39 @@
       targetDate.value = tomorrowDateISO();
     }
 
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      let targetCrop = (urlParams.get("commodity") || urlParams.get("crop") || "").toLowerCase().trim();
+      if (targetCrop === "rice") targetCrop = "paddy";
+      if (targetCrop === "corn") targetCrop = "maize";
+
+      if (["paddy", "tomato", "potato", "maize"].includes(targetCrop)) {
+        if (cropSelect) {
+          cropSelect.value = targetCrop;
+        }
+      }
+    } catch (_) {}
+
     checkHealth();
     loadSummary();
     if (cropSelect && cropSelect.value) {
       syncTabsWithSelect();
       loadMarkets();
     }
+
+    try {
+      const hash = window.location.hash;
+      const urlParams = new URLSearchParams(window.location.search);
+      const isTargeted = hash === "#mandi-price-ai" || urlParams.has("commodity") || urlParams.has("crop");
+      if (isTargeted) {
+        const targetSection = document.getElementById("mandi-price-ai");
+        if (targetSection) {
+          setTimeout(function () {
+            targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 350);
+        }
+      }
+    } catch (_) {}
   }
 
   if (document.readyState === "loading") {
