@@ -126,3 +126,4 @@
     bindHelpTriggers();
   }
 })(window);
+
