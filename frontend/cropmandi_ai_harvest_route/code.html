@@ -331,21 +331,35 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
-      border: 3px solid #fff;
+      width: 30px;
+      height: 30px;
+      border: 2.5px solid #fff;
       border-radius: 50%;
-      box-shadow: 0 2px 8px #163d2b55;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
       color: #fff;
-      font: 800 11px 'DM Sans', sans-serif;
+      font: 800 12px 'Manrope', 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .cm-map-pin:hover {
+      transform: scale(1.18);
     }
 
     .cm-map-pin.farm {
       background: #087b50;
+      border-color: #eaf3ed;
     }
 
     .cm-map-pin.market {
-      background: #d58a20;
+      background: #e67e22;
+      border-color: #fff;
+    }
+
+    .cm-map-pin.market.top-pin {
+      background: #d35400;
+      border-color: #ffe0b2;
+      box-shadow: 0 0 0 3px rgba(211, 84, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     .leaflet-popup-content {
@@ -460,6 +474,230 @@
       border-radius: 14px;
     }
 
+    /* ENHANCED HARVESTROUTE STYLES */
+    .segmented-control {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: #f0f5f1;
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    .segmented-control label {
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: #526359;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .segmented-control input[type="radio"] {
+      display: none;
+    }
+
+    .segmented-control input[type="radio"]:checked + span {
+      background: #fff;
+      color: var(--green);
+      box-shadow: 0 2px 6px #123c2315;
+      border-radius: 6px;
+      padding: 6px 10px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .segmented-control span {
+      display: block;
+      width: 100%;
+      padding: 6px 10px;
+    }
+
+    .vehicle-preview {
+      background: #f7faf8;
+      border: 1px solid #dbe6de;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .vehicle-preview-title {
+      font-weight: 800;
+      color: var(--green);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .vehicle-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px 12px;
+      margin-top: 6px;
+      color: var(--ink);
+    }
+
+    .vehicle-preview-grid small {
+      color: var(--muted);
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .vehicle-preview-grid strong {
+      font-size: 12px;
+    }
+
+    .overload-warning {
+      background: #fff3f2;
+      border-left: 3px solid var(--red);
+      color: #8a211c;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-top: 8px;
+      font-weight: 600;
+    }
+
+    .info-banner {
+      background: #f0f7f3;
+      border-left: 3px solid var(--green2);
+      color: #174c36;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-top: 8px;
+    }
+
+    .rank.top-choice {
+      background: #075b43;
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 2px 8px #075b4340;
+    }
+
+    .why-mandi {
+      background: #f3f8f5;
+      border-left: 3px solid var(--green);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #244b36;
+      margin: 10px 0;
+      line-height: 1.45;
+    }
+
+    .net-headline {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      background: #eaf5ee;
+      border: 1px solid #c7e3d0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 12px 0 6px;
+    }
+
+    .net-headline-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--green);
+    }
+
+    .net-headline-amount {
+      font-size: 18px;
+      font-weight: 800;
+      color: #064c38;
+      font-family: Manrope, sans-serif;
+    }
+
+    .net-per-kg {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-left: 6px;
+    }
+
+    .breakdown-toggle {
+      background: none;
+      border: none;
+      color: var(--green2);
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      padding: 4px 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: underline;
+    }
+
+    .breakdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 11px;
+      background: #fafdfa;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .breakdown-table th,
+    .breakdown-table td {
+      padding: 6px 10px;
+      text-align: left;
+      border-bottom: 1px solid #edf2ee;
+    }
+
+    .breakdown-table th {
+      background: #f0f5f1;
+      color: #496153;
+      font-weight: 700;
+    }
+
+    .breakdown-table tr:last-child td {
+      border-bottom: none;
+      font-weight: 800;
+      background: #eaf3ed;
+      color: var(--green);
+    }
+
+    .trust-pill {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: #e8ece9;
+      color: #4f6155;
+    }
+
+    .trust-pill.live {
+      background: #e1f4e5;
+      color: #0d6e32;
+    }
+
+    .trust-pill.estimate {
+      background: #fbf0d8;
+      color: #7a5405;
+    }
+
     footer {
       max-width: 1120px;
       margin: 0 auto;
@@ -531,6 +769,10 @@
             <option value="coffee">Coffee</option>
             <option value="pepper">Black Pepper</option>
             <option value="rice">Rice</option>
+            <option value="tomato">Tomato</option>
+            <option value="maize">Maize</option>
+            <option value="paddy">Paddy</option>
+            <option value="potato">Potato</option>
           </select>
         </div>
 
@@ -557,32 +799,87 @@
           </button>
         </div>
 
-        <div class="two" style="margin-top:12px">
+        <div class="field" style="margin-top:14px">
+          <label for="quantity">Harvest quantity (kg)</label>
+          <input
+            id="quantity"
+            type="number"
+            min="1"
+            step="1"
+            value="500"
+            required
+          />
+        </div>
 
-          <div class="field">
-            <label for="quantity">Harvest quantity (kg)</label>
-            <input
-              id="quantity"
-              type="number"
-              min="1"
-              step="1"
-              value="500"
-              required
-            />
+        <!-- TRANSPORT MODE SELECTION -->
+        <div class="field">
+          <label>Transport Selection Mode</label>
+          <div class="segmented-control">
+            <label>
+              <input type="radio" name="vehicle_mode" id="mode_auto" value="auto" checked />
+              <span>⚡ Auto Recommend</span>
+            </label>
+            <label>
+              <input type="radio" name="vehicle_mode" id="mode_manual" value="manual" />
+              <span>🚚 Select Vehicle</span>
+            </label>
           </div>
+        </div>
 
-          <div class="field">
-            <label for="cost">Transport ₹ / km</label>
-            <input
-              id="cost"
-              type="number"
-              min="0"
-              step="0.5"
-              value="12"
-              required
-            />
+        <!-- VEHICLE SELECTION DROPDOWN -->
+        <div class="field" id="vehicle-select-container">
+          <label for="vehicle_id">Transport Vehicle</label>
+          <select id="vehicle_id">
+            <option value="goods_auto">Goods Auto / 3-Wheeler (Usable: 450 kg)</option>
+            <option value="tata_ace" selected>Tata Ace / Mini Truck (Usable: 900 kg)</option>
+            <option value="pickup_lcv">Pickup / LCV Bolero (Usable: 1,350 kg)</option>
+            <option value="medium_truck">Medium Commercial Truck (Usable: 6,700 kg)</option>
+            <option value="truck_6w">6-Wheeler Truck (Usable: 9,000 kg)</option>
+            <option value="truck_10w">10-Wheeler Heavy Truck (Usable: 14,400 kg)</option>
+            <option value="multi_axle">Multi-Axle Truck (Usable: 22,500 kg)</option>
+          </select>
+        </div>
+
+        <!-- TRANSPORT OWNERSHIP SELECTION -->
+        <div class="field">
+          <label>Transport Ownership</label>
+          <div class="segmented-control">
+            <label>
+              <input type="radio" name="ownership" id="ownership_hired" value="hired" checked />
+              <span>🤝 Hired Vehicle</span>
+            </label>
+            <label>
+              <input type="radio" name="ownership" id="ownership_owned" value="owned" />
+              <span>🚜 Farmer Owned</span>
+            </label>
           </div>
+        </div>
 
+        <!-- LIVE VEHICLE PREVIEW & TRIP SPECIFICATION -->
+        <div id="vehicle-preview-card" class="vehicle-preview">
+          <div class="vehicle-preview-title">
+            <span id="preview-vehicle-name">Tata Ace Gold (1-tonne)</span>
+            <span id="preview-trust-pill" class="trust-pill estimate">Configured Estimate</span>
+          </div>
+          <div class="vehicle-preview-grid">
+            <div>
+              <small>Usable Payload</small>
+              <strong id="preview-payload">900 kg</strong>
+            </div>
+            <div>
+              <small>Trips Required</small>
+              <strong id="preview-trips">1 trip</strong>
+            </div>
+            <div>
+              <small>Est. Rate / km</small>
+              <strong id="preview-rate">₹18.00 / km</strong>
+            </div>
+            <div>
+              <small>Last Verified</small>
+              <strong id="preview-verified">2024-10-01</strong>
+            </div>
+          </div>
+          <div id="preview-warning" class="overload-warning" style="display:none;"></div>
         </div>
 
         <button

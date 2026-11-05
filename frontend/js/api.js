@@ -29,6 +29,8 @@
     predictPrice: "/api/predictions/price",
     predictionHistory: "/api/predictions/history",
     harvestRoutes: "/api/harvest/routes",
+    harvestVehicles: "/api/harvest/vehicles",
+    harvestFuelPrice: "/api/harvest/fuel-price",
   };
 
   function endpoint(path, query) {
@@ -206,6 +208,14 @@
     return postJson(API_PATHS.harvestRoutes, payload);
   }
 
+  function getHarvestVehicles() {
+    return getJson(API_PATHS.harvestVehicles);
+  }
+
+  function getHarvestFuelPrice() {
+    return getJson(API_PATHS.harvestFuelPrice);
+  }
+
   global.CropMandiAPI = {
     baseUrl: API_BASE_URL,
     paths: API_PATHS,
@@ -235,5 +245,7 @@
     predictPrice: predictPrice,
     getPredictionHistory: getPredictionHistory,
     planHarvestRoutes: planHarvestRoutes,
+    getHarvestVehicles: getHarvestVehicles,
+    getHarvestFuelPrice: getHarvestFuelPrice,
   };
 })(window);

@@ -90,8 +90,9 @@
       }
     }
     if (routingEl) {
+      var hasRoad = rows.some(function(r) { return r.road_distance_km !== null && r.road_distance_km !== undefined; });
       routingEl.textContent = rows.length
-        ? "Distance is a straight-line estimate (Haversine)."
+        ? (hasRoad ? "Distance and travel time calculated via road routing (OSRM)." : "Distance is a straight-line estimate (Haversine).")
         : "";
     }
     if (!listEl) {
@@ -107,14 +108,24 @@
       if (mapElHide) { mapElHide.classList.add("hidden"); }
       return;
     }
-    rows.forEach(function (row) {
+    rows.forEach(function (row, idx) {
       var li = document.createElement("li");
-      li.className = "border border-outline-variant/40 rounded-xl p-3 bg-white";
+      li.className = "border border-outline-variant/40 rounded-xl p-3 bg-white hover:border-primary/40 transition-colors";
+
+      var headerRow = document.createElement("div");
+      headerRow.className = "flex items-start justify-between gap-2";
 
       var title = document.createElement("p");
       title.className = "text-sm font-semibold text-on-background";
       title.textContent = row.name || "Unnamed storage";
-      li.appendChild(title);
+      headerRow.appendChild(title);
+
+      var badge = document.createElement("span");
+      badge.className = "text-xs font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant flex-shrink-0";
+      badge.textContent = "#" + (idx + 1);
+      headerRow.appendChild(badge);
+
+      li.appendChild(headerRow);
 
       var placeBits = [];
       if (row.district) {
@@ -122,8 +133,14 @@
       } else if (row.location) {
         placeBits.push(row.location);
       }
-      if (row.distance_km !== null && row.distance_km !== undefined) {
-        placeBits.push(row.distance_km + " km");
+      if (row.road_distance_km !== null && row.road_distance_km !== undefined) {
+        var roadStr = row.road_distance_km + " km (road)";
+        if (row.eta_minutes !== null && row.eta_minutes !== undefined) {
+          roadStr += " · " + row.eta_minutes + " min";
+        }
+        placeBits.push(roadStr);
+      } else if (row.distance_km !== null && row.distance_km !== undefined) {
+        placeBits.push(row.distance_km + " km (straight-line)");
       }
       var place = document.createElement("p");
       place.className = "text-xs text-on-surface-variant mt-0.5";
@@ -157,7 +174,7 @@
       }
 
       var actions = document.createElement("div");
-      actions.className = "flex gap-3 mt-2";
+      actions.className = "flex items-center gap-3 mt-3 flex-wrap";
       if (row.source_url) {
         var link = document.createElement("a");
         link.className = "text-xs font-semibold text-primary";
@@ -175,6 +192,19 @@
         dir.rel = "noopener noreferrer";
         dir.innerHTML = '<span class="material-symbols-outlined text-sm">directions</span> Directions';
         actions.appendChild(dir);
+      }
+      if (typeof row.latitude === "number" && typeof row.longitude === "number") {
+        var locateBtn = document.createElement("button");
+        locateBtn.type = "button";
+        locateBtn.className = "text-xs font-semibold text-on-surface-variant hover:text-primary flex items-center gap-1";
+        locateBtn.innerHTML = '<span class="material-symbols-outlined text-sm">my_location</span> Locate on map';
+        (function (storageIndex) {
+          locateBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            focusStorageMarker(storageIndex);
+          });
+        })(idx);
+        actions.appendChild(locateBtn);
       }
       var bookBtn = document.createElement("button");
       bookBtn.type = "button";
@@ -197,10 +227,21 @@
       }
       listEl.appendChild(li);
     });
-    renderStorageMap(rows);
+    renderStorageMap(rows, payload);
   }
 
-  function renderStorageMap(rows) {
+  function focusStorageMarker(idx) {
+    if (!storageMap || !storageMarkers[idx]) { return; }
+    var marker = storageMarkers[idx];
+    storageMap.setView(marker.getLatLng(), 14, { animate: true });
+    marker.openPopup();
+    var mapEl = document.getElementById("dash-storage-map");
+    if (mapEl) {
+      mapEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  function renderStorageMap(rows, payload) {
     if (typeof L === "undefined") { return; }
     var mapEl = document.getElementById("dash-storage-map");
     if (!mapEl) { return; }
@@ -232,16 +273,50 @@
     storageMarkers = [];
 
     var bounds = [];
+
+    // Add farmer origin pin if available
+    var farmerLoc = payload && payload.farmer_location;
+    if (farmerLoc && typeof farmerLoc.latitude === "number" && typeof farmerLoc.longitude === "number") {
+      var farmLat = farmerLoc.latitude;
+      var farmLon = farmerLoc.longitude;
+      var farmIcon = L.divIcon({
+        className: "custom-farmer-pin",
+        html: '<div style="background-color:#059669;color:#ffffff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.35);border:2px solid #ffffff;">F</div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -15]
+      });
+      var farmMarker = L.marker([farmLat, farmLon], { icon: farmIcon })
+        .bindPopup("<b>Farm / Origin</b><br>" + (farmerLoc.name || payload.requested_location || "Farmer location"))
+        .addTo(storageMap);
+      storageMarkers.push(farmMarker);
+      bounds.push([farmLat, farmLon]);
+    }
+
     pinnable.forEach(function (row, idx) {
       var lat = row.latitude;
       var lng = row.longitude;
       var label = row.name || "Cold Storage " + (idx + 1);
       var capacity = row.capacity_mt ? " · " + row.capacity_mt + " MT" : "";
-      var dist = (row.distance_km !== null && row.distance_km !== undefined)
-        ? " · " + row.distance_km + " km" : "";
-      var popup = "<b>" + label + "</b><br>"
-        + (row.district || row.location || "") + dist + capacity;
-      var marker = L.marker([lat, lng])
+      var dist = "";
+      if (row.road_distance_km !== null && row.road_distance_km !== undefined) {
+        dist = " · " + row.road_distance_km + " km (road)";
+      } else if (row.distance_km !== null && row.distance_km !== undefined) {
+        dist = " · " + row.distance_km + " km (straight-line)";
+      }
+      var dirLink = row.directions_url ? "<br><a href='" + row.directions_url + "' target='_blank' rel='noopener' style='color:#075b43;font-weight:700;'>Get Directions ↗</a>" : "";
+      var popup = "<b>#" + (idx + 1) + " " + label + "</b><br>"
+        + (row.district || row.location || "") + dist + capacity + dirLink;
+
+      var storageIcon = L.divIcon({
+        className: "custom-storage-pin",
+        html: '<div style="background-color:#d97706;color:#ffffff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #ffffff;">' + (idx + 1) + '</div>',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+        popupAnchor: [0, -14]
+      });
+
+      var marker = L.marker([lat, lng], { icon: storageIcon })
         .bindPopup(popup)
         .addTo(storageMap);
       storageMarkers.push(marker);
@@ -251,7 +326,7 @@
     if (bounds.length === 1) {
       storageMap.setView(bounds[0], 11);
     } else {
-      storageMap.fitBounds(bounds, { padding: [28, 28] });
+      storageMap.fitBounds(bounds, { padding: [35, 35] });
     }
     // Force redraw after reveal
     setTimeout(function () { storageMap.invalidateSize(); }, 120);

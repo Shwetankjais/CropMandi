@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from apps.api.analytics import analytics_response
 from apps.api.crop_intelligence import router as crop_intelligence_router
 from apps.api.harvest_routes import HarvestRouteRequest, harvest_routes_payload, router as harvest_router
+from apps.api.vehicle_catalogue import get_all_vehicles, get_diesel_price
 from apps.api.cold_storage import location_payload, nearby_payload
 from apps.api.errors import ApiError
 from apps.api.market_centres import available_payload, centres_payload, locations_payload, prices_payload

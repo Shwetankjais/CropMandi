@@ -35,6 +35,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+import httpx
 import requests
 from dotenv import load_dotenv
 
@@ -73,6 +74,7 @@ class StorageService:
         )
         self.query_locations = load_query_locations()
         self.coordinate_overlay = load_coordinate_overlay()
+        self._road_route_cache: dict[tuple[float, float, float, float], tuple[float | None, float | None, str]] = {}
 
         self._load_extra_sources()
         self._apply_coordinate_overlay()
@@ -444,6 +446,64 @@ class StorageService:
             )
             return None, None
 
+    def _route_road(
+        self,
+        origin_lat: float,
+        origin_lon: float,
+        destination_lat: float,
+        destination_lon: float,
+    ) -> tuple[float | None, float | None, str]:
+        """Calculate road route metrics using OSRM, falling back to ORS if configured.
+
+        Returns:
+            (distance_km, eta_minutes, routing_source)
+        """
+        cache_key = (
+            round(float(origin_lat), 4),
+            round(float(origin_lon), 4),
+            round(float(destination_lat), 4),
+            round(float(destination_lon), 4),
+        )
+        if cache_key in self._road_route_cache:
+            return self._road_route_cache[cache_key]
+
+        # 1. Try OSRM (public, no API key required)
+        try:
+            url = (
+                f"https://router.project-osrm.org/route/v1/driving/"
+                f"{origin_lon},{origin_lat};{destination_lon},{destination_lat}"
+            )
+            resp = httpx.get(
+                url,
+                params={"overview": "false", "steps": "false"},
+                timeout=4.0,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                routes = data.get("routes") or []
+                if routes:
+                    sel = routes[0]
+                    dist_km = float(sel["distance"]) / 1000.0
+                    eta_min = float(sel["duration"]) / 60.0
+                    res = (dist_km, eta_min, "OSRM")
+                    self._road_route_cache[cache_key] = res
+                    return res
+        except Exception:
+            pass
+
+        # 2. Try OpenRouteService if API key configured
+        dist_ors, eta_ors = self._route_ors(
+            origin_lat, origin_lon, destination_lat, destination_lon
+        )
+        if dist_ors is not None:
+            res = (dist_ors, eta_ors, "OpenRouteService")
+            self._road_route_cache[cache_key] = res
+            return res
+
+        res = (None, None, "haversine_fallback")
+        self._road_route_cache[cache_key] = res
+        return res
+
     # ------------------------------------------------------------
     # PUBLIC API
     # ------------------------------------------------------------
@@ -549,7 +609,7 @@ class StorageService:
             : max(limit * 2, limit)
         ]:
 
-            road_distance, eta_minutes = self._route_ors(
+            road_distance, eta_minutes, routing_source = self._route_road(
                 latitude,
                 longitude,
                 record["latitude"],
@@ -557,20 +617,22 @@ class StorageService:
             )
 
             if road_distance is None:
-                road_distance = straight_distance
+                final_distance = straight_distance
+                road_dist_val = None
                 routing_source = "haversine_fallback"
                 routing_note = (
                     "Road routing unavailable; "
-                    "distance is straight-line estimate."
+                    "distance is straight-line estimate (Haversine)."
                 )
             else:
-                routing_source = "OpenRouteService"
+                final_distance = road_distance
+                road_dist_val = round(road_distance, 1)
                 routing_note = (
-                    "Road distance and ETA from routing service."
+                    f"Road distance and ETA from {routing_source} routing service."
                 )
 
             if (
-                road_distance > max_distance_km
+                final_distance > max_distance_km
             ):
                 continue
 
@@ -579,17 +641,13 @@ class StorageService:
             result.update(
                 {
                     "distance_km": round(
-                        road_distance,
-                        2,
+                        final_distance,
+                        1,
                     ),
-                    "road_distance_km": round(
-                        road_distance,
-                        2,
-                    ),
+                    "road_distance_km": road_dist_val,
                     "eta_minutes": (
                         round(
-                            eta_minutes,
-                            1,
+                            eta_minutes
                         )
                         if eta_minutes is not None
                         else None
@@ -648,23 +706,25 @@ class StorageService:
             if key in seen_keys:
                 continue
             seen_keys.add(key)
-            distance = round(
+            straight_dist = round(
                 self.haversine_km(lat, lon, record["latitude"], record["longitude"]),
                 1,
             )
             exact = is_exact_facility(record, location)
-            match_type = match_type_for_distance(distance, exact)
+            match_type = match_type_for_distance(straight_dist, exact)
             if match_type == "NO_DATA" and not exact:
                 continue
-            if distance > max_distance_km and not exact:
+            if straight_dist > max_distance_km and not exact:
                 continue
             item = dict(record)
             item.update(
                 {
-                    "distance_km": distance,
-                    "road_distance_km": distance,
-                    "routing_source": "haversine",
-                    "routing_note": "Straight-line distance (Haversine). Road routing is not used for location search.",
+                    "distance_km": straight_dist,
+                    "straight_distance_km": straight_dist,
+                    "road_distance_km": None,
+                    "eta_minutes": None,
+                    "routing_source": "haversine_fallback",
+                    "routing_note": "Straight-line distance (Haversine).",
                     "match_type": match_type,
                     "facility_location": ", ".join(
                         part for part in (record.get("district"), record.get("state")) if part
@@ -676,6 +736,20 @@ class StorageService:
 
         scored.sort(key=lambda row: (0 if row["match_type"] == "EXACT" else 1, row["distance_km"]))
         selected = scored[: max(1, min(int(limit), 20))]
+
+        # Query road routing for selected facilities via OSRM
+        for item in selected:
+            road_dist, eta, src = self._route_road(lat, lon, item["latitude"], item["longitude"])
+            if road_dist is not None:
+                item["road_distance_km"] = round(road_dist, 1)
+                item["eta_minutes"] = round(eta) if eta is not None else None
+                item["routing_source"] = src
+                item["routing_note"] = f"Road distance and travel time from {src} road routing."
+            else:
+                item["road_distance_km"] = None
+                item["eta_minutes"] = None
+                item["routing_source"] = "haversine_fallback"
+                item["routing_note"] = "Road routing unavailable; distance is straight-line estimate (Haversine)."
         types = [row["match_type"] for row in selected]
         match_type = overall_match_type(types)
         message = None

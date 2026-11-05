@@ -47,7 +47,7 @@ def test_cold_storages_mysuru_returns_dataset_records():
         if row["operational_status"] == "unknown":
             assert row["operational_status_label"] == "Unknown"
         assert row["distance_km"] is not None
-        assert row["routing_source"] in ("haversine_fallback", "OpenRouteService")
+        assert row["routing_source"] in ("haversine_fallback", "OpenRouteService", "OSRM")
         assert "kswc" not in (row["name"] or "").lower()
         assert "warehouse" not in (row["name"] or "").lower()
 

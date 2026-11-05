@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from apps.api.errors import ApiError
@@ -68,18 +69,34 @@ def _commodities_label(record: dict[str, Any]) -> str:
     return crops
 
 
-def _public_record(record: dict[str, Any]) -> dict[str, Any]:
+def _public_record(
+    record: dict[str, Any],
+    origin_lat: float | None = None,
+    origin_lon: float | None = None,
+) -> dict[str, Any]:
     source = str(record.get("source") or "unknown")
     notes = str(record.get("notes") or "")
     status = str(record.get("operational_status") or "unknown")
     routing_source = record.get("routing_source")
     lat = record.get("latitude")
     lon = record.get("longitude")
-    maps_url = None
+
+    # Deterministic facility ID
+    facility_id = record.get("id") or record.get("document_id")
+    if not facility_id:
+        slug = re.sub(r"[^a-z0-9]+", "_", str(record.get("name") or "").lower()).strip("_")
+        dist_slug = re.sub(r"[^a-z0-9]+", "_", str(record.get("district") or "").lower()).strip("_")
+        facility_id = f"cs_{slug}_{dist_slug}" if dist_slug else f"cs_{slug}"
+
+    directions_url = None
     if lat is not None and lon is not None:
-        maps_url = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=14/{lat}/{lon}"
+        if origin_lat is not None and origin_lon is not None:
+            directions_url = f"https://www.google.com/maps/dir/?api=1&origin={origin_lat},{origin_lon}&destination={lat},{lon}&travelmode=driving"
+        else:
+            directions_url = f"https://www.google.com/maps/dir/?api=1&destination={lat},{lon}&travelmode=driving"
+
     return {
-        "id": record.get("id") or record.get("document_id"),
+        "id": facility_id,
         "name": record.get("name") or "",
         "village": record.get("village") or "",
         "taluk": record.get("taluk") or "",
@@ -118,7 +135,7 @@ def _public_record(record: dict[str, Any]) -> dict[str, Any]:
         "source_label": _source_label(source, notes),
         "verification_status": record.get("verification_status") or "",
         "last_verified_at": record.get("last_verified_at") or "",
-        "directions_url": maps_url,
+        "directions_url": directions_url,
         "coordinates_source": record.get("coordinates_source"),
         "notes": notes,
     }
@@ -147,7 +164,7 @@ def nearby_payload(
         max_distance_km=max_distance_km,
         limit=limit,
     )
-    public = [_public_record(row) for row in rows]
+    public = [_public_record(row, origin_lat=latitude, origin_lon=longitude) for row in rows]
     routing_sources = sorted({row.get("routing_source") or "" for row in public if row.get("routing_source")})
     return {
         "count": len(public),
@@ -175,8 +192,10 @@ def nearby_payload(
 
 def location_payload(location: str, limit: int = 5) -> dict[str, Any]:
     result = get_storage_service().find_for_location(location, limit=limit)
-    facilities = [_public_record(row) for row in result.get("facilities") or []]
     resolved = result.get("resolved_location") or {}
+    orig_lat = resolved.get("latitude")
+    orig_lon = resolved.get("longitude")
+    facilities = [_public_record(row, origin_lat=orig_lat, origin_lon=orig_lon) for row in result.get("facilities") or []]
     return {
         "requested_location": result.get("requested_location"),
         "matched_location": facilities[0]["location"] if facilities else None,
@@ -185,6 +204,11 @@ def location_payload(location: str, limit: int = 5) -> dict[str, Any]:
         "query_state": resolved.get("state"),
         "query_district": resolved.get("district"),
         "query_coordinates_precision": resolved.get("coordinates_precision"),
+        "farmer_location": {
+            "latitude": orig_lat,
+            "longitude": orig_lon,
+            "name": location,
+        } if (orig_lat is not None and orig_lon is not None) else None,
         "message": result.get("message"),
         "disclaimer": (
             "Nearby facilities are not located in the selected village. "
