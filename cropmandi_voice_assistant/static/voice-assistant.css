@@ -31,3 +31,7 @@
 .cm-voice-hint { margin: 0; padding: 0 13px 12px; background: #fff; color: #687a6e; font-size: 10px; line-height: 1.4; }
 @keyframes cmVoicePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(166, 43, 43, .22); } 50% { box-shadow: 0 0 0 5px rgba(166, 43, 43, .05); } }
 @media (max-width: 480px) { .cm-voice-fab { right: 14px; bottom: 14px; width: 57px; height: 57px; } .cm-voice-panel { right: 10px; bottom: 81px; width: calc(100vw - 20px); max-height: calc(100vh - 100px); } }
+
+/* Voice controls stay within the existing floating widget. */
+#cropmandi-voice-root .cm-voice-actions { flex-wrap: wrap; }
+#cropmandi-voice-root button:focus-visible, #cropmandi-voice-root select:focus-visible { outline: 2px solid #166534; outline-offset: 2px; }

@@ -1,0 +1,31 @@
+........................................................................ [ 22%]
+........................................................................ [ 44%]
+........................................................................ [ 66%]
+........................................................................ [ 89%]
+...................................                                      [100%]
+323 passed in 83.74s (0:01:23)
+✔ follow-up does not reintroduce page coffee variety after spoken crop change (22.261333ms)
+✔ changed page selection supersedes conversation selections (0.737916ms)
+✔ identical in-flight commands are suppressed and close cancels stale response (0.630083ms)
+✔ a new command supersedes an older pending command (0.541041ms)
+✔ stopping pending synthesis prevents late audio playback (3.689458ms)
+✔ network timeout clears processing state (0.75025ms)
+✔ microphone denial restores controls (1.116291ms)
+✔ late microphone permission after close releases tracks (0.76475ms)
+✔ pending microphone permission expires without stuck listening (0.480458ms)
+✔ unknown navigation never leaves the application (0.491083ms)
+✔ standalone and integrated widget assets remain identical (0.571667ms)
+✔ HarvestRoute JSON series selections preserve variety and grade (0.40325ms)
+✔ uncertain transcript is editable and never auto-executes a command (1.588ms)
+✔ unsupported microphone clears a previously pending processing state (0.457375ms)
+✔ uncertain transcript review is spoken and replayable in Kannada (1.462792ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 90.13775
+
+Working DB unchanged: True SHA256 681bedde9da069e26efa302723aee709ca9c18e9f17478ba774643e1e8332db8

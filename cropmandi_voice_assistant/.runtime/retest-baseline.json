@@ -1,0 +1,9 @@
+{
+  "cropmandi_voice_assistant/intent_parser.py": "d46490e5c95cff6bf3f8dc17a2f3dd8345e2b2c321d9dad9af5a2c6dc53af181",
+  "cropmandi_voice_assistant/routes.py": "34886c67f7d330f64136c924618ace541c1af1f669cb390b5e8140803707b463",
+  "cropmandi_voice_assistant/speech_engine.py": "4178e6605b52d9ca33ba6b381f5a1bc491630d4c2ea14205c8d16d65ef285dc0",
+  "cropmandi_voice_assistant/assistant_service.py": "b10969e1d5308c71cffef7c87cf54b35b2fd1d24ce442a1a1f63ebc57f8cc755",
+  "frontend/js/voice-assistant.js": "14465382680afc31325c235cbe2fb5fa2f273365c1db4e65461d226bfd5cc478",
+  "cropmandi_voice_assistant/static/voice-assistant.js": "14465382680afc31325c235cbe2fb5fa2f273365c1db4e65461d226bfd5cc478",
+  "data/cropmandi.db": "681bedde9da069e26efa302723aee709ca9c18e9f17478ba774643e1e8332db8"
+}

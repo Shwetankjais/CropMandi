@@ -25,6 +25,16 @@
   var COFFEE_WARNING =
     "Unverified local market-centre data — not official Coffee Board data";
 
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   var cropSelect;
   var locationSelect;
   var seriesSelect;
@@ -156,7 +166,7 @@
   function showError(message) {
     tableBody.innerHTML =
       '<tr><td colspan="4" class="px-3 py-4 text-center text-error">' +
-      message +
+      escapeHtml(message) +
       "</td></tr>";
     latestPriceEl.textContent = "Data unavailable";
     latestMetaEl.textContent = "Unavailable";
@@ -823,9 +833,16 @@
     pepperOpt.textContent = "Black Pepper";
     cropSelect.appendChild(pepperOpt);
     
-    // Restore saved state from localStorage IMMEDIATELY
-    var savedCommodity = localStorage.getItem("cropmandi_dash_commodity");
-    console.log("Dashboard init - saved commodity:", savedCommodity);
+    // Restore saved state from localStorage or URL parameter IMMEDIATELY
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlCommodity = (urlParams.get("commodity") || urlParams.get("crop") || "").toLowerCase().trim();
+    var savedCommodity = (urlCommodity === "coffee" || urlCommodity === "pepper")
+      ? urlCommodity
+      : localStorage.getItem("cropmandi_dash_commodity");
+    if (urlCommodity === "coffee" || urlCommodity === "pepper") {
+      localStorage.setItem("cropmandi_dash_commodity", urlCommodity);
+    }
+    console.log("Dashboard init - active commodity:", savedCommodity);
     if (savedCommodity && (savedCommodity === "coffee" || savedCommodity === "pepper")) {
       cropSelect.value = savedCommodity;
       console.log("Dashboard init - restored commodity to:", cropSelect.value);
@@ -838,8 +855,12 @@
     // Fill series options based on restored commodity
     fillSeriesOptions();
     
-    var savedVariety = localStorage.getItem("cropmandi_dash_variety");
-    console.log("Dashboard init - saved variety:", savedVariety);
+    var urlVariety = urlParams.get("variety");
+    var savedVariety = urlVariety || localStorage.getItem("cropmandi_dash_variety");
+    if (urlVariety) {
+      localStorage.setItem("cropmandi_dash_variety", urlVariety);
+    }
+    console.log("Dashboard init - active variety:", savedVariety);
     if (savedVariety) {
       // Check if the saved variety exists in the current options
       var varietyExists = false;

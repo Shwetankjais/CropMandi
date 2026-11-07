@@ -1,0 +1,79 @@
+{
+  "source_archive": "agmarknet_vegetable_reports.zip",
+  "parser_note": "The supplied .xls files are HTML tables, not binary Excel BIFF files.",
+  "crops": {
+    "maize": {
+      "source_files": 20,
+      "unique_observations": 26059,
+      "markets": 131,
+      "districts": 28,
+      "varieties": 8,
+      "grades": 6,
+      "date_min": "2025-01-01",
+      "date_max": "2026-10-30",
+      "quality_counts": {
+        "valid_rows_seen": 26059,
+        "subtotal_rows_excluded": 5775,
+        "invalid_or_missing_dates": 20,
+        "invalid_arrival_or_modal_price": 1439,
+        "invalid_min_max_range": 6
+      }
+    },
+    "paddy": {
+      "source_files": 22,
+      "unique_observations": 23660,
+      "markets": 111,
+      "districts": 29,
+      "varieties": 27,
+      "grades": 6,
+      "date_min": "2025-01-01",
+      "date_max": "2026-10-30",
+      "quality_counts": {
+        "valid_rows_seen": 23674,
+        "subtotal_rows_excluded": 6964,
+        "duplicate_series_rows": 14,
+        "invalid_or_missing_dates": 22,
+        "invalid_arrival_or_modal_price": 3138,
+        "duplicate_price_conflicts": 1,
+        "invalid_min_max_range": 6
+      }
+    },
+    "potato": {
+      "source_files": 22,
+      "unique_observations": 8991,
+      "markets": 38,
+      "districts": 20,
+      "varieties": 6,
+      "grades": 6,
+      "date_min": "2025-01-01",
+      "date_max": "2026-10-30",
+      "quality_counts": {
+        "valid_rows_seen": 8991,
+        "subtotal_rows_excluded": 1407,
+        "invalid_or_missing_dates": 22,
+        "invalid_arrival_or_modal_price": 354
+      }
+    },
+    "tomato": {
+      "source_files": 22,
+      "unique_observations": 14708,
+      "markets": 44,
+      "districts": 18,
+      "varieties": 2,
+      "grades": 6,
+      "date_min": "2025-01-01",
+      "date_max": "2026-10-30",
+      "quality_counts": {
+        "valid_rows_seen": 14708,
+        "subtotal_rows_excluded": 1629,
+        "invalid_or_missing_dates": 22,
+        "invalid_arrival_or_modal_price": 87,
+        "invalid_min_max_range": 20
+      }
+    }
+  },
+  "total_rows_imported": 73418,
+  "total_market_names": 151,
+  "date_min": "2025-01-01",
+  "date_max": "2026-10-30"
+}

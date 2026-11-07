@@ -355,6 +355,16 @@
     return unitStr;
   }
 
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   // Populate varieties dropdown when commodity changes
   function updateVarietyDropdown(selectedCommodity) {
     if (!el.varietySelect) return;
@@ -751,21 +761,21 @@
       tr.innerHTML = `
         <td class="p-4 flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
-            ${row.market.slice(0, 2).toUpperCase()}
+            ${escapeHtml(row.market.slice(0, 2).toUpperCase())}
           </div>
           <div>
-            <span class="font-semibold text-on-surface hover:text-primary transition-colors">${row.market}</span>
+            <span class="font-semibold text-on-surface hover:text-primary transition-colors">${escapeHtml(row.market)}</span>
           </div>
         </td>
-        <td class="p-4 font-semibold text-on-surface">₹${formatINR(row.rate)} <span class="text-xs text-on-surface-variant font-normal">/ ${row.unit}</span></td>
-        <td class="p-4 text-xs text-on-surface-variant">${row.grade}</td>
+        <td class="p-4 font-semibold text-on-surface">₹${formatINR(row.rate)} <span class="text-xs text-on-surface-variant font-normal">/ ${escapeHtml(row.unit)}</span></td>
+        <td class="p-4 text-xs text-on-surface-variant">${escapeHtml(row.grade)}</td>
         <td class="p-4 text-xs font-semibold text-surface-tint">
           <span class="material-symbols-outlined text-sm align-middle mr-0.5">trending_up</span>
           +${row.predictionChange}%
         </td>
         <td class="p-4">
           <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${badgeColor} shadow-sm">
-            ${row.action}
+            ${escapeHtml(row.action)}
           </span>
         </td>
       `;
@@ -1023,34 +1033,34 @@
           : '—';
 
         tr.innerHTML = `
-          <td class="p-4 text-xs text-on-surface-variant whitespace-nowrap">${dt}</td>
+          <td class="p-4 text-xs text-on-surface-variant whitespace-nowrap">${escapeHtml(dt)}</td>
           <td class="p-4 font-semibold text-on-surface">
             <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase">
-              ${p.commodity || '—'}
+              ${escapeHtml(p.commodity || '—')}
             </span>
-            <span class="text-xs text-on-surface-variant ml-1">${p.variety || ''}</span>
+            <span class="text-xs text-on-surface-variant ml-1">${escapeHtml(p.variety || '')}</span>
           </td>
           <td class="p-4 text-sm font-medium text-on-surface">
-            ${p.market || '—'}
-            <span class="block text-xs text-on-surface-variant">${p.district || ''}</span>
+            ${escapeHtml(p.market || '—')}
+            <span class="block text-xs text-on-surface-variant">${escapeHtml(p.district || '')}</span>
           </td>
-          <td class="p-4 text-xs font-semibold text-primary">${p.prediction_date || '—'}</td>
+          <td class="p-4 text-xs font-semibold text-primary">${escapeHtml(p.prediction_date || '—')}</td>
           <td class="p-4 text-sm font-semibold text-on-surface">
             ₹${formatINR(p.latest_observed_price)}
           </td>
           <td class="p-4 text-sm font-bold text-primary">
             ₹${formatINR(p.predicted_price)}
             <span class="block text-[11px] font-semibold ${isPositive ? 'text-surface-tint' : 'text-error'}">
-              ${diffText}
+              ${escapeHtml(diffText)}
             </span>
           </td>
           <td class="p-4 text-sm font-bold text-on-surface">
             ₹${formatINR(p.estimated_gross_value)}
-            <span class="block text-[10px] text-on-surface-variant">${p.quantity || 50} ${unit}s</span>
+            <span class="block text-[10px] text-on-surface-variant">${escapeHtml(String(p.quantity || 50))} ${escapeHtml(unit)}s</span>
           </td>
           <td class="p-4 text-xs">
             <span class="px-2 py-1 rounded-md text-[11px] font-medium bg-surface-container-high text-on-surface">
-              ${p.model_name || 'ML Model'}
+              ${escapeHtml(p.model_name || 'ML Model')}
             </span>
           </td>
         `;

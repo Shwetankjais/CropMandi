@@ -38,6 +38,7 @@
       <div class="cm-voice-language-row">
         <label for="cmVoiceLanguage">Language</label>
         <select id="cmVoiceLanguage">
+          <option value="auto">Auto / ಸ್ವಯಂ / स्वतः</option>
           <option value="hi-IN">हिन्दी</option>
           <option value="en-IN" selected>English</option>
           <option value="kn-IN">ಕನ್ನಡ</option>
@@ -53,448 +54,342 @@
       </form>
       <div class="cm-voice-actions">
         <button id="cmVoiceMic" type="button" class="cm-voice-mic"><span aria-hidden="true">🎤</span> Speak</button>
+        <button id="cmVoiceMute" type="button" class="cm-voice-small-button" aria-pressed="false">Mute</button>
+        <button id="cmVoiceReplay" type="button" class="cm-voice-small-button" disabled>Replay</button>
         <button id="cmVoiceStop" type="button" class="cm-voice-small-button" disabled>Stop audio</button>
       </div>
       <p class="cm-voice-hint">Speech input is transcribed locally after the model's first download. Natural Hindi/Kannada audio uses an online voice service; a device voice is used if available.</p>
     </section>`;
   document.body.appendChild(root);
 
-  const fab = root.querySelector("#cmVoiceFab");
-  const panel = root.querySelector("#cmVoicePanel");
-  const closeButton = root.querySelector("#cmVoiceClose");
-  const languageSelect = root.querySelector("#cmVoiceLanguage");
-  const messages = root.querySelector("#cmVoiceMessages");
-  const input = root.querySelector("#cmVoiceText");
-  const form = root.querySelector("#cmVoiceForm");
-  const sendButton = root.querySelector("#cmVoiceSend");
-  const micButton = root.querySelector("#cmVoiceMic");
-  const stopButton = root.querySelector("#cmVoiceStop");
-  const status = root.querySelector("#cmVoiceStatus");
-  const clearButton = root.querySelector("#cmVoiceClear");
-
-  let mediaRecorder = null;
-  let mediaStream = null;
-  let audioChunks = [];
-  let listening = false;
-  let discardRecording = false;
-  let transcriptionInFlight = false;
-  let requestInFlight = false;
-  let playingAudio = null;
-  let playingObjectUrl = null;
+  const find = (id) => root.querySelector("#" + id);
+  const fab = find("cmVoiceFab"), panel = find("cmVoicePanel"), input = find("cmVoiceText");
+  const messages = find("cmVoiceMessages"), status = find("cmVoiceStatus"), mic = find("cmVoiceMic");
+  const languageSelect = find("cmVoiceLanguage"), stopButton = find("cmVoiceStop");
+  const replayButton = find("cmVoiceReplay"), muteButton = find("cmVoiceMute");
+  let conversation = {}, lastAnswer = null, muted = false, requestId = 0, speechId = 0;
+  let recorder = null, stream = null, recording = false, permissionPending = false, micId = 0;
+  let recordingTimer = null, audio = null, audioUrl = null, finishPlayback = null;
+  let speechController = null, commandController = null, transcribeController = null;
+  let lastSubmitted = "", pending = false;
+  const contextKey = "cropmandi_voice_context_v3";
+  let lastPageSnapshot = "";
+  const knownPages = ["/index.html", "/cropmandi_ai_dashboard/code.html", "/cropmandi_ai_my_crops/code.html",
+    "/cropmandi_ai_harvest_route/code.html", "/cropmandi_mandi_price_ai/code.html", "/cropmandi_ai_analytics/code.html",
+    "/cropmandi_ai_settings/code.html", "/cropmandi_ai_farm_calendar/code.html", "/cropmandi_ai_alert_center/code.html"];
 
   function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, function (char) {
-      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char];
-    });
+    return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"})[c]);
   }
-
-  function localDateISO() {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  function localized(en, hi, kn, language) {
+    const lang = language || (languageSelect.value === "auto" ? (lastAnswer && lastAnswer.language) || "en" : languageSelect.value);
+    return String(lang).startsWith("kn") ? kn : String(lang).startsWith("hi") ? hi : en;
   }
-
-  function apiEndpoint(action) {
-    if (action === "command") return config.endpoint;
-    try {
-      const url = new URL(config.endpoint, window.location.href);
-      if (/\/command\/?$/.test(url.pathname)) {
-        url.pathname = url.pathname.replace(/\/command\/?$/, `/${action}`);
-      } else {
-        url.pathname = url.pathname.replace(/\/$/, "") + `/${action}`;
-      }
-      return url.toString();
-    } catch (_) {
-      return config.endpoint.replace(/\/command\/?$/, `/${action}`);
-    }
-  }
-
-  function readSelectedValue(selector) {
-    if (!selector) return "";
-    let element = null;
-    try { element = document.querySelector(selector); } catch (_) { return ""; }
-    if (!element) return "";
-    const value = String(element.value || "").trim();
-    if (!value || /^(select|choose|all|none|--)/i.test(value)) return "";
-    return value;
-  }
-
-  function getContext() {
-    const context = { client_date: localDateISO(), page: window.location.pathname };
-    Object.keys(config.selectors).forEach((key) => {
-      const value = readSelectedValue(config.selectors[key]);
-      if (value) context[key] = value;
-    });
-    if (context.crop) context.commodity = context.crop.toLowerCase();
-    return context;
-  }
-
-  function setStatus(text) { status.textContent = text; }
-
+  function ready() { status.textContent = localized("Ready to help", "मदद के लिए तैयार", "ಸಹಾಯಕ್ಕೆ ಸಿದ್ಧ"); }
   function addMessage(type, text) {
-    const item = document.createElement("div");
-    item.className = `cm-voice-message ${type}`;
-    item.textContent = text;
-    messages.appendChild(item);
-    messages.scrollTop = messages.scrollHeight;
+    const item = document.createElement("div"); item.className = "cm-voice-message " + type;
+    item.textContent = text; messages.appendChild(item); messages.scrollTop = messages.scrollHeight;
+    while (messages.children.length > 60) messages.firstElementChild.remove();
   }
-
-  function openPanel() {
-    panel.hidden = false;
-    fab.classList.add("is-open");
-    fab.setAttribute("aria-expanded", "true");
-    input.focus();
+  function localDateISO() {
+    const d = new Date(), pad = n => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   }
-
-  function closePanel() {
-    panel.hidden = true;
-    fab.classList.remove("is-open");
-    fab.setAttribute("aria-expanded", "false");
-    stopListening(true);
-    stopSpeaking();
-  }
-
-  function normalizedLanguage(language) {
-    const value = String(language || languageSelect.value || "en-IN").toLowerCase();
-    if (value.startsWith("hi")) return "hi-IN";
-    if (value.startsWith("kn")) return "kn-IN";
-    return "en-IN";
-  }
-
-  function getBrowserVoices() {
-    if (!("speechSynthesis" in window)) return Promise.resolve([]);
-    const synth = window.speechSynthesis;
-    const first = synth.getVoices() || [];
-    if (first.length) return Promise.resolve(first);
-    return new Promise((resolve) => {
-      let complete = false;
-      const finish = () => {
-        if (complete) return;
-        complete = true;
-        try { synth.removeEventListener("voiceschanged", finish); } catch (_) {}
-        resolve(synth.getVoices() || []);
-      };
-      try { synth.addEventListener("voiceschanged", finish, { once: true }); } catch (_) {}
-      window.setTimeout(finish, 1200);
-    });
-  }
-
-  async function speakWithBrowser(text, language) {
-    if (!("speechSynthesis" in window) || typeof window.SpeechSynthesisUtterance !== "function") return false;
-    const requestedLanguage = normalizedLanguage(language);
-    const voices = await getBrowserVoices();
-    const shortLanguage = requestedLanguage.slice(0, 2).toLowerCase();
-    const voice = voices.find((candidate) => String(candidate.lang || "").toLowerCase() === requestedLanguage.toLowerCase())
-      || voices.find((candidate) => String(candidate.lang || "").toLowerCase().startsWith(shortLanguage + "-"));
-    // Avoid reading Kannada/Hindi text through an unrelated English voice.
-    if (!voice && shortLanguage !== "en") return false;
-
-    return new Promise((resolve) => {
-      try {
-        const utterance = new SpeechSynthesisUtterance(String(text || ""));
-        utterance.lang = requestedLanguage;
-        utterance.rate = 0.92;
-        utterance.pitch = 1;
-        if (voice) utterance.voice = voice;
-        let finished = false;
-        const done = (result) => {
-          if (finished) return;
-          finished = true;
-          window.clearTimeout(timer);
-          resolve(result);
-        };
-        utterance.onend = () => done(true);
-        utterance.onerror = () => done(false);
-        const timer = window.setTimeout(() => done(false), Math.max(7000, String(text).length * 180));
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
-      } catch (_) { resolve(false); }
-    });
-  }
-
-  async function speak(text, language) {
-    if (!config.autoSpeak || !String(text || "").trim()) return;
-    stopSpeaking();
-    const selectedLanguage = normalizedLanguage(language);
-    stopButton.disabled = false;
-    setStatus("Preparing voice…");
-
-    // Prefer the neural Indian-language voice so Hindi and Kannada do not depend
-    // on which Windows/browser language packs happen to be installed.
+  function apiEndpoint(action) { return config.endpoint.replace(/\/command\/?$/, "/" + action); }
+  async function request(action, options, controller, timeout) {
+    const timer = window.setTimeout(() => controller.abort(), timeout);
     try {
-      const response = await fetch(apiEndpoint("speak"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "audio/mpeg" },
-        body: JSON.stringify({ text: String(text), language: selectedLanguage })
-      });
-      if (!response.ok) throw new Error(`TTS endpoint returned ${response.status}`);
-      const blob = await response.blob();
-      if (!blob.size) throw new Error("Empty audio response");
-      playingObjectUrl = URL.createObjectURL(blob);
-      const audio = new Audio(playingObjectUrl);
-      playingAudio = audio;
-      setStatus("Speaking…");
-      await new Promise((resolve, reject) => {
-        let done = false;
-        const finish = (error) => {
-          if (done) return;
-          done = true;
-          audio.onended = null;
-          audio.onerror = null;
-          error ? reject(error) : resolve();
-        };
-        audio.onended = () => finish();
-        audio.onerror = () => finish(new Error("Audio playback failed"));
-        Promise.resolve(audio.play()).catch((error) => finish(error));
-      });
-      stopSpeaking();
-      setStatus("Ready to help");
-      return;
-    } catch (_) {
-      // If online neural TTS is unavailable, try an installed on-device voice.
-      stopSpeaking();
-    }
-
-    const browserPlayed = await speakWithBrowser(text, selectedLanguage);
-    if (!browserPlayed) {
-      const unavailable = {
-        "hi-IN": "हिंदी में आवाज़ उपलब्ध नहीं है। इंटरनेट से जुड़ें या अपने डिवाइस में हिंदी की आवाज़ स्थापित करें।",
-        "kn-IN": "ಕನ್ನಡ ಧ್ವನಿ ಲಭ್ಯವಿಲ್ಲ. ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕಿಸಿ ಅಥವಾ ಸಾಧನದಲ್ಲಿ ಕನ್ನಡ ಧ್ವನಿಯನ್ನು ಸ್ಥಾಪಿಸಿ.",
-        "en-IN": "Audio playback is unavailable. Check the connection or use the text answer above."
-      };
-      addMessage("assistant", unavailable[selectedLanguage]);
-    }
-    stopButton.disabled = true;
-    setStatus("Ready to help");
+      const r = await fetch(apiEndpoint(action), {...options, signal: controller.signal});
+      if (!r.ok) {
+        const payload = await r.json().catch(() => ({}));
+        throw new Error(typeof payload.detail === "string" ? payload.detail : `Service returned ${r.status}`);
+      }
+      return options.audio ? await r.blob() : await r.json();
+    } finally { window.clearTimeout(timer); }
   }
+  function read(selector) {
+    try {
+      const el = document.querySelector(selector);
+      const value = el && String(el.value || "").trim();
+      return value && !/^(select|choose|all|none|loading|failed|--)/i.test(value) ? value : "";
+    } catch (_) { return ""; }
+  }
+  function pageContext() {
+    const result = {};
+    const pages = {
+      dashboard: {commodity:"#dash-crop", variety:"#dash-series", market:"#dash-location", quantity:"#dash-quantity"},
+      mandi: {commodity:"#mpa-crop", market:"#mpa-market", forecast_date:"#mpa-date"},
+      harvest: {commodity:"#commodity", variety:"#series", origin:"#origin", quantity:"#quantity", vehicle_id:"#vehicle_id"},
+      analytics: {commodity:"#analytics-commodity, #commodity-select", variety:"#analytics-variety", market:"#analytics-location, #location-select"}
+    };
+    const path = window.location.pathname;
+    const selectors = path.includes("harvest_route") ? pages.harvest : path.includes("mandi_price_ai") ? pages.mandi
+      : path.includes("analytics") ? pages.analytics : path.includes("dashboard") ? pages.dashboard : {};
+    Object.entries(selectors).forEach(([key, sel]) => { const v = read(sel); if (v) result[key] = v; });
+    // Explicit host configuration stays supported without reading hidden crop-editor forms.
+    Object.entries(config.selectors || {}).forEach(([key, sel]) => {
+      if (!result[key === "crop" ? "commodity" : key]) {
+        const v = read(sel); if (v) result[key === "crop" ? "commodity" : key] = v;
+      }
+    });
+    if (result.variety && result.variety.startsWith("[")) {
+      try {
+        const pair = JSON.parse(result.variety);
+        if (Array.isArray(pair) && pair.length === 2) { result.variety = String(pair[0]); result.grade = String(pair[1]); }
+      } catch (_) {}
+    }
+    if (path.includes("harvest_route")) {
+      result.quantity_unit = "kg";
+      result.vehicle_mode = read("input[name='vehicle_mode']:checked") || (document.getElementById("mode_manual")?.checked ? "manual" : "auto");
+      result.ownership = document.getElementById("ownership_owned")?.checked ? "owned" : "hired";
+    } else if (path.includes("dashboard")) { result.quantity_unit = "quintal"; }
+    return result;
+  }
+  function getContext() {
+    const page = pageContext(), snapshot = JSON.stringify(page);
+    const unchanged = snapshot === lastPageSnapshot;
+    const context = unchanged && Object.keys(conversation).length ? {...conversation} : {...conversation, ...page};
+    if (!unchanged && page.commodity && page.commodity !== conversation.commodity) {
+      if (!page.variety) delete context.variety;
+      if (!page.grade) delete context.grade;
+      delete context.pending_intent; delete context.target_date;
+    }
+    lastPageSnapshot = snapshot;
+    return {...context, page: window.location.pathname, client_date: localDateISO()};
+  }
+  function saveContext() {
+    try { sessionStorage.setItem(contextKey, JSON.stringify({conversation, language:languageSelect.value, muted, at:Date.now()})); } catch (_) {}
+  }
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(contextKey) || "null");
+    if (saved && Date.now() - saved.at < 30 * 60 * 1000) {
+      conversation = saved.conversation || {}; muted = !!saved.muted;
+      if (["auto", "en-IN", "hi-IN", "kn-IN"].includes(saved.language)) languageSelect.value = saved.language;
+    }
+  } catch (_) {}
+  function syncMute() { muteButton.textContent = muted ? "Unmute" : "Mute"; muteButton.setAttribute("aria-pressed", String(muted)); }
+  syncMute();
 
   function stopSpeaking() {
-    if (playingAudio) {
-      try { playingAudio.pause(); playingAudio.currentTime = 0; } catch (_) {}
-      playingAudio = null;
-    }
-    if (playingObjectUrl) {
-      try { URL.revokeObjectURL(playingObjectUrl); } catch (_) {}
-      playingObjectUrl = null;
-    }
+    speechId++;
+    if (speechController) { speechController.abort(); speechController = null; }
+    if (audio) { audio.pause(); audio = null; }
+    if (finishPlayback) { const finish = finishPlayback; finishPlayback = null; finish(false); }
+    if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = null; }
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     stopButton.disabled = true;
   }
-
-  function resetMicButton() {
-    micButton.classList.remove("is-listening");
-    micButton.innerHTML = "<span aria-hidden=\"true\">🎤</span> Speak";
-    micButton.disabled = transcriptionInFlight || requestInFlight;
+  function browserSpeak(text, language, id) {
+    if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance !== "function") return Promise.resolve(false);
+    return new Promise(resolve => {
+      const synth = window.speechSynthesis;
+      let finished = false, started = false;
+      const finish = ok => {
+        if (finished) return; finished = true; window.clearTimeout(timer); window.clearTimeout(voiceTimer);
+        synth.removeEventListener("voiceschanged", begin);
+        if (finishPlayback === finish) finishPlayback = null;
+        resolve(ok);
+      };
+      const begin = () => {
+        if (finished || started || id !== speechId) return;
+        const voices = synth.getVoices(), voice = voices.find(v => v.lang.toLowerCase().startsWith(language.slice(0,2)));
+        if (!voice && !language.startsWith("en")) return;
+        started = true;
+        const utterance = new SpeechSynthesisUtterance(text); utterance.lang = language; utterance.rate = 0.92;
+        if (voice) utterance.voice = voice;
+        utterance.onend = () => finish(true); utterance.onerror = () => finish(false);
+        synth.speak(utterance);
+      };
+      const timer = window.setTimeout(() => { synth.cancel(); finish(false); }, 60000);
+      const voiceTimer = window.setTimeout(() => { begin(); if (!started) finish(false); }, 1200);
+      finishPlayback = finish; synth.addEventListener("voiceschanged", begin); begin();
+    });
   }
-
-  function stopTracks() {
-    if (mediaStream) {
-      mediaStream.getTracks().forEach((track) => { try { track.stop(); } catch (_) {} });
-      mediaStream = null;
-    }
-  }
-
-  function stopListening(discard) {
-    const activeRecorder = mediaRecorder && mediaRecorder.state !== "inactive";
-    if (activeRecorder) {
-      discardRecording = discard !== false;
-      listening = false;
-      try {
-        // Do not stop microphone tracks yet. MediaRecorder must first emit its
-        // final dataavailable event and then onstop; stopping tracks too early
-        // can truncate the WebM/Opus container and make Whisper return HTTP 422.
-        mediaRecorder.stop();
-      } catch (error) {
-        stopTracks();
-        mediaRecorder = null;
-        audioChunks = [];
-      }
-    } else {
-      listening = false;
-      stopTracks();
-    }
-    resetMicButton();
-    if (status.textContent === "Recording…") setStatus("Ready to help");
-  }
-
-  async function transcribeRecording(blob) {
-    if (!blob || !blob.size) {
-      addMessage("assistant", "I didn't receive an audio recording. Please try again.");
-      setStatus("Ready to help");
-      return;
-    }
-    transcriptionInFlight = true;
-    resetMicButton();
-    setStatus("Transcribing speech locally…");
+  async function speak(text, language) {
+    stopSpeaking();
+    if (muted || !config.autoSpeak || !text) return;
+    const id = speechId, lang = String(language || "en").slice(0,2) + "-IN";
+    stopButton.disabled = false;
+    status.textContent = localized("Preparing voice…", "आवाज़ तैयार हो रही है…", "ಧ್ವನಿ ಸಿದ್ಧವಾಗುತ್ತಿದೆ…");
+    const controller = new AbortController(); speechController = controller;
     try {
-      const body = new FormData();
-      const extension = blob.type && blob.type.includes("mp4") ? "m4a" : blob.type && blob.type.includes("ogg") ? "ogg" : "webm";
-      body.append("audio", blob, `cropmandi-recording.${extension}`);
-      body.append("language", languageSelect.value);
-      const response = await fetch(apiEndpoint("transcribe"), { method: "POST", body });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.detail || payload.error || `Speech service returned ${response.status}`);
+      const blob = await request("speak", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({text,language:lang}), audio:true}, controller, 15000);
+      if (id !== speechId) return;
+      if (!blob.size) throw new Error("Empty audio");
+      audioUrl = URL.createObjectURL(blob); const player = new Audio(audioUrl); audio = player;
+      status.textContent = localized("Speaking…", "बोल रहा हूँ…", "ಮಾತನಾಡುತ್ತಿದ್ದೇನೆ…");
+      const played = await new Promise(resolve => {
+        const finish = ok => { window.clearTimeout(timer); player.onended = null; player.onerror = null; if (finishPlayback === finish) finishPlayback = null; resolve(ok); };
+        const timer = window.setTimeout(() => { player.pause(); finish(false); }, 60000);
+        finishPlayback = finish; player.onended = () => finish(true); player.onerror = () => finish(false);
+        Promise.resolve(player.play()).catch(() => finish(false));
+      });
+      if (!played && id === speechId) throw new Error("Playback unavailable");
+    } catch (_) {
+      if (id !== speechId) return;
+      if (audio) { audio.pause(); audio = null; }
+      if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = null; }
+      const played = await browserSpeak(text, lang, id);
+      if (!played && id === speechId) addMessage("assistant", localized("Spoken audio is unavailable. The answer is displayed above.", "आवाज़ उपलब्ध नहीं है। जवाब ऊपर लिखा है।", "ಧ್ವನಿ ಲಭ್ಯವಿಲ್ಲ. ಉತ್ತರವನ್ನು ಮೇಲೆ ತೋರಿಸಲಾಗಿದೆ."));
+    } finally {
+      if (id === speechId) { stopSpeaking(); ready(); }
+    }
+  }
+  function announce(text, language) {
+    const spokenLanguage = language || (languageSelect.value === "auto" ? (lastAnswer?.language || "en") : languageSelect.value);
+    addMessage("assistant", text);
+    lastAnswer = {text, language: spokenLanguage};
+    replayButton.disabled = false;
+    return speak(text, spokenLanguage);
+  }
+  function stopTracks() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; }
+  function resetMic() { mic.classList.remove("is-listening"); mic.textContent = localized("🎤 Speak", "🎤 बोलें", "🎤 ಮಾತನಾಡಿ"); mic.disabled = permissionPending; }
+  function stopListening(discard = true) {
+    micId++; permissionPending = false; window.clearTimeout(recordingTimer);
+    if (recorder && recorder.state !== "inactive") {
+      recorder.discard = discard; recording = false;
+      try { recorder.stop(); } catch (_) { stopTracks(); recorder = null; }
+    } else { stopTracks(); recording = false; }
+    resetMic();
+  }
+  function cancelRequests() {
+    requestId++; pending = false;
+    if (commandController) commandController.abort();
+    if (transcribeController) transcribeController.abort();
+    commandController = null; transcribeController = null;
+  }
+  async function transcribeRecording(blob, id) {
+    const controller = new AbortController(); transcribeController = controller;
+    status.textContent = localized("Transcribing locally…", "स्थानीय लिप्यंतरण…", "ಸ್ಥಳೀಯ ಲಿಪ್ಯಂತರಣ…");
+    try {
+      const form = new FormData(); const ext = blob.type.includes("mp4") ? "m4a" : blob.type.includes("ogg") ? "ogg" : "webm";
+      form.append("audio", blob, "recording." + ext); form.append("language", languageSelect.value);
+      const result = await request("transcribe", {method:"POST",body:form}, controller, 95000);
+      if (id !== requestId) return;
+      const data = result.data || {}, text = String(data.text || "").trim();
+      if (!text) throw new Error(localized("No clear words detected. Please retry.", "स्पष्ट शब्द नहीं मिले। फिर बोलिए।", "ಸ್ಪಷ್ಟ ಪದಗಳು ಕೇಳಿಸಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."));
+      if (languageSelect.value === "auto" && !["en","hi","kn"].includes(data.detected_language)) {
+        addMessage("assistant", localized("Please choose English, Hindi or Kannada and retry.", "English, हिन्दी या ಕನ್ನಡ चुनकर फिर बोलिए।", "English, हिन्दी ಅಥವಾ ಕನ್ನಡ ಆಯ್ಕೆಮಾಡಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.")); return;
       }
-      const transcript = String((payload.data && payload.data.text) || payload.text || "").trim();
-      if (!transcript) {
-        addMessage("assistant", languageSelect.value === "hi-IN"
-          ? "मैं आपकी बात नहीं सुन पाया। कृपया थोड़ा पास से और साफ़ बोलकर फिर कोशिश करें।"
-          : languageSelect.value === "kn-IN"
-            ? "ನಿಮ್ಮ ಮಾತು ಸ್ಪಷ್ಟವಾಗಿ ಕೇಳಿಸಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಹತ್ತಿರದಿಂದ ಸ್ಪಷ್ಟವಾಗಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
-            : "I couldn't hear clear words. Please speak a little closer to the microphone and try again.");
-        setStatus("Ready to help");
+      if (data.needs_confirmation || (languageSelect.value === "auto" && data.language_probability < 0.5)) {
+        input.value = text;
+        const reviewLanguage = ["en", "hi", "kn"].includes(data.detected_language) ? data.detected_language : "en";
+        await announce(localized("Please check the transcript in the text box. Edit it or choose a language, then press Send.", "लिखे गए शब्द जाँचें। सुधारें या भाषा चुनें, फिर भेजें दबाएँ।", "ಪಠ್ಯ ಪೆಟ್ಟಿಗೆಯಲ್ಲಿನ ಲಿಪ್ಯಂತರಣ ಪರಿಶೀಲಿಸಿ. ಸರಿಪಡಿಸಿ ಅಥವಾ ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ, ನಂತರ ಕಳುಹಿಸಿ.", reviewLanguage), reviewLanguage);
+        if (id === requestId) input.focus();
         return;
       }
-      input.value = transcript;
-      await submitText(transcript);
-    } catch (error) {
-      const message = String(error && error.message ? error.message : error);
-      addMessage("assistant", `Voice input failed: ${message}`);
-      setStatus("Voice input unavailable");
-    } finally {
-      transcriptionInFlight = false;
-      resetMicButton();
-      if (!requestInFlight && status.textContent !== "Connection problem") setStatus("Ready to help");
-    }
+      await submitText(text, languageSelect.value === "auto" ? data.detected_language + "-IN" : languageSelect.value);
+    } catch (e) {
+      if (id === requestId) { addMessage("assistant", e.name === "AbortError" ? localized("Transcription timed out. Retry a shorter clip.", "समय सीमा पूरी हुई। छोटा रिकॉर्डिंग भेजें।", "ಸಮಯ ಮೀರಿದೆ. ಚಿಕ್ಕ ಧ್ವನಿ ಕಳುಹಿಸಿ.") : e.message); ready(); }
+    } finally { if (id === requestId) { transcribeController = null; ready(); } }
   }
-
   async function startRecording() {
-    if (requestInFlight || transcriptionInFlight) return;
-    if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== "function" || typeof window.MediaRecorder !== "function") {
-      addMessage("assistant", "This browser cannot record audio. Use the text box, or open CropMandi in a recent Chrome or Edge browser on localhost.");
+    if (permissionPending || recording) return;
+    stopListening(true); cancelRequests(); stopSpeaking();
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder !== "function") {
+      ready();
+      announce(localized("Audio recording requires a supported browser on localhost or HTTPS. You can type your question.", "रिकॉर्डिंग के लिए localhost या HTTPS पर समर्थित ब्राउज़र चाहिए। प्रश्न लिख सकते हैं।", "ಧ್ವನಿ ದಾಖಲಿಸಲು localhost ಅಥವಾ HTTPS ನಲ್ಲಿ ಬೆಂಬಲಿತ ಬ್ರೌಸರ್ ಬೇಕು. ಪ್ರಶ್ನೆ ಬರೆಯಬಹುದು.")); return;
+    }
+    const token = ++micId; permissionPending = true; mic.disabled = true;
+    status.textContent = localized("Waiting for microphone permission…", "माइक्रोफोन की अनुमति की प्रतीक्षा…", "ಮೈಕ್ರೋಫೋನ್ ಅನುಮತಿಗಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ…");
+    const permissionTimer = window.setTimeout(() => {
+      if (token !== micId) return;
+      micId++; permissionPending = false; resetMic(); ready();
+      announce(localized("Microphone permission is still pending. Allow it in site settings and retry.", "माइक्रोफोन अनुमति लंबित है। साइट सेटिंग में अनुमति देकर फिर कोशिश करें।", "ಮೈಕ್ರೋಫೋನ್ ಅನುಮತಿ ಬಾಕಿಯಿದೆ. ಸೈಟ್ ಸೆಟ್ಟಿಂಗ್‌ನಲ್ಲಿ ಅನುಮತಿ ನೀಡಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."));
+    }, 15000);
+    try {
+      const captured = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+      if (token !== micId) { captured.getTracks().forEach(t => t.stop()); return; }
+      window.clearTimeout(permissionTimer); permissionPending = false; stream = captured;
+      const mime = ["audio/webm;codecs=opus","audio/ogg;codecs=opus","audio/mp4"].find(m => MediaRecorder.isTypeSupported?.(m));
+      const current = mime ? new MediaRecorder(stream,{mimeType:mime}) : new MediaRecorder(stream);
+      recorder = current; const chunks = []; const id = requestId;
+      current.ondataavailable = e => { if (e.data?.size) chunks.push(e.data); };
+      current.onerror = () => { stopListening(true); announce(localized("Recording failed. Please retry.", "रिकॉर्डिंग विफल हुई। फिर कोशिश करें।", "ಧ್ವನಿ ದಾಖಲೆ ವಿಫಲವಾಯಿತು. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.")); ready(); };
+      current.onstop = () => {
+        window.clearTimeout(current.recordingTimer);
+        const blob = new Blob(chunks,{type:current.mimeType || "audio/webm"});
+        // Own the captured stream so an old recorder cannot stop a newer session.
+        captured.getTracks().forEach(t => t.stop());
+        if (recorder === current) { recorder = null; stream = null; recording = false; resetMic(); }
+        if (!current.discard && id === requestId && blob.size) void transcribeRecording(blob,id);
+      };
+      current.start(250); recording = true; mic.disabled = false; mic.classList.add("is-listening");
+      mic.textContent = localized("⏹ Finish & send", "⏹ समाप्त और भेजें", "⏹ ಮುಗಿಸಿ ಕಳುಹಿಸಿ");
+      status.textContent = localized("Listening… (30 second limit)", "सुन रहा हूँ… (30 सेकंड सीमा)", "ಕೇಳುತ್ತಿದ್ದೇನೆ… (30 ಸೆಕೆಂಡ್ ಮಿತಿ)");
+      recordingTimer = current.recordingTimer = window.setTimeout(() => stopListening(false), 30000);
+    } catch (e) {
+      if (token !== micId) return;
+      stopTracks(); permissionPending = false; resetMic(); ready();
+      announce(localized(e.name === "NotAllowedError" ? "Microphone permission denied. Allow it in browser site settings." : "Microphone unavailable. Check that it is connected and not busy.", "माइक्रोफोन उपलब्ध नहीं है। ब्राउज़र की अनुमति और कनेक्शन जाँचें।", "ಮೈಕ್ರೋಫೋನ್ ಲಭ್ಯವಿಲ್ಲ. ಬ್ರೌಸರ್ ಅನುಮತಿ ಮತ್ತು ಸಂಪರ್ಕ ಪರಿಶೀಲಿಸಿ."));
+    } finally { window.clearTimeout(permissionTimer); }
+  }
+  async function navigate(action, id) {
+    if (!action || id !== requestId) return;
+    if (action.type === "back") {
+      // history.length can include another site; only return to our tracked app page.
+      let previous = null;
+      try { previous = sessionStorage.getItem("cropmandi_voice_previous_page"); } catch (_) {}
+      if (previous && knownPages.includes(previous.split("#")[0])) window.location.assign(previous);
+      else addMessage("assistant", localized("No previous CropMandi page is available.", "पिछला CropMandi पेज उपलब्ध नहीं है।", "ಹಿಂದಿನ CropMandi ಪುಟ ಲಭ್ಯವಿಲ್ಲ."));
       return;
     }
+    if (action.type !== "navigate" || !knownPages.includes(String(action.path || "").split("#")[0])) return;
+    const destination = new URL(action.path, window.location.href);
+    if (destination.origin !== window.location.origin) return;
     try {
-      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
-      const preferredMime = ["audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus", "audio/mp4"]
-        .find((mime) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mime));
-      mediaRecorder = preferredMime ? new MediaRecorder(mediaStream, { mimeType: preferredMime }) : new MediaRecorder(mediaStream);
-      audioChunks = [];
-      discardRecording = false;
-      mediaRecorder.ondataavailable = (event) => { if (event.data && event.data.size) audioChunks.push(event.data); };
-      mediaRecorder.onerror = () => {
-        addMessage("assistant", "The browser could not record this clip. Please check microphone permissions and retry.");
-        stopListening(true);
-      };
-      mediaRecorder.onstop = () => {
-        const recorder = mediaRecorder;
-        const discarded = discardRecording;
-        const blob = new Blob(audioChunks, { type: (recorder && recorder.mimeType) || "audio/webm" });
-        audioChunks = [];
-        mediaRecorder = null;
-        listening = false;
-        stopTracks();
-        resetMicButton();
-        if (!discarded && blob.size) void transcribeRecording(blob);
-      };
-      // Periodic chunks make recording more reliable across browsers; the final
-      // onstop event still flushes the last chunk before we upload the blob.
-      mediaRecorder.start(250);
-      listening = true;
-      micButton.classList.add("is-listening");
-      micButton.innerHTML = "<span aria-hidden=\"true\">⏹</span> Finish &amp; send";
-      micButton.disabled = false;
-      setStatus("Recording…");
-      addMessage("assistant", languageSelect.value === "hi-IN"
-        ? "अब बोलिए। पूरा होने पर ‘Finish & send’ दबाएँ।"
-        : languageSelect.value === "kn-IN"
-          ? "ಈಗ ಮಾತನಾಡಿ. ಮುಗಿದಾಗ ‘Finish & send’ ಒತ್ತಿ."
-          : "Speak now. Press ‘Finish & send’ when you're done.");
-    } catch (error) {
-      stopTracks();
-      listening = false;
-      resetMicButton();
-      const message = error && error.name === "NotAllowedError"
-        ? "Microphone permission was denied. Allow microphone access in your browser's site settings."
-        : "Could not access the microphone. Check that it is connected and not being used by another app.";
-      addMessage("assistant", message);
-      setStatus("Microphone unavailable");
-    }
+      const response = await fetch(destination.pathname,{method:"HEAD",signal:AbortSignal.timeout(5000)});
+      if (!response.ok) throw new Error("Missing page");
+      if (id === requestId) { saveContext(); window.location.assign(destination.pathname + destination.hash); }
+    } catch (_) { if (id === requestId) addMessage("assistant", localized("That page is unavailable. Please retry.", "पेज उपलब्ध नहीं है। फिर कोशिश करें।", "ಪುಟ ಲಭ್ಯವಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.")); }
   }
-
-  async function submitText(rawText) {
-    const text = String(rawText || "").trim();
-    if (!text || requestInFlight) return;
-    requestInFlight = true;
-    sendButton.disabled = true;
-    micButton.disabled = true;
-    input.value = "";
-    addMessage("user", text);
-    setStatus("Thinking…");
-    stopListening(true);
-
+  async function submitText(raw, language) {
+    const text = String(raw || "").trim();
+    if (!text || (pending && text === lastSubmitted)) return;
+    stopListening(true); cancelRequests(); stopSpeaking();
+    const id = requestId; pending = true; lastSubmitted = text; input.value = "";
+    addMessage("user", text); status.textContent = localized("Processing…", "प्रक्रिया जारी है…", "ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ…");
+    commandController = new AbortController();
     try {
-      const response = await fetch(apiEndpoint("command"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify({ text, language: languageSelect.value, client_date: localDateISO(), context: getContext() })
-      });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok || !payload.success) throw new Error(payload.error || payload.detail || `Request failed (${response.status})`);
-      const data = payload.data || {};
-      const answer = data.answer || "I couldn't prepare an answer for that request.";
-      addMessage("assistant", answer);
-      setStatus("Ready to help");
-      window.dispatchEvent(new CustomEvent("cropmandi:voice-response", { detail: data }));
-      if (data.action && data.action.type === "show_price") {
-        window.dispatchEvent(new CustomEvent("cropmandi:voice-action", { detail: data.action }));
+      const payload = await request("command", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,language:language || languageSelect.value,client_date:localDateISO(),context:getContext()})}, commandController, 45000);
+      if (id !== requestId) return;
+      if (!payload.success || !payload.data?.answer) throw new Error("Invalid service response");
+      const data = payload.data; conversation = data.conversation || {}; saveContext();
+      lastAnswer = {text:data.spoken_answer || data.answer,language:data.language || languageSelect.value}; replayButton.disabled = false;
+      addMessage("assistant",data.answer);
+      window.dispatchEvent(new CustomEvent("cropmandi:voice-response",{detail:data}));
+      if (data.action?.type === "show_price") window.dispatchEvent(new CustomEvent("cropmandi:voice-action",{detail:data.action}));
+      await speak(data.spoken_answer || data.answer,data.language);
+      await navigate(data.action,id);
+    } catch (e) {
+      if (id === requestId) {
+        const message = localized("The request failed or timed out. Please retry.", "अनुरोध विफल हुआ या समय सीमा पूरी हुई। फिर कोशिश करें।", "ವಿನಂತಿ ವಿಫಲವಾಯಿತು ಅಥವಾ ಸಮಯ ಮೀರಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.");
+        addMessage("assistant",message); await speak(message,languageSelect.value === "auto" ? "en" : languageSelect.value);
       }
-      await speak(answer, data.language || languageSelect.value);
-      if (data.action && data.action.type === "navigate" && data.action.path) {
-        window.location.assign(data.action.path);
-      }
-    } catch (error) {
-      const message = String(error && error.message ? error.message : error);
-      addMessage("assistant", `Sorry, I couldn't connect to CropMandi. ${message}`);
-      setStatus("Connection problem");
-    } finally {
-      requestInFlight = false;
-      sendButton.disabled = false;
-      micButton.disabled = transcriptionInFlight;
-      input.focus();
-    }
+    } finally { if (id === requestId) { pending = false; commandController = null; ready(); if (!panel.hidden) input.focus(); } }
   }
-
+  function openPanel() { panel.hidden = false; fab.classList.add("is-open"); fab.setAttribute("aria-expanded","true"); input.focus(); }
+  function closePanel() { panel.hidden = true; fab.classList.remove("is-open"); fab.setAttribute("aria-expanded","false"); stopListening(); cancelRequests(); stopSpeaking(); ready(); }
   fab.addEventListener("click", () => panel.hidden ? openPanel() : closePanel());
-  closeButton.addEventListener("click", closePanel);
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    submitText(input.value);
+  find("cmVoiceClose").addEventListener("click", closePanel);
+  find("cmVoiceForm").addEventListener("submit", e => { e.preventDefault(); void submitText(input.value); });
+  mic.addEventListener("click", () => recording ? stopListening(false) : void startRecording());
+  stopButton.addEventListener("click", () => { stopSpeaking(); ready(); });
+  replayButton.addEventListener("click", () => { if (lastAnswer && !recording) void speak(lastAnswer.text,lastAnswer.language); });
+  muteButton.addEventListener("click", () => { muted = !muted; stopSpeaking(); syncMute(); saveContext(); ready(); });
+  languageSelect.addEventListener("change", () => { stopListening(); cancelRequests(); stopSpeaking(); saveContext(); ready(); });
+  find("cmVoiceClear").addEventListener("click", () => {
+    stopListening(); cancelRequests(); stopSpeaking(); conversation = {}; lastAnswer = null; replayButton.disabled = true;
+    messages.replaceChildren(); saveContext(); ready();
   });
-  micButton.addEventListener("click", () => {
-    if (listening) stopListening(false);
-    else void startRecording();
-  });
-  stopButton.addEventListener("click", stopSpeaking);
-  languageSelect.addEventListener("change", () => {
-    const placeholders = { "en-IN": "Ask in English…", "hi-IN": "हिंदी में पूछें…", "kn-IN": "ಕನ್ನಡದಲ್ಲಿ ಕೇಳಿ…" };
-    input.placeholder = placeholders[languageSelect.value] || "Ask a question…";
-    if (listening) stopListening(true);
-    stopSpeaking();
-  });
-  clearButton.addEventListener("click", () => {
-    messages.innerHTML = "";
-    stopSpeaking();
-    addMessage("assistant", languageSelect.value === "hi-IN"
-      ? "मैं आपकी फसल के भाव, मंडी, तारीख, कोल्ड स्टोरेज, मौसम और वेबसाइट नेविगेशन में मदद कर सकता हूँ।"
-      : languageSelect.value === "kn-IN"
-        ? "ಬೆಳೆ ಬೆಲೆ, ಮಾರುಕಟ್ಟೆ, ದಿನಾಂಕ, ಶೀತಗೃಹ, ಹವಾಮಾನ ಮತ್ತು ವೆಬ್‌ಸೈಟ್ ನ್ಯಾವಿಗೇಶನ್‌ನಲ್ಲಿ ಸಹಾಯ ಮಾಡುತ್ತೇನೆ."
-        : "I can help with crop prices, mandis, dates, cold storage, weather, and website navigation.");
-  });
-
-  window.CropMandiVoice = {
-    open: openPanel,
-    close: closePanel,
-    send: submitText,
-    stopListening: stopListening,
-    stopSpeaking: stopSpeaking,
-    getContext: getContext,
-    configure: function (options) {
-      Object.assign(config, options || {});
-      config.selectors = Object.assign({}, config.selectors, (options || {}).selectors || {});
-    }
-  };
-
-  if (!config.showTextFallback) form.hidden = true;
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !panel.hidden) closePanel(); });
+  window.addEventListener("pagehide", () => { saveContext(); stopListening(); cancelRequests(); stopSpeaking(); });
+  try {
+    const current = window.location.pathname + window.location.hash, last = sessionStorage.getItem("cropmandi_voice_current_page");
+    if (last && last !== current) sessionStorage.setItem("cropmandi_voice_previous_page", last);
+    sessionStorage.setItem("cropmandi_voice_current_page", current);
+  } catch (_) {}
+  window.CropMandiVoice = {open:openPanel,close:closePanel,send:submitText,stopListening,stopSpeaking,getContext,
+    configure(options) { const selectors = {...config.selectors,...options?.selectors}; Object.assign(config,options || {}); config.selectors = selectors; }};
+  if (!config.showTextFallback) find("cmVoiceForm").hidden = true;
 })();

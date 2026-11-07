@@ -1,0 +1,50 @@
+[
+  {
+    "index": 0,
+    "text": "Mandi Price Tereri.",
+    "seconds": 8.76,
+    "metrics": [
+      [
+        -0.8518682585822211,
+        0.7037037037037037,
+        8
+      ]
+    ]
+  },
+  {
+    "index": 1,
+    "text": "What is the price of tomatoes in Kolar on 15th October, 2026?",
+    "seconds": 11.18,
+    "metrics": [
+      [
+        -0.6533657103776932,
+        0.8840579710144928,
+        19
+      ]
+    ]
+  },
+  {
+    "index": 2,
+    "text": "In Kolar, Nalina Tomato, Belia and Aju Heli.",
+    "seconds": 14.74,
+    "metrics": [
+      [
+        -1.0018393099308014,
+        0.88,
+        19
+      ]
+    ]
+  },
+  {
+    "index": 3,
+    "text": "First, let's talk about the content of the week.",
+    "seconds": 16.95,
+    "metrics": [
+      [
+        -0.9903299649556477,
+        0.9230769230769231,
+        14
+      ]
+    ]
+  }
+]

@@ -1,0 +1,34 @@
+$ .venv/bin/python -B -m pytest tests cropmandi_voice_assistant/tests -q -p no:cacheprovider
+........................................................................ [ 23%]
+........................................................................ [ 47%]
+........................................................................ [ 71%]
+........................................................................ [ 95%]
+...............                                                          [100%]
+303 passed in 81.56s (0:01:21)
+
+$ node --test cropmandi_voice_assistant/tests/widget.test.cjs
+✔ follow-up does not reintroduce page coffee variety after spoken crop change (28.845959ms)
+✔ changed page selection supersedes conversation selections (0.946125ms)
+✔ identical in-flight commands are suppressed and close cancels stale response (0.727916ms)
+✔ a new command supersedes an older pending command (1.105792ms)
+✔ stopping pending synthesis prevents late audio playback (5.415708ms)
+✔ network timeout clears processing state (0.867541ms)
+✔ microphone denial restores controls (1.187917ms)
+✔ late microphone permission after close releases tracks (1.714875ms)
+✔ pending microphone permission expires without stuck listening (1.086875ms)
+✔ unknown navigation never leaves the application (1.163166ms)
+✔ standalone and integrated widget assets remain identical (0.805625ms)
+✔ HarvestRoute JSON series selections preserve variety and grade (0.602459ms)
+✔ uncertain transcript is editable and never auto-executes a command (3.201167ms)
+✔ unsupported microphone clears a previously pending processing state (0.604958ms)
+✔ uncertain transcript review is spoken and replayable in Kannada (2.58425ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 143.309084
+
+Working database unchanged: 681bedde9da069e26efa302723aee709ca9c18e9f17478ba774643e1e8332db8

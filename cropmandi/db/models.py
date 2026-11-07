@@ -6,6 +6,7 @@ from sqlalchemy import (
     CheckConstraint,
     Date,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -319,4 +320,29 @@ class PredictionHistory(Base):
     model_version: Mapped[str] = mapped_column(String(64), nullable=False, default="v1.0")
     input_features_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class FarmerCrop(Base):
+    """Farmer inventory crop record supporting all 7 commodities."""
+
+    __tablename__ = "farmer_crops"
+    __table_args__ = (
+        Index("ix_farmer_crops_user_commodity", "user_id", "commodity"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, default=1)
+    commodity: Mapped[str] = mapped_column(String(64), nullable=False)
+    variety: Mapped[str] = mapped_column(String(128), nullable=False)
+    quantity: Mapped[float] = mapped_column(Float, nullable=False)
+    unit: Mapped[str] = mapped_column(String(32), nullable=False, default="quintal")
+    location: Mapped[str] = mapped_column(String(128), nullable=False)
+    image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
 

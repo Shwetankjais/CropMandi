@@ -1,0 +1,6 @@
+{
+  "cropmandi_voice_assistant/speech_engine.py": "b6bea8b8d2b3237ad0a1830987b389fa8c3ed942d548b1c4ee2e83adcd805e3d",
+  "cropmandi_voice_assistant/date_words.py": "b9c4b00855619fc16fad70a3a02f600d696392da50830005da25dccf2bbafd7b",
+  "cropmandi_voice_assistant/intent_parser.py": "e757d164297921aac55903d279b2f903701881eaad32eae273e20dbfe4f7a4e7",
+  "data/cropmandi.db": "681bedde9da069e26efa302723aee709ca9c18e9f17478ba774643e1e8332db8"
+}
