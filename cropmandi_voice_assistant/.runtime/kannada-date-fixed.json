@@ -1,0 +1,59 @@
+{
+  "recognition_method": "local-kannada-date-consensus",
+  "text": "2026-10-15 ಕೋಲಾರದಲ್ಲಿ ಟೊಮೆಟೊ ಬೆಲೆ ಎಷ್ಟು",
+  "date_evidence": {
+    "whisper": {
+      "day": 15,
+      "month": 10,
+      "year": null
+    },
+    "indicconformer": {
+      "day": null,
+      "month": 10,
+      "year": 2026
+    }
+  },
+  "secondary_text": "ಅಕ್ಟೋಬರ್ ಎರಡು ಸಾವಿರ ಇಪ್ಪತ್ತಾರು ಕೋಲಾರದಲ್ಲಿ ಟೊಮೆಟೊ ಬೆಲೆ ಎಷ್ಟು",
+  "secondary_confidence": 0.689,
+  "primary_text": "ಹದಿನೈದು ಅಕ್ಟೋಬರ, ಎಡುಸಾವಿ್ರ ಇಪ್ಪತ್ತಾरು, ಕೋ್ಲಾ ರದ್ಳಿ ಟೊಮೆಟ್ವೂ ಬೆ ಯಷ್ಚು.",
+  "needs_confirmation": false,
+  "language": "kn",
+  "detected_language": "kn",
+  "language_probability": 1.0,
+  "engine": "faster-whisper-local",
+  "model": "large-v3-turbo",
+  "elapsed": 16.8,
+  "parsed": {
+    "intent": "price_lookup",
+    "language": "kn",
+    "text": "2026-10-15 ಕೋಲಾರದಲ್ಲಿ ಟೊಮೆಟೊ ಬೆಲೆ ಎಷ್ಟು",
+    "entities": {
+      "commodity": "tomato",
+      "state": null,
+      "district": null,
+      "market": "Kolar",
+      "arrival_date": "2026-10-15",
+      "date_ambiguous": false,
+      "invalid_date": false,
+      "date_unresolved": false,
+      "navigation_target": null,
+      "quantity": null,
+      "quantity_unit": null,
+      "variety": null,
+      "spoken_series": null,
+      "grade": null,
+      "origin": null,
+      "forecast_date": null,
+      "latitude": null,
+      "longitude": null,
+      "vehicle_mode": "auto",
+      "vehicle_id": null,
+      "ownership": "hired",
+      "explicit_market": true,
+      "comparison_dates": [],
+      "page": null,
+      "client_date": "2026-11-07"
+    },
+    "confidence": 0.84
+  }
+}

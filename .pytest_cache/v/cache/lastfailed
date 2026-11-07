@@ -1,0 +1,3 @@
+{
+  "tests/test_unified_prediction.py::test_cardamom_returns_helpful_unsupported_error": true
+}

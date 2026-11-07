@@ -1,0 +1,74 @@
+[
+  {
+    "language": "en-IN",
+    "kind": "historical",
+    "bytes": 95184,
+    "duration_seconds": 15.86,
+    "path": "cropmandi_voice_assistant/.runtime/retest-audio/reply-en-IN-historical.mp3",
+    "answer": "The recorded tomato TOMATO AVERAGE price at KOLAR on 2026-10-15 was ₹800 per quintal. Note: this is unverified local/experimental data; confirm it before making a sale."
+  },
+  {
+    "language": "en-IN",
+    "kind": "prediction",
+    "bytes": 159120,
+    "duration_seconds": 26.52,
+    "path": "cropmandi_voice_assistant/.runtime/retest-audio/reply-en-IN-prediction.mp3",
+    "answer": "Market-level ML estimate for tomato at KOLAR on 2026-11-08: 1,310.73 rupees per quintal. Input date 2026-10-26. This is a recursive forecast, not an observed price or a variety/grade-specific estimate. Inputs are from the project's supplied historical dataset."
+  },
+  {
+    "language": "en-IN",
+    "kind": "followup",
+    "bytes": 155376,
+    "duration_seconds": 25.9,
+    "path": "cropmandi_voice_assistant/.runtime/retest-audio/reply-en-IN-followup.mp3",
+    "answer": "Market-level ML estimate for tomato at KOLAR on 2026-11-14: 1,311 rupees per quintal. Input date 2026-10-26. This is a recursive forecast, not an observed price or a variety/grade-specific estimate. Inputs are from the project's supplied historical dataset."
+  },
+  {
+    "language": "hi-IN",
+    "kind": "historical",
+    "bytes": 108864,
+    "duration_seconds": 18.14,
+    "path": "cropmandi_voice_assistant/.runtime/retest-audio/reply-hi-IN-historical.mp3",
+    "answer": "2026-10-15 को KOLAR में tomato TOMATO AVERAGE का दर्ज भाव ₹800 प्रति क्विंटल था। ध्यान दें: यह अप्रमाणित स्थानीय/प्रायोगिक डेटा है; बिक्री का निर्णय लेने से पहले इसकी पुष्टि करें।"
+  },
+  {
+    "language": "hi-IN",
+    "kind": "prediction",
+    "bytes": 154512,
+    "duration_seconds": 25.75,
+    "path": "cropmandi_voice_assistant/.runtime/retest-audio/reply-hi-IN-prediction.mp3",
+    "answer": "2026-11-08 के लिए KOLAR में tomato का मंडी-स्तर मॉडल अनुमान 1,310.73 रुपये प्रति क्विंटल है। मूल डेटा 2026-10-26 का है। यह क्रमिक अनुमान है, दर्ज या किस्म/ग्रेड-विशिष्ट भाव नहीं। मूल डेटा प्रोजेक्ट का दिया गया ऐतिहासिक डेटासेट है।"
+  },
+  {
+    "language": "hi-IN",
+    "kind": "followup",
+    "bytes": 147744,
+    "duration_seconds": 24.62,
+    "path": "cropmandi_voice_assistant/.runtime/retest-audio/reply-hi-IN-followup.mp3",
+    "answer": "2026-11-14 के लिए KOLAR में tomato का मंडी-स्तर मॉडल अनुमान 1,311 रुपये प्रति क्विंटल है। मूल डेटा 2026-10-26 का है। यह क्रमिक अनुमान है, दर्ज या किस्म/ग्रेड-विशिष्ट भाव नहीं। मूल डेटा प्रोजेक्ट का दिया गया ऐतिहासिक डेटासेट है।"
+  },
+  {
+    "language": "kn-IN",
+    "kind": "historical",
+    "bytes": 99648,
+    "duration_seconds": 16.61,
+    "path": "cropmandi_voice_assistant/.runtime/retest-audio/reply-kn-IN-historical.mp3",
+    "answer": "2026-10-15 ರಂದು KOLAR ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ tomato TOMATO AVERAGE ನ ದಾಖಲಾದ ಬೆಲೆ ₹800 ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ ಆಗಿತ್ತು. ಗಮನಿಸಿ: ಇದು ಪರಿಶೀಲಿಸದ ಸ್ಥಳೀಯ/ಪ್ರಾಯೋಗಿಕ ಡೇಟಾ; ಮಾರಾಟದ ನಿರ್ಧಾರಕ್ಕೂ ಮೊದಲು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ."
+  },
+  {
+    "language": "kn-IN",
+    "kind": "prediction",
+    "bytes": 138384,
+    "duration_seconds": 23.06,
+    "path": "cropmandi_voice_assistant/.runtime/retest-audio/reply-kn-IN-prediction.mp3",
+    "answer": "2026-11-08 ರಂದು KOLAR ನಲ್ಲಿ tomato ಮಾರುಕಟ್ಟೆ ಮಟ್ಟದ ಮಾದರಿ ಅಂದಾಜು ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ 1,310.73 ರೂಪಾಯಿ. ಮೂಲ ಡೇಟಾ 2026-10-26. ಇದು ಪುನರಾವರ್ತಿತ ಅಂದಾಜು; ದಾಖಲಾದ ಅಥವಾ ತಳಿ/ಗ್ರೇಡ್ ನಿರ್ದಿಷ್ಟ ಬೆಲೆಯಲ್ಲ. ಮೂಲ ಡೇಟಾ ಪ್ರಾಜೆಕ್ಟ್‌ಗೆ ಒದಗಿಸಿದ ಐತಿಹಾಸಿಕ ಡೇಟಾಸೆಟ್."
+  },
+  {
+    "language": "kn-IN",
+    "kind": "followup",
+    "bytes": 133632,
+    "duration_seconds": 22.27,
+    "path": "cropmandi_voice_assistant/.runtime/retest-audio/reply-kn-IN-followup.mp3",
+    "answer": "2026-11-14 ರಂದು KOLAR ನಲ್ಲಿ tomato ಮಾರುಕಟ್ಟೆ ಮಟ್ಟದ ಮಾದರಿ ಅಂದಾಜು ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ 1,311 ರೂಪಾಯಿ. ಮೂಲ ಡೇಟಾ 2026-10-26. ಇದು ಪುನರಾವರ್ತಿತ ಅಂದಾಜು; ದಾಖಲಾದ ಅಥವಾ ತಳಿ/ಗ್ರೇಡ್ ನಿರ್ದಿಷ್ಟ ಬೆಲೆಯಲ್ಲ. ಮೂಲ ಡೇಟಾ ಪ್ರಾಜೆಕ್ಟ್‌ಗೆ ಒದಗಿಸಿದ ಐತಿಹಾಸಿಕ ಡೇಟಾಸೆಟ್."
+  }
+]

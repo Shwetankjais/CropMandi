@@ -1,0 +1,130 @@
+{
+  "commodities": {
+    "coffee": {
+      "observations": 0,
+      "unique_dates": 0,
+      "unique_series": 0,
+      "earliest": null,
+      "latest": null,
+      "missing_min": 0,
+      "missing_max": 0,
+      "duplicate_identity_blocked_by_constraint": true,
+      "price_min": null,
+      "price_max": null,
+      "price_mean": null,
+      "price_median": null,
+      "price_stdev": null,
+      "series": [],
+      "series_with_enough_history": []
+    },
+    "pepper": {
+      "observations": 1221,
+      "unique_dates": 575,
+      "unique_series": 6,
+      "earliest": "2024-09-27",
+      "latest": "2026-10-26",
+      "missing_min": 1121,
+      "missing_max": 1121,
+      "duplicate_identity_blocked_by_constraint": true,
+      "price_min": 485.0,
+      "price_max": 753.0,
+      "price_mean": 686.589,
+      "price_median": 693.0,
+      "price_stdev": 29.8,
+      "series": [
+        {
+          "series": "Cochin|GARBLED|INR_PER_KG|indicative_daily_average|spices_board_india",
+          "observations": 560,
+          "unique_dates": 560,
+          "earliest": "2024-09-27",
+          "latest": "2026-10-26",
+          "gap_days_total": 200,
+          "max_gap_days": 6,
+          "enough_history_for_next_session_attempt": true,
+          "prediction_target": "next_published_market_session"
+        },
+        {
+          "series": "Cochin|UNGARBLED|INR_PER_KG|indicative_daily_average|spices_board_india",
+          "observations": 558,
+          "unique_dates": 558,
+          "earliest": "2024-09-27",
+          "latest": "2026-10-26",
+          "gap_days_total": 202,
+          "max_gap_days": 6,
+          "enough_history_for_next_session_attempt": true,
+          "prediction_target": "next_published_market_session"
+        },
+        {
+          "series": "Cochin|UNGRADED|INR_PER_KG|indicative_daily_average|spices_board_india",
+          "observations": 1,
+          "unique_dates": 1,
+          "earliest": "2025-12-23",
+          "latest": "2025-12-23",
+          "gap_days_total": 0,
+          "max_gap_days": 0,
+          "enough_history_for_next_session_attempt": false,
+          "prediction_target": "next_published_market_session"
+        },
+        {
+          "series": "Sirsi|GARBLED|INR_PER_KG|indicative_daily_average|spices_board_india",
+          "observations": 1,
+          "unique_dates": 1,
+          "earliest": "2025-08-26",
+          "latest": "2025-08-26",
+          "gap_days_total": 0,
+          "max_gap_days": 0,
+          "enough_history_for_next_session_attempt": false,
+          "prediction_target": "next_published_market_session"
+        },
+        {
+          "series": "Sirsi|UNGRADED|INR_PER_KG|indicative_daily_average|spices_board_india",
+          "observations": 1,
+          "unique_dates": 1,
+          "earliest": "2025-09-04",
+          "latest": "2025-09-04",
+          "gap_days_total": 0,
+          "max_gap_days": 0,
+          "enough_history_for_next_session_attempt": false,
+          "prediction_target": "next_published_market_session"
+        },
+        {
+          "series": "Sirsi|UNSPECIFIED|INR_PER_KG|indicative_daily_average|spices_board_india",
+          "observations": 100,
+          "unique_dates": 100,
+          "earliest": "2025-03-13",
+          "latest": "2026-02-20",
+          "gap_days_total": 245,
+          "max_gap_days": 128,
+          "enough_history_for_next_session_attempt": true,
+          "prediction_target": "next_published_market_session"
+        }
+      ],
+      "series_with_enough_history": [
+        "Cochin|GARBLED|INR_PER_KG|indicative_daily_average|spices_board_india",
+        "Cochin|UNGARBLED|INR_PER_KG|indicative_daily_average|spices_board_india",
+        "Sirsi|UNSPECIFIED|INR_PER_KG|indicative_daily_average|spices_board_india"
+      ]
+    },
+    "rice": {
+      "observations": 0,
+      "unique_dates": 0,
+      "unique_series": 0,
+      "earliest": null,
+      "latest": null,
+      "missing_min": 0,
+      "missing_max": 0,
+      "duplicate_identity_blocked_by_constraint": true,
+      "price_min": null,
+      "price_max": null,
+      "price_mean": null,
+      "price_median": null,
+      "price_stdev": null,
+      "series": [],
+      "series_with_enough_history": []
+    }
+  },
+  "ml_ready": false,
+  "notes": [
+    "No production models are trained in this phase. Pepper series meeting the 60-session floor: ['Cochin|GARBLED|INR_PER_KG|indicative_daily_average|spices_board_india', 'Cochin|UNGARBLED|INR_PER_KG|indicative_daily_average|spices_board_india', 'Sirsi|UNSPECIFIED|INR_PER_KG|indicative_daily_average|spices_board_india']. Coffee series meeting the floor: []."
+  ]
+}

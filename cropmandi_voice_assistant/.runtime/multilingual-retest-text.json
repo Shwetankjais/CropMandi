@@ -1,0 +1,1222 @@
+[
+  {
+    "language": "en-IN",
+    "query": "Open Harvest Route.",
+    "data": {
+      "answer": "Opening HarvestRoute.",
+      "spoken_answer": "Opening HarvestRoute.",
+      "conversation": {
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "navigate"
+      },
+      "language": "en",
+      "intent": "navigate",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": null,
+        "state": null,
+        "district": null,
+        "market": null,
+        "arrival_date": null,
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": "harvest_route",
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "navigate",
+        "target": "harvest_route",
+        "path": "/cropmandi_ai_harvest_route/code.html"
+      }
+    }
+  },
+  {
+    "language": "en-IN",
+    "query": "Open Mandi Price AI.",
+    "data": {
+      "answer": "Opening Mandi Price AI.",
+      "spoken_answer": "Opening Mandi Price AI.",
+      "conversation": {
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "navigate"
+      },
+      "language": "en",
+      "intent": "navigate",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": null,
+        "state": null,
+        "district": null,
+        "market": null,
+        "arrival_date": null,
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": "mandi_price_ai",
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "navigate",
+        "target": "mandi_price_ai",
+        "path": "/cropmandi_mandi_price_ai/code.html"
+      }
+    }
+  },
+  {
+    "language": "en-IN",
+    "query": "Go back to the previous page.",
+    "data": {
+      "answer": "Returning to the previous page.",
+      "spoken_answer": "Returning to the previous page.",
+      "conversation": {
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "navigate"
+      },
+      "language": "en",
+      "intent": "navigate",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": null,
+        "state": null,
+        "district": null,
+        "market": null,
+        "arrival_date": null,
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": "back",
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "back"
+      }
+    }
+  },
+  {
+    "language": "en-IN",
+    "query": "What was the tomato price at Kolar on 15 October 2026?",
+    "data": {
+      "answer": "The recorded tomato TOMATO AVERAGE price at KOLAR on 2026-10-15 was ₹800 per quintal. Note: this is unverified local/experimental data; confirm it before making a sale.",
+      "spoken_answer": "The recorded tomato TOMATO AVERAGE price at KOLAR on 15 October 2026 was 800 rupees per quintal. Note: this is unverified local/experimental data; confirm it before making a sale.",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "price_lookup"
+      },
+      "language": "en",
+      "intent": "price_lookup",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-10-15",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": true,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "show_price",
+        "record": {
+          "commodity": "tomato",
+          "market": "KOLAR",
+          "series": "TOMATO",
+          "grade": "AVERAGE",
+          "arrival_date": "2026-10-15",
+          "price": 800.0,
+          "unit": "Quintal",
+          "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+          "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+          "record_count": 1
+        }
+      },
+      "price_record": {
+        "commodity": "tomato",
+        "market": "KOLAR",
+        "series": "TOMATO",
+        "grade": "AVERAGE",
+        "arrival_date": "2026-10-15",
+        "price": 800.0,
+        "unit": "Quintal",
+        "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+        "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+        "record_count": 1
+      }
+    }
+  },
+  {
+    "language": "en-IN",
+    "query": "What about 20 October 2026?",
+    "data": {
+      "answer": "The recorded tomato TOMATO AVERAGE price at KOLAR on 2026-10-20 was ₹1,000 per quintal. Note: this is unverified local/experimental data; confirm it before making a sale.",
+      "spoken_answer": "The recorded tomato TOMATO AVERAGE price at KOLAR on 20 October 2026 was 1000 rupees per quintal. Note: this is unverified local/experimental data; confirm it before making a sale.",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "price_lookup"
+      },
+      "language": "en",
+      "intent": "price_lookup",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-10-20",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "show_price",
+        "record": {
+          "commodity": "tomato",
+          "market": "KOLAR",
+          "series": "TOMATO",
+          "grade": "AVERAGE",
+          "arrival_date": "2026-10-20",
+          "price": 1000.0,
+          "unit": "Quintal",
+          "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+          "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+          "record_count": 1
+        }
+      },
+      "price_record": {
+        "commodity": "tomato",
+        "market": "KOLAR",
+        "series": "TOMATO",
+        "grade": "AVERAGE",
+        "arrival_date": "2026-10-20",
+        "price": 1000.0,
+        "unit": "Quintal",
+        "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+        "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+        "record_count": 1
+      }
+    }
+  },
+  {
+    "language": "en-IN",
+    "query": "Predict tomorrow’s price.",
+    "data": {
+      "answer": "Market-level ML estimate for tomato at KOLAR on 2026-11-08: 1,310.73 rupees per quintal. Input date 2026-10-26. This is a recursive forecast, not an observed price or a variety/grade-specific estimate. Inputs are from the project's supplied historical dataset.",
+      "spoken_answer": "Market-level ML estimate for tomato at KOLAR on 8 November 2026: 1,310.73 rupees per quintal. Input date 26 October 2026. This is a recursive forecast, not an observed price or a variety/grade-specific estimate. Inputs are from the project's supplied historical dataset.",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "prediction"
+      },
+      "language": "en",
+      "intent": "prediction",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-11-08",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": null,
+      "forecast": {
+        "price": 1310.7333992480746,
+        "market": "KOLAR",
+        "commodity": "tomato",
+        "unit": "INR_PER_QUINTAL",
+        "prediction_date": "2026-11-08",
+        "input_date": "2026-10-26",
+        "model": "existing ExtraTrees pipeline",
+        "kind": "recursive_market_estimate"
+      }
+    }
+  },
+  {
+    "language": "en-IN",
+    "query": "And next week?",
+    "data": {
+      "answer": "Market-level ML estimate for tomato at KOLAR on 2026-11-14: 1,311 rupees per quintal. Input date 2026-10-26. This is a recursive forecast, not an observed price or a variety/grade-specific estimate. Inputs are from the project's supplied historical dataset.",
+      "spoken_answer": "Market-level ML estimate for tomato at KOLAR on 14 November 2026: 1,311 rupees per quintal. Input date 26 October 2026. This is a recursive forecast, not an observed price or a variety/grade-specific estimate. Inputs are from the project's supplied historical dataset.",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "prediction"
+      },
+      "language": "en",
+      "intent": "prediction",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-11-14",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": null,
+      "forecast": {
+        "price": 1310.9969923994097,
+        "market": "KOLAR",
+        "commodity": "tomato",
+        "unit": "INR_PER_QUINTAL",
+        "prediction_date": "2026-11-14",
+        "input_date": "2026-10-26",
+        "model": "existing ExtraTrees pipeline",
+        "kind": "recursive_market_estimate"
+      }
+    }
+  },
+  {
+    "language": "hi-IN",
+    "query": "हार्वेस्ट रूट खोलो।",
+    "data": {
+      "answer": "मैं हार्वेस्ट रूट खोल रहा हूँ।",
+      "spoken_answer": "मैं हार्वेस्ट रूट खोल रहा हूँ।",
+      "conversation": {
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "navigate"
+      },
+      "language": "hi",
+      "intent": "navigate",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": null,
+        "state": null,
+        "district": null,
+        "market": null,
+        "arrival_date": null,
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": "harvest_route",
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "navigate",
+        "target": "harvest_route",
+        "path": "/cropmandi_ai_harvest_route/code.html"
+      }
+    }
+  },
+  {
+    "language": "hi-IN",
+    "query": "मंडी प्राइस खोलो।",
+    "data": {
+      "answer": "मैं मंडी प्राइस एआई खोल रहा हूँ।",
+      "spoken_answer": "मैं मंडी प्राइस एआई खोल रहा हूँ।",
+      "conversation": {
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "navigate"
+      },
+      "language": "hi",
+      "intent": "navigate",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": null,
+        "state": null,
+        "district": null,
+        "market": null,
+        "arrival_date": null,
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": "mandi_price_ai",
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "navigate",
+        "target": "mandi_price_ai",
+        "path": "/cropmandi_mandi_price_ai/code.html"
+      }
+    }
+  },
+  {
+    "language": "hi-IN",
+    "query": "पिछले पेज पर वापस जाओ।",
+    "data": {
+      "answer": "पिछले पेज पर जा रहा हूँ।",
+      "spoken_answer": "पिछले पेज पर जा रहा हूँ।",
+      "conversation": {
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "navigate"
+      },
+      "language": "hi",
+      "intent": "navigate",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": null,
+        "state": null,
+        "district": null,
+        "market": null,
+        "arrival_date": null,
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": "back",
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "back"
+      }
+    }
+  },
+  {
+    "language": "hi-IN",
+    "query": "१५ अक्टूबर २०२६ को कोलार में टमाटर का भाव बताओ।",
+    "data": {
+      "answer": "2026-10-15 को KOLAR में tomato TOMATO AVERAGE का दर्ज भाव ₹800 प्रति क्विंटल था। ध्यान दें: यह अप्रमाणित स्थानीय/प्रायोगिक डेटा है; बिक्री का निर्णय लेने से पहले इसकी पुष्टि करें।",
+      "spoken_answer": "15 अक्टूबर 2026 को KOLAR में tomato TOMATO AVERAGE का दर्ज भाव 800 रुपये प्रति क्विंटल था। ध्यान दें: यह अप्रमाणित स्थानीय/प्रायोगिक डेटा है; बिक्री का निर्णय लेने से पहले इसकी पुष्टि करें।",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "price_lookup"
+      },
+      "language": "hi",
+      "intent": "price_lookup",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-10-15",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": true,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "show_price",
+        "record": {
+          "commodity": "tomato",
+          "market": "KOLAR",
+          "series": "TOMATO",
+          "grade": "AVERAGE",
+          "arrival_date": "2026-10-15",
+          "price": 800.0,
+          "unit": "Quintal",
+          "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+          "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+          "record_count": 1
+        }
+      },
+      "price_record": {
+        "commodity": "tomato",
+        "market": "KOLAR",
+        "series": "TOMATO",
+        "grade": "AVERAGE",
+        "arrival_date": "2026-10-15",
+        "price": 800.0,
+        "unit": "Quintal",
+        "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+        "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+        "record_count": 1
+      }
+    }
+  },
+  {
+    "language": "hi-IN",
+    "query": "२० अक्टूबर २०२६ को?",
+    "data": {
+      "answer": "2026-10-20 को KOLAR में tomato TOMATO AVERAGE का दर्ज भाव ₹1,000 प्रति क्विंटल था। ध्यान दें: यह अप्रमाणित स्थानीय/प्रायोगिक डेटा है; बिक्री का निर्णय लेने से पहले इसकी पुष्टि करें।",
+      "spoken_answer": "20 अक्टूबर 2026 को KOLAR में tomato TOMATO AVERAGE का दर्ज भाव 1000 रुपये प्रति क्विंटल था। ध्यान दें: यह अप्रमाणित स्थानीय/प्रायोगिक डेटा है; बिक्री का निर्णय लेने से पहले इसकी पुष्टि करें।",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "price_lookup"
+      },
+      "language": "hi",
+      "intent": "price_lookup",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-10-20",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "show_price",
+        "record": {
+          "commodity": "tomato",
+          "market": "KOLAR",
+          "series": "TOMATO",
+          "grade": "AVERAGE",
+          "arrival_date": "2026-10-20",
+          "price": 1000.0,
+          "unit": "Quintal",
+          "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+          "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+          "record_count": 1
+        }
+      },
+      "price_record": {
+        "commodity": "tomato",
+        "market": "KOLAR",
+        "series": "TOMATO",
+        "grade": "AVERAGE",
+        "arrival_date": "2026-10-20",
+        "price": 1000.0,
+        "unit": "Quintal",
+        "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+        "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+        "record_count": 1
+      }
+    }
+  },
+  {
+    "language": "hi-IN",
+    "query": "कल होने वाले भाव का अनुमान बताओ।",
+    "data": {
+      "answer": "हिंदी में 'कल' का अर्थ बीता हुआ कल या आने वाला कल हो सकता है। आप किस दिन की बात कर रहे हैं?",
+      "spoken_answer": "हिंदी में 'कल' का अर्थ बीता हुआ कल या आने वाला कल हो सकता है। आप किस दिन की बात कर रहे हैं?",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "prediction",
+        "pending_intent": "prediction"
+      },
+      "language": "hi",
+      "intent": "prediction",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": null,
+        "date_ambiguous": true,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": null,
+      "needs_clarification": true
+    }
+  },
+  {
+    "language": "hi-IN",
+    "query": "आने वाला कल।",
+    "data": {
+      "answer": "2026-11-08 के लिए KOLAR में tomato का मंडी-स्तर मॉडल अनुमान 1,310.73 रुपये प्रति क्विंटल है। मूल डेटा 2026-10-26 का है। यह क्रमिक अनुमान है, दर्ज या किस्म/ग्रेड-विशिष्ट भाव नहीं। मूल डेटा प्रोजेक्ट का दिया गया ऐतिहासिक डेटासेट है।",
+      "spoken_answer": "8 नवंबर 2026 के लिए KOLAR में tomato का मंडी-स्तर मॉडल अनुमान 1,310.73 रुपये प्रति क्विंटल है। मूल डेटा 26 अक्टूबर 2026 का है। यह क्रमिक अनुमान है, दर्ज या किस्म/ग्रेड-विशिष्ट भाव नहीं। मूल डेटा प्रोजेक्ट का दिया गया ऐतिहासिक डेटासेट है।",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "prediction"
+      },
+      "language": "hi",
+      "intent": "prediction",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-11-08",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": null,
+      "forecast": {
+        "price": 1310.7333992480746,
+        "market": "KOLAR",
+        "commodity": "tomato",
+        "unit": "INR_PER_QUINTAL",
+        "prediction_date": "2026-11-08",
+        "input_date": "2026-10-26",
+        "model": "existing ExtraTrees pipeline",
+        "kind": "recursive_market_estimate"
+      }
+    }
+  },
+  {
+    "language": "hi-IN",
+    "query": "अगले सप्ताह का अनुमान बताओ।",
+    "data": {
+      "answer": "2026-11-14 के लिए KOLAR में tomato का मंडी-स्तर मॉडल अनुमान 1,311 रुपये प्रति क्विंटल है। मूल डेटा 2026-10-26 का है। यह क्रमिक अनुमान है, दर्ज या किस्म/ग्रेड-विशिष्ट भाव नहीं। मूल डेटा प्रोजेक्ट का दिया गया ऐतिहासिक डेटासेट है।",
+      "spoken_answer": "14 नवंबर 2026 के लिए KOLAR में tomato का मंडी-स्तर मॉडल अनुमान 1,311 रुपये प्रति क्विंटल है। मूल डेटा 26 अक्टूबर 2026 का है। यह क्रमिक अनुमान है, दर्ज या किस्म/ग्रेड-विशिष्ट भाव नहीं। मूल डेटा प्रोजेक्ट का दिया गया ऐतिहासिक डेटासेट है।",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "prediction"
+      },
+      "language": "hi",
+      "intent": "prediction",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-11-14",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": null,
+      "forecast": {
+        "price": 1310.9969923994097,
+        "market": "KOLAR",
+        "commodity": "tomato",
+        "unit": "INR_PER_QUINTAL",
+        "prediction_date": "2026-11-14",
+        "input_date": "2026-10-26",
+        "model": "existing ExtraTrees pipeline",
+        "kind": "recursive_market_estimate"
+      }
+    }
+  },
+  {
+    "language": "kn-IN",
+    "query": "ಹಾರ್ವೆಸ್ಟ್ ರೂಟ್ ತೆರೆಯಿರಿ.",
+    "data": {
+      "answer": "ಹಾರ್ವೆಸ್ಟ್ ರೂಟ್ ತೆರೆಯುತ್ತಿದ್ದೇನೆ.",
+      "spoken_answer": "ಹಾರ್ವೆಸ್ಟ್ ರೂಟ್ ತೆರೆಯುತ್ತಿದ್ದೇನೆ.",
+      "conversation": {
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "navigate"
+      },
+      "language": "kn",
+      "intent": "navigate",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": null,
+        "state": null,
+        "district": null,
+        "market": null,
+        "arrival_date": null,
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": "harvest_route",
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "navigate",
+        "target": "harvest_route",
+        "path": "/cropmandi_ai_harvest_route/code.html"
+      }
+    }
+  },
+  {
+    "language": "kn-IN",
+    "query": "ಮಂಡಿ ಪ್ರೈಸ್ ತೆರೆಯಿರಿ.",
+    "data": {
+      "answer": "ಮಂಡಿ ಪ್ರೈಸ್ ಎಐ ತೆರೆಯುತ್ತಿದ್ದೇನೆ.",
+      "spoken_answer": "ಮಂಡಿ ಪ್ರೈಸ್ ಎಐ ತೆರೆಯುತ್ತಿದ್ದೇನೆ.",
+      "conversation": {
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "navigate"
+      },
+      "language": "kn",
+      "intent": "navigate",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": null,
+        "state": null,
+        "district": null,
+        "market": null,
+        "arrival_date": null,
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": "mandi_price_ai",
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "navigate",
+        "target": "mandi_price_ai",
+        "path": "/cropmandi_mandi_price_ai/code.html"
+      }
+    }
+  },
+  {
+    "language": "kn-IN",
+    "query": "ಹಿಂದಿನ ಪುಟಕ್ಕೆ ಹೋಗಿ.",
+    "data": {
+      "answer": "ಹಿಂದಿನ ಪುಟಕ್ಕೆ ಹಿಂತಿರುಗುತ್ತಿದ್ದೇನೆ.",
+      "spoken_answer": "ಹಿಂದಿನ ಪುಟಕ್ಕೆ ಹಿಂತಿರುಗುತ್ತಿದ್ದೇನೆ.",
+      "conversation": {
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "navigate"
+      },
+      "language": "kn",
+      "intent": "navigate",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": null,
+        "state": null,
+        "district": null,
+        "market": null,
+        "arrival_date": null,
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": "back",
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "back"
+      }
+    }
+  },
+  {
+    "language": "kn-IN",
+    "query": "೧೫ ಅಕ್ಟೋಬರ್ ೨೦೨೬ ಕೋಲಾರದಲ್ಲಿ ಟೊಮೇಟೊ ಬೆಲೆ ಎಷ್ಟು?",
+    "data": {
+      "answer": "2026-10-15 ರಂದು KOLAR ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ tomato TOMATO AVERAGE ನ ದಾಖಲಾದ ಬೆಲೆ ₹800 ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ ಆಗಿತ್ತು. ಗಮನಿಸಿ: ಇದು ಪರಿಶೀಲಿಸದ ಸ್ಥಳೀಯ/ಪ್ರಾಯೋಗಿಕ ಡೇಟಾ; ಮಾರಾಟದ ನಿರ್ಧಾರಕ್ಕೂ ಮೊದಲು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.",
+      "spoken_answer": "15 ಅಕ್ಟೋಬರ್ 2026 ರಂದು KOLAR ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ tomato TOMATO AVERAGE ನ ದಾಖಲಾದ ಬೆಲೆ 800 ರೂಪಾಯಿ ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ ಆಗಿತ್ತು. ಗಮನಿಸಿ: ಇದು ಪರಿಶೀಲಿಸದ ಸ್ಥಳೀಯ/ಪ್ರಾಯೋಗಿಕ ಡೇಟಾ; ಮಾರಾಟದ ನಿರ್ಧಾರಕ್ಕೂ ಮೊದಲು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "price_lookup"
+      },
+      "language": "kn",
+      "intent": "price_lookup",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-10-15",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": true,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "show_price",
+        "record": {
+          "commodity": "tomato",
+          "market": "KOLAR",
+          "series": "TOMATO",
+          "grade": "AVERAGE",
+          "arrival_date": "2026-10-15",
+          "price": 800.0,
+          "unit": "Quintal",
+          "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+          "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+          "record_count": 1
+        }
+      },
+      "price_record": {
+        "commodity": "tomato",
+        "market": "KOLAR",
+        "series": "TOMATO",
+        "grade": "AVERAGE",
+        "arrival_date": "2026-10-15",
+        "price": 800.0,
+        "unit": "Quintal",
+        "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+        "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+        "record_count": 1
+      }
+    }
+  },
+  {
+    "language": "kn-IN",
+    "query": "೨೦ ಅಕ್ಟೋಬರ್ ೨೦೨೬ ರಂದು?",
+    "data": {
+      "answer": "2026-10-20 ರಂದು KOLAR ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ tomato TOMATO AVERAGE ನ ದಾಖಲಾದ ಬೆಲೆ ₹1,000 ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ ಆಗಿತ್ತು. ಗಮನಿಸಿ: ಇದು ಪರಿಶೀಲಿಸದ ಸ್ಥಳೀಯ/ಪ್ರಾಯೋಗಿಕ ಡೇಟಾ; ಮಾರಾಟದ ನಿರ್ಧಾರಕ್ಕೂ ಮೊದಲು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.",
+      "spoken_answer": "20 ಅಕ್ಟೋಬರ್ 2026 ರಂದು KOLAR ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ tomato TOMATO AVERAGE ನ ದಾಖಲಾದ ಬೆಲೆ 1000 ರೂಪಾಯಿ ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ ಆಗಿತ್ತು. ಗಮನಿಸಿ: ಇದು ಪರಿಶೀಲಿಸದ ಸ್ಥಳೀಯ/ಪ್ರಾಯೋಗಿಕ ಡೇಟಾ; ಮಾರಾಟದ ನಿರ್ಧಾರಕ್ಕೂ ಮೊದಲು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "price_lookup"
+      },
+      "language": "kn",
+      "intent": "price_lookup",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-10-20",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": {
+        "type": "show_price",
+        "record": {
+          "commodity": "tomato",
+          "market": "KOLAR",
+          "series": "TOMATO",
+          "grade": "AVERAGE",
+          "arrival_date": "2026-10-20",
+          "price": 1000.0,
+          "unit": "Quintal",
+          "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+          "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+          "record_count": 1
+        }
+      },
+      "price_record": {
+        "commodity": "tomato",
+        "market": "KOLAR",
+        "series": "TOMATO",
+        "grade": "AVERAGE",
+        "arrival_date": "2026-10-20",
+        "price": 1000.0,
+        "unit": "Quintal",
+        "source": "DATASET/Tomato/DateWiseReport_30_10_2026 (9).xls",
+        "data_status": "USER_SUPPLIED_AGMARKNET_EXPORT_UNVERIFIED",
+        "record_count": 1
+      }
+    }
+  },
+  {
+    "language": "kn-IN",
+    "query": "ನಾಳಿನ ಬೆಲೆಯ ಅಂದಾಜು ಹೇಳಿ.",
+    "data": {
+      "answer": "2026-11-08 ರಂದು KOLAR ನಲ್ಲಿ tomato ಮಾರುಕಟ್ಟೆ ಮಟ್ಟದ ಮಾದರಿ ಅಂದಾಜು ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ 1,310.73 ರೂಪಾಯಿ. ಮೂಲ ಡೇಟಾ 2026-10-26. ಇದು ಪುನರಾವರ್ತಿತ ಅಂದಾಜು; ದಾಖಲಾದ ಅಥವಾ ತಳಿ/ಗ್ರೇಡ್ ನಿರ್ದಿಷ್ಟ ಬೆಲೆಯಲ್ಲ. ಮೂಲ ಡೇಟಾ ಪ್ರಾಜೆಕ್ಟ್‌ಗೆ ಒದಗಿಸಿದ ಐತಿಹಾಸಿಕ ಡೇಟಾಸೆಟ್.",
+      "spoken_answer": "8 ನವೆಂಬರ್ 2026 ರಂದು KOLAR ನಲ್ಲಿ tomato ಮಾರುಕಟ್ಟೆ ಮಟ್ಟದ ಮಾದರಿ ಅಂದಾಜು ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ 1,310.73 ರೂಪಾಯಿ. ಮೂಲ ಡೇಟಾ 26 ಅಕ್ಟೋಬರ್ 2026. ಇದು ಪುನರಾವರ್ತಿತ ಅಂದಾಜು; ದಾಖಲಾದ ಅಥವಾ ತಳಿ/ಗ್ರೇಡ್ ನಿರ್ದಿಷ್ಟ ಬೆಲೆಯಲ್ಲ. ಮೂಲ ಡೇಟಾ ಪ್ರಾಜೆಕ್ಟ್‌ಗೆ ಒದಗಿಸಿದ ಐತಿಹಾಸಿಕ ಡೇಟಾಸೆಟ್.",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "prediction"
+      },
+      "language": "kn",
+      "intent": "prediction",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-11-08",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": null,
+      "forecast": {
+        "price": 1310.7333992480746,
+        "market": "KOLAR",
+        "commodity": "tomato",
+        "unit": "INR_PER_QUINTAL",
+        "prediction_date": "2026-11-08",
+        "input_date": "2026-10-26",
+        "model": "existing ExtraTrees pipeline",
+        "kind": "recursive_market_estimate"
+      }
+    }
+  },
+  {
+    "language": "kn-IN",
+    "query": "ಮುಂದಿನ ವಾರದ ಅಂದಾಜು ಹೇಳಿ.",
+    "data": {
+      "answer": "2026-11-14 ರಂದು KOLAR ನಲ್ಲಿ tomato ಮಾರುಕಟ್ಟೆ ಮಟ್ಟದ ಮಾದರಿ ಅಂದಾಜು ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ 1,311 ರೂಪಾಯಿ. ಮೂಲ ಡೇಟಾ 2026-10-26. ಇದು ಪುನರಾವರ್ತಿತ ಅಂದಾಜು; ದಾಖಲಾದ ಅಥವಾ ತಳಿ/ಗ್ರೇಡ್ ನಿರ್ದಿಷ್ಟ ಬೆಲೆಯಲ್ಲ. ಮೂಲ ಡೇಟಾ ಪ್ರಾಜೆಕ್ಟ್‌ಗೆ ಒದಗಿಸಿದ ಐತಿಹಾಸಿಕ ಡೇಟಾಸೆಟ್.",
+      "spoken_answer": "14 ನವೆಂಬರ್ 2026 ರಂದು KOLAR ನಲ್ಲಿ tomato ಮಾರುಕಟ್ಟೆ ಮಟ್ಟದ ಮಾದರಿ ಅಂದಾಜು ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ 1,311 ರೂಪಾಯಿ. ಮೂಲ ಡೇಟಾ 26 ಅಕ್ಟೋಬರ್ 2026. ಇದು ಪುನರಾವರ್ತಿತ ಅಂದಾಜು; ದಾಖಲಾದ ಅಥವಾ ತಳಿ/ಗ್ರೇಡ್ ನಿರ್ದಿಷ್ಟ ಬೆಲೆಯಲ್ಲ. ಮೂಲ ಡೇಟಾ ಪ್ರಾಜೆಕ್ಟ್‌ಗೆ ಒದಗಿಸಿದ ಐತಿಹಾಸಿಕ ಡೇಟಾಸೆಟ್.",
+      "conversation": {
+        "commodity": "tomato",
+        "market": "Kolar",
+        "vehicle_mode": "auto",
+        "ownership": "hired",
+        "last_intent": "prediction"
+      },
+      "language": "kn",
+      "intent": "prediction",
+      "confidence": 0.84,
+      "entities": {
+        "commodity": "tomato",
+        "state": null,
+        "district": null,
+        "market": "Kolar",
+        "arrival_date": "2026-11-14",
+        "date_ambiguous": false,
+        "invalid_date": false,
+        "navigation_target": null,
+        "quantity": null,
+        "quantity_unit": null,
+        "variety": null,
+        "spoken_series": null,
+        "grade": null,
+        "origin": null,
+        "forecast_date": null,
+        "latitude": null,
+        "longitude": null,
+        "vehicle_mode": "auto",
+        "vehicle_id": null,
+        "ownership": "hired",
+        "explicit_market": false,
+        "comparison_dates": [],
+        "page": null,
+        "client_date": "2026-11-07"
+      },
+      "action": null,
+      "forecast": {
+        "price": 1310.9969923994097,
+        "market": "KOLAR",
+        "commodity": "tomato",
+        "unit": "INR_PER_QUINTAL",
+        "prediction_date": "2026-11-14",
+        "input_date": "2026-10-26",
+        "model": "existing ExtraTrees pipeline",
+        "kind": "recursive_market_estimate"
+      }
+    }
+  }
+]
