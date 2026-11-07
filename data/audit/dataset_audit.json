@@ -1,0 +1,291 @@
+[
+  {
+    "file": "coffee_market_price.xlsx",
+    "classification": "UNVERIFIED_LOCAL_DATA",
+    "row_count": 119,
+    "columns": [
+      "Date",
+      "Market Centre",
+      "Type",
+      "Average\u00a0\u00a0Price"
+    ],
+    "missing_values": {
+      "Date": 1,
+      "Market Centre": 1,
+      "Type": 1,
+      "Average\u00a0\u00a0Price": 0
+    },
+    "date_range": [
+      "1970-01-01",
+      "2026-08-27"
+    ],
+    "unique_dates": 15,
+    "duplicate_full_rows": 0,
+    "unique_markets": [
+      "Arrow Spices-Theni",
+      "Best Coffee N Spices Mudigere 9901525254",
+      "Black Spices-Somwarpete-8453881821",
+      "COFFEE AGENCY BALLUPETE",
+      "COFFEE AGENCY,M.B.G Curers,Chikmagaluru-9844077150",
+      "Coorg Trust Spices-Siddapur",
+      "GAIN COFEE SAKLESHPURA",
+      "GOLDEN COFFEE AGENCIES",
+      "Geetha Trading Company-Ballupet",
+      "HADHI COFEE LINKS MUDIGERE",
+      "JEELANI COFFEE LINKS KUSHALNAGARA",
+      "LIKITHA COFFEE SAKLESHPURA",
+      "Lakshmi Coffee Curing Works-Hassan-9901124342",
+      "Likitha Coffee Trade Company-Kuniganahalli-9845616",
+      "MD COFFEE KUMBARAHALLI SAKLESHPUR-8495875252",
+      "MD\u00a0\u00a0COFFEE\u00a0KUMBARAHALLI SAKLESHPUR-8495875252",
+      "MOUNTAIN BLUE SOMAWARPET",
+      "MR.Stany Golden Coffee Agencies-Chikmagaluru-08262",
+      "MR.Stany Golden\u00a0\u00a0Coffee\u00a0Agencies-Chikmagaluru-08262",
+      "Mathirappilly Coffee Links Gudugalale Shanivarasan",
+      "Mudremane Coffee-Mudigere-9448157051,7353738798",
+      "NASIR TRADERS SAKLESHPURA",
+      "NKG-Hassan-8884418803",
+      "PAI COMM0DITY",
+      "PANCHAMEE COFFEE CURERS CHIKKAMAGALURU",
+      "PANCHAMEE COFFEE CURERS CKMG",
+      "Pattadur Coffee And Spices-Mudigere-9483129339",
+      "SANGAM CURING CHIKKAMAGALURU",
+      "SARAGOD CURING WORKS CHIKKAMAGALURU",
+      "SARATHY COFFEE CURING WORKS CHIKKAMAGALURU",
+      "SPICE N SPICE MADIKERI",
+      "SPICE N SPICE MADIKERI 9448121045",
+      "SRI CHAMUNDESHWARI TRADERS AND CURERS GENDEHALLI:",
+      "SUGANDHA COFFEE & SPICES - HANBALU - 8867294527",
+      "SUVARNA COFFEE KUSHALNAGAR MAKKANDUR",
+      "Sri Guru Raghavendra Coffee Traders Kodlipete 9008",
+      "TERRA COFFEE-SUNTIKOPPA-9620028551",
+      "WESTERN COFFEE CURERS EXPORTS PVT LIMITED"
+    ],
+    "unique_types": [
+      "ARABICA CHERRY",
+      "ARABICA CHERRY (28 OT)",
+      "ARABICA CHERRY (517 OT)",
+      "ARABICA CHERRY (522 OT)",
+      "ARABICA CHERRY EP EP",
+      "ARABICA CHERRY OT-Rs 550",
+      "ARABICA PARCHMENT",
+      "ARABICA PARCHMENT EP EP",
+      "ROBUSTA CHERRY",
+      "ROBUSTA CHERRY (26 OT)",
+      "ROBUSTA CHERRY (27 OT)",
+      "ROBUSTA CHERRY (383 OT)",
+      "ROBUSTA CHERRY (385 OT)",
+      "ROBUSTA CHERRY EP EP",
+      "ROBUSTA CHERRY OT-Rs 400",
+      "ROBUSTA PARCHMENT"
+    ],
+    "unique_prices": 77,
+    "price_range": [
+      385.0,
+      29000.0
+    ],
+    "units": null,
+    "commodity_explicitly_identified": true,
+    "source_provenance_available": false,
+    "suspicious_constant_price_run": 1,
+    "suspicious_values": {
+      "non_numeric_or_range_prices": 15,
+      "very_low_prices": 0
+    },
+    "eligible_for_production_price_table": false,
+    "notes": [
+      "Not Coffee Board or Spices Board data. Provenance not established."
+    ],
+    "price_mean": 16844.22
+  },
+  {
+    "file": "pepper_market_price.xlsx",
+    "classification": "UNVERIFIED_LOCAL_DATA",
+    "row_count": 48,
+    "columns": [
+      "46136",
+      "SUGANDHA COFFEE & SPICES - Hanbalu Sakleshpur - 8867294527",
+      "UnGarbaled",
+      "693"
+    ],
+    "missing_values": {
+      "46136": 0,
+      "SUGANDHA COFFEE & SPICES - Hanbalu Sakleshpur - 8867294527": 0,
+      "UnGarbaled": 0,
+      "693": 0
+    },
+    "date_range": [
+      "2025-03-12",
+      "2026-06-02"
+    ],
+    "unique_dates": 12,
+    "duplicate_full_rows": 0,
+    "unique_markets": [],
+    "unique_types": [],
+    "unique_prices": 15,
+    "price_range": [
+      643.0,
+      754.0
+    ],
+    "units": null,
+    "commodity_explicitly_identified": true,
+    "source_provenance_available": false,
+    "suspicious_constant_price_run": 3,
+    "suspicious_values": {
+      "non_numeric_or_range_prices": 0,
+      "very_low_prices": 0
+    },
+    "eligible_for_production_price_table": false,
+    "notes": [
+      "Not Coffee Board or Spices Board data. Provenance not established."
+    ],
+    "price_mean": 686.33
+  },
+  {
+    "file": "chikkamagaluru_merged.csv",
+    "classification": "EXCLUDED_MERGED_CSV",
+    "row_count": 3961,
+    "columns": [
+      "Date",
+      "Region",
+      "Max_Temp",
+      "Min_Temp",
+      "Rainfall",
+      "Price"
+    ],
+    "missing_values": {
+      "Date": 0,
+      "Region": 0,
+      "Max_Temp": 0,
+      "Min_Temp": 0,
+      "Rainfall": 0,
+      "Price": 0
+    },
+    "date_range": [
+      "2015-01-08",
+      "2025-11-11"
+    ],
+    "unique_dates": 3961,
+    "duplicate_full_rows": 0,
+    "unique_markets": [
+      "Chikkamagaluru"
+    ],
+    "unique_types": [],
+    "unique_prices": 567,
+    "price_range": [
+      1500.0,
+      118800.0
+    ],
+    "units": "not stated",
+    "commodity_explicitly_identified": false,
+    "source_provenance_available": false,
+    "suspicious_constant_price_run": 268,
+    "suspicious_values": {
+      "non_numeric_or_range_prices": 0,
+      "very_low_prices": 0
+    },
+    "eligible_for_production_price_table": false,
+    "notes": [
+      "EXCLUDED: merged CSV Price column must not be used as coffee or pepper market prices."
+    ],
+    "price_mean": 38739.56
+  },
+  {
+    "file": "madikeri_merged.csv",
+    "classification": "EXCLUDED_MERGED_CSV",
+    "row_count": 3962,
+    "columns": [
+      "Date",
+      "Region",
+      "Max_Temp",
+      "Min_Temp",
+      "Rainfall",
+      "Price"
+    ],
+    "missing_values": {
+      "Date": 0,
+      "Region": 0,
+      "Max_Temp": 0,
+      "Min_Temp": 0,
+      "Rainfall": 0,
+      "Price": 0
+    },
+    "date_range": [
+      "2015-01-07",
+      "2025-11-11"
+    ],
+    "unique_dates": 3962,
+    "duplicate_full_rows": 0,
+    "unique_markets": [
+      "Madikeri"
+    ],
+    "unique_types": [],
+    "unique_prices": 322,
+    "price_range": [
+      18825.0,
+      75126.0
+    ],
+    "units": "not stated",
+    "commodity_explicitly_identified": false,
+    "source_provenance_available": false,
+    "suspicious_constant_price_run": 864,
+    "suspicious_values": {
+      "non_numeric_or_range_prices": 0,
+      "very_low_prices": 0
+    },
+    "eligible_for_production_price_table": false,
+    "notes": [
+      "EXCLUDED: merged CSV Price column must not be used as coffee or pepper market prices."
+    ],
+    "price_mean": 38886.16
+  },
+  {
+    "file": "sirsi_merged.csv",
+    "classification": "EXCLUDED_MERGED_CSV",
+    "row_count": 3967,
+    "columns": [
+      "Date",
+      "Region",
+      "Max_Temp",
+      "Min_Temp",
+      "Rainfall",
+      "Price"
+    ],
+    "missing_values": {
+      "Date": 0,
+      "Region": 0,
+      "Max_Temp": 0,
+      "Min_Temp": 0,
+      "Rainfall": 0,
+      "Price": 0
+    },
+    "date_range": [
+      "2015-01-02",
+      "2025-11-11"
+    ],
+    "unique_dates": 3967,
+    "duplicate_full_rows": 0,
+    "unique_markets": [
+      "Sirsi"
+    ],
+    "unique_types": [],
+    "unique_prices": 1852,
+    "price_range": [
+      27023.0,
+      70311.0
+    ],
+    "units": "not stated",
+    "commodity_explicitly_identified": false,
+    "source_provenance_available": false,
+    "suspicious_constant_price_run": 28,
+    "suspicious_values": {
+      "non_numeric_or_range_prices": 0,
+      "very_low_prices": 0
+    },
+    "eligible_for_production_price_table": false,
+    "notes": [
+      "EXCLUDED: merged CSV Price column must not be used as coffee or pepper market prices."
+    ],
+    "price_mean": 47621.95
+  }
+]

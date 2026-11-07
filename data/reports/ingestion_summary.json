@@ -1,0 +1,91 @@
+{
+  "pepper": {
+    "connector": "spices_board_pepper",
+    "downloads": [
+      {
+        "ok": true,
+        "url": "https://www.indianspices.com/marketing/price/domestic/current-market-price.html?filterSpice=Pepper&filterState=KERALA",
+        "path": "/Users/shwetankjaiswal/Downloads/Crop-Mandi-AI-hemalatha/data/raw/spices_board_pepper/spices_board_pepper_kerala.html",
+        "sha256": "4d9bdfcfad26e8641a4d793e5e53fda52579c46eb2d523aa83e80ba589eee669",
+        "error": null
+      },
+      {
+        "ok": true,
+        "url": "https://www.indianspices.com/marketing/price/domestic/current-market-price.html?filterSpice=Pepper&filterState=KARNATAKA",
+        "path": "/Users/shwetankjaiswal/Downloads/Crop-Mandi-AI-hemalatha/data/raw/spices_board_pepper/spices_board_pepper_karnataka.html",
+        "sha256": "a62159a51eac7e6d3f2d6863308833cb3a90595ae8a39bc2cf56bf1745ca9b62",
+        "error": null
+      }
+    ],
+    "inserted": 1221,
+    "duplicate": 11,
+    "rejected": 0,
+    "parsed": 1232,
+    "failures": []
+  },
+  "coffee": {
+    "connector": "coffee_board",
+    "downloads": [
+      {
+        "ok": true,
+        "url": "https://coffeeboard.gov.in/Market_Info.aspx",
+        "path": "/Users/shwetankjaiswal/Downloads/Crop-Mandi-AI-hemalatha/data/raw/coffee_board/coffee_board_latest_market_info.pdf",
+        "sha256": "b4cd2444110c2b7c5ee12a4fac96784d485347198177d9b85fdf88408f442b0d",
+        "error": null,
+        "method": "aspnet_postback"
+      },
+      {
+        "ok": true,
+        "url": "https://coffeeboard.gov.in/Market_Info.aspx",
+        "path": "/Users/shwetankjaiswal/Downloads/Crop-Mandi-AI-hemalatha/data/raw/coffee_board/coffee_board_archives.pdf",
+        "sha256": "b4cd2444110c2b7c5ee12a4fac96784d485347198177d9b85fdf88408f442b0d",
+        "error": null,
+        "method": "aspnet_archives"
+      },
+      {
+        "ok": true,
+        "url": "https://coffeeboard.gov.in/Market_Info.aspx",
+        "path": "/Users/shwetankjaiswal/Downloads/Crop-Mandi-AI-hemalatha/data/raw/coffee_board/coffee_board_archives.pdf",
+        "sha256": "b4cd2444110c2b7c5ee12a4fac96784d485347198177d9b85fdf88408f442b0d",
+        "error": null,
+        "method": "local_official_pdf_copy"
+      }
+    ],
+    "inserted": 0,
+    "duplicate": 0,
+    "rejected": 0,
+    "parsed": 0,
+    "failures": [],
+    "pdfs_parsed": 1,
+    "pdfs_without_clear_rows": 1
+  },
+  "rice": {
+    "connector": "agmarknet_rice",
+    "downloads": [
+      {
+        "ok": false,
+        "url": "https://api.data.gov.in/resource/35985678-0d79-46b4-9ed6-6f13308a1d24",
+        "path": null,
+        "sha256": null,
+        "error": "DATA_GOV_API_KEY not found in environment or settings",
+        "records_count": null
+      },
+      {
+        "ok": false,
+        "url": "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070",
+        "path": null,
+        "sha256": null,
+        "error": "DATA_GOV_API_KEY not found in environment or settings",
+        "records_count": null
+      }
+    ],
+    "inserted": 0,
+    "duplicate": 0,
+    "rejected": 0,
+    "parsed": 0,
+    "failures": [
+      "DATA_GOV_API_KEY not found in environment or settings",
+      "DATA_GOV_API_KEY not found in environment or settings"
+    ]
+  }
+}
