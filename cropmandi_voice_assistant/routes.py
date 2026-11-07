@@ -3,13 +3,17 @@ from __future__ import annotations
 
 from typing import Any, Callable
 import logging
+import asyncio
+from pathlib import Path
+
+from .assistant_service import AssistantService, localize
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 
-from .speech_engine import SpeechEngineUnavailable, synthesize_audio_bytes, transcribe_audio_bytes
+from .speech_engine import SpeechEngineUnavailable, synthesize_audio_bytes, transcribe_audio_bytes, speech_text
 
 from .intent_parser import parse_command
 
@@ -84,8 +88,8 @@ PAGE_LABELS = {
 
 class VoiceCommandRequest(BaseModel):
     """Validated payload accepted by POST /api/voice/command."""
-    text: str | None = None
-    query: str | None = None
+    text: str | None = Field(default=None, max_length=2000)
+    query: str | None = Field(default=None, max_length=2000)
     language: str = "en-IN"
     client_date: str | None = None
     context: dict[str, Any] = Field(default_factory=dict)
@@ -150,16 +154,32 @@ def create_voice_router(
     """
     router = APIRouter(prefix=prefix, tags=["voice-assistant"])
     routes = {
-        "dashboard": "/dashboard",
-        "cold_storage": "/dashboard#cold-storage",
-        "recommendations": "/dashboard#recommendations",
-        "payments": "/payments",
-        "settings": "/settings",
-        "home": "/",
-        "weather": "/dashboard#weather",
+        "dashboard": "/cropmandi_ai_dashboard/code.html",
+        "my_crops": "/cropmandi_ai_my_crops/code.html",
+        "harvest_route": "/cropmandi_ai_harvest_route/code.html",
+        "mandi_price_ai": "/cropmandi_mandi_price_ai/code.html",
+        "analytics": "/cropmandi_ai_analytics/code.html",
+        "cold_storage": "/cropmandi_ai_dashboard/code.html#dash-storage-heading",
+        "recommendations": "/cropmandi_ai_dashboard/code.html#dash-rec-title",
+        "payments": "/cropmandi_ai_dashboard/code.html#dash-pay-button",
+        "settings": "/cropmandi_ai_settings/code.html",
+        "home": "/index.html",
+        "weather": "/cropmandi_ai_dashboard/code.html#dash-weather-temp",
+        "calendar": "/cropmandi_ai_farm_calendar/code.html",
+        "alerts": "/cropmandi_ai_alert_center/code.html",
     }
     if navigation_routes:
         routes.update(navigation_routes)
+
+    service = AssistantService(price_lookup) if price_lookup else None
+    labels = {
+        "en": {"my_crops": "My Crops", "harvest_route": "HarvestRoute", "mandi_price_ai": "Mandi Price AI", "analytics": "Analytics", "calendar": "Farm Calendar", "alerts": "Alert Center"},
+        "hi": {"my_crops": "मेरी फसलें", "harvest_route": "हार्वेस्ट रूट", "mandi_price_ai": "मंडी प्राइस एआई", "analytics": "एनालिटिक्स", "calendar": "कृषि कैलेंडर", "alerts": "अलर्ट सेंटर"},
+        "kn": {"my_crops": "ನನ್ನ ಬೆಳೆಗಳು", "harvest_route": "ಹಾರ್ವೆಸ್ಟ್ ರೂಟ್", "mandi_price_ai": "ಮಂಡಿ ಪ್ರೈಸ್ ಎಐ", "analytics": "ವಿಶ್ಲೇಷಣೆ", "calendar": "ಕೃಷಿ ಕ್ಯಾಲೆಂಡರ್", "alerts": "ಎಚ್ಚರಿಕೆ ಕೇಂದ್ರ"},
+    }
+    frontend = Path(__file__).resolve().parents[1] / "frontend"
+    # Only existing same-origin application pages are navigable.
+    routes = {k:v for k,v in routes.items() if v.startswith("/") and not v.startswith("//") and (frontend / v.split("#")[0].lstrip("/")).is_file()}
 
     @router.get("/health")
     def health() -> dict[str, Any]:
@@ -178,13 +198,15 @@ def create_voice_router(
         if len(audio_bytes) > max_audio_bytes:
             raise HTTPException(status_code=413, detail="Recording is too large. Please keep it under 15 MB.")
         try:
-            result = await run_in_threadpool(
+            result = await asyncio.wait_for(run_in_threadpool(
                 transcribe_audio_bytes,
                 audio_bytes,
                 language,
                 audio.filename,
                 audio.content_type,
-            )
+            ), timeout=90)
+        except asyncio.TimeoutError as exc:
+            raise HTTPException(status_code=504, detail="Speech service timed out. Please retry a shorter clip.") from exc
         except SpeechEngineUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except ValueError as exc:
@@ -217,7 +239,9 @@ def create_voice_router(
         if not text:
             raise HTTPException(status_code=400, detail="text is required")
         try:
-            audio_bytes = await synthesize_audio_bytes(text, payload.language)
+            audio_bytes = await asyncio.wait_for(synthesize_audio_bytes(text, payload.language), timeout=12)
+        except asyncio.TimeoutError as exc:
+            raise HTTPException(status_code=504, detail="Speech service timed out. Please retry a shorter clip.") from exc
         except SpeechEngineUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         return Response(
@@ -226,7 +250,6 @@ def create_voice_router(
             headers={"Cache-Control": "no-store", "Content-Disposition": 'inline; filename="cropmandi-response.mp3"'},
         )
 
-    @router.post("/command")
     def command(payload: VoiceCommandRequest) -> dict[str, Any]:
         text = str(payload.text or payload.query or "").strip()
         if not text:
@@ -237,6 +260,12 @@ def create_voice_router(
         if payload.client_date and not context.get("client_date"):
             context["client_date"] = payload.client_date
 
+        from datetime import date
+        if context.get("client_date"):
+            try:
+                context["client_date"] = date.fromisoformat(str(context["client_date"])).isoformat()
+            except ValueError:
+                raise HTTPException(status_code=400, detail="client_date must be a valid ISO date")
         parsed = parse_command(text, language, context)
         lang = _language_key(parsed["language"])
         messages = MESSAGES[lang]
@@ -246,7 +275,42 @@ def create_voice_router(
         action: dict[str, Any] | None = None
         data: dict[str, Any] = {"intent": intent, "entities": entities}
 
-        if intent == "price_lookup":
+        service_intents = {"prediction", "compare_prices", "market_rankings", "harvest_route", "cold_storage", "my_crops"}
+        if not weather_lookup:
+            service_intents.add("weather")
+        if not recommendation_lookup:
+            service_intents.add("recommendation")
+        result = None
+        inventory_reply = None
+        if service and intent in ("price_lookup", "prediction") and not entities.get("invalid_date") and not entities.get("date_ambiguous") and not entities.get("date_unresolved"):
+            try:
+                inventory_reply = service.inventory_context(entities, lang)
+            except Exception:
+                logger.exception("Voice inventory context unavailable")
+        if inventory_reply:
+            data.update(inventory_reply)
+            reply = inventory_reply["answer"]
+        elif entities.get("date_unresolved"):
+            reply = localize(lang, "I couldn't resolve that date reliably. Please say or type the full day, month and year.", "तारीख स्पष्ट नहीं समझ पाया। कृपया पूरा दिन, महीना और साल बोलें या लिखें।", "ದಿನಾಂಕ ಸ್ಪಷ್ಟವಾಗಿ ಅರ್ಥವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಪೂರ್ಣ ದಿನ, ತಿಂಗಳು ಮತ್ತು ವರ್ಷ ಹೇಳಿ ಅಥವಾ ಬರೆಯಿರಿ.")
+            data["needs_clarification"] = True
+        elif entities.get("invalid_date"):
+            reply = localize(lang, "That date is invalid. Please provide a valid day, month and year.", "तारीख मान्य नहीं है। दिन, महीना और साल स्पष्ट बताइए।", "ಆ ದಿನಾಂಕ ಮಾನ್ಯವಲ್ಲ. ಸರಿಯಾದ ದಿನ, ತಿಂಗಳು ಮತ್ತು ವರ್ಷ ತಿಳಿಸಿ.")
+            data["needs_clarification"] = True
+        elif entities.get("date_ambiguous"):
+            reply = messages["clarify_kal"]
+            data["needs_clarification"] = True
+        elif intent in service_intents:
+            try:
+                result = service(intent, entities, lang) if service else None
+            except Exception:
+                logger.exception("Voice service failed: %s", intent)
+                result = {"answer": localize(lang, "The data service is unavailable or timed out. Please retry. No price or result was substituted.", "डेटा सेवा उपलब्ध नहीं है या समय सीमा पूरी हुई। फिर कोशिश करें। कोई वैकल्पिक भाव नहीं दिया गया।", "ಡೇಟಾ ಸೇವೆ ಲಭ್ಯವಿಲ್ಲ ಅಥವಾ ಸಮಯ ಮೀರಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ. ಬೇರೆ ಬೆಲೆ ಅಥವಾ ಫಲಿತಾಂಶ ಬಳಸಿಲ್ಲ."), "service_error": True}
+            if result:
+                data.update(result)
+                reply = result["answer"]
+            else:
+                reply = messages["price_not_connected"]
+        elif intent == "price_lookup":
             commodity = entities.get("commodity")
             market = entities.get("market")
             requested_date = entities.get("arrival_date")
@@ -263,10 +327,16 @@ def create_voice_router(
                 try:
                     record = price_lookup({**entities, "commodity": commodity, "arrival_date": requested_date})
                 except Exception:
-                    record = None
-                if record and record.get("needs_variety"):
+                    logger.exception("Voice price lookup failed")
+                    record = {"service_error": True}
+                if record and record.get("service_error"):
+                    reply = localize(lang, "The price service is unavailable. Please retry.", "भाव सेवा उपलब्ध नहीं है। फिर कोशिश करें।", "ಬೆಲೆ ಸೇವೆ ಲಭ್ಯವಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.")
+                    data["service_error"] = True
+                elif record and record.get("needs_variety"):
+                    data["needs_clarification"] = True
                     reply = messages["ask_variety"]
                     data["available_series"] = record.get("available_series", [])
+                    reply += " " + ", ".join(str(x) for x in data["available_series"][:5])
                 elif not record:
                     where = f" at {market}" if lang == "en" else f" {market} में" if lang == "hi" else f" {market} ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ"
                     when = f" on {requested_date}" if requested_date and lang == "en" else f" {requested_date} को" if requested_date and lang == "hi" else f" {requested_date} ರಂದು" if requested_date and lang == "kn" else ""
@@ -275,7 +345,7 @@ def create_voice_router(
                     price = record.get("modal_price", record.get("current_price", record.get("price", record.get("price_per_qtl"))))
                     record_date = record.get("arrival_date") or requested_date or "date unavailable"
                     display_market = record.get("market") or market
-                    crop_label = str(record.get("commodity") or commodity).title()
+                    crop_label = " ".join(str(x) for x in (record.get("commodity") or commodity, record.get("series"), record.get("grade")) if x)
                     unit = _unit_text(record.get("unit"), lang)
                     count = record.get("record_count")
                     if requested_date:
@@ -300,8 +370,11 @@ def create_voice_router(
         elif intent == "navigate":
             target = entities.get("navigation_target") or "dashboard"
             path = routes.get(target)
-            if path:
-                reply = messages["navigate"].format(page=PAGE_LABELS[lang].get(target, target))
+            if target == "back":
+                reply = localize(lang, "Returning to the previous page.", "पिछले पेज पर जा रहा हूँ।", "ಹಿಂದಿನ ಪುಟಕ್ಕೆ ಹಿಂತಿರುಗುತ್ತಿದ್ದೇನೆ.")
+                action = {"type": "back"}
+            elif path:
+                reply = messages["navigate"].format(page=labels[lang].get(target) or PAGE_LABELS[lang].get(target, target))
                 action = {"type": "navigate", "target": target, "path": path}
             else:
                 reply = messages["route_missing"]
@@ -347,10 +420,23 @@ def create_voice_router(
         elif intent == "help":
             reply = messages["help"]
 
+        if intent == "price_lookup" and (not entities.get("commodity") or not entities.get("market")):
+            data["needs_clarification"] = True
+        # Return bounded structured memory, not a growing transcript or global session.
+        conversation = {k: entities[k] for k in ("commodity", "market", "variety", "grade", "quantity", "quantity_unit", "origin", "vehicle_mode", "vehicle_id", "ownership", "forecast_date") if entities.get(k) is not None}
+        conversation["last_intent"] = intent
+        if data.get("needs_clarification"):
+            conversation["pending_intent"] = intent
+            if data.get("available_series"):
+                conversation["choices"] = data["available_series"][:10]
+            if entities.get("arrival_date"):
+                conversation["target_date"] = entities["arrival_date"]
         return {
             "success": True,
             "data": {
                 "answer": reply,
+                "spoken_answer": speech_text(reply, lang),
+                "conversation": conversation,
                 "language": parsed["language"],
                 "intent": intent,
                 "confidence": parsed["confidence"],
@@ -359,5 +445,12 @@ def create_voice_router(
                 **data,
             },
         }
+
+    @router.post("/command")
+    async def command_endpoint(payload: VoiceCommandRequest):
+        try:
+            return await asyncio.wait_for(run_in_threadpool(command, payload), timeout=40)
+        except asyncio.TimeoutError as exc:
+            raise HTTPException(status_code=504, detail="The data request timed out. Please retry.") from exc
 
     return router

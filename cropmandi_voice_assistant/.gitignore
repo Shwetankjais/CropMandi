@@ -1,0 +1,4 @@
+/.models/
+/tests/.validation.db*
+/__pycache__/
+/tests/__pycache__/

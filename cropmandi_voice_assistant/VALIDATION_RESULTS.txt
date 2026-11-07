@@ -1,0 +1,79 @@
+$ .venv/bin/python -B -m pytest tests cropmandi_voice_assistant/tests -q -p no:cacheprovider
+........................................................................ [ 25%]
+........................................................................ [ 50%]
+........................................................................ [ 76%]
+...................................................................      [100%]
+283 passed in 75.81s (0:01:15)
+
+$ node --test cropmandi_voice_assistant/tests/widget.test.cjs
+✔ follow-up does not reintroduce page coffee variety after spoken crop change (21.769708ms)
+✔ changed page selection supersedes conversation selections (0.59925ms)
+✔ identical in-flight commands are suppressed and close cancels stale response (0.525334ms)
+✔ a new command supersedes an older pending command (0.511416ms)
+✔ stopping pending synthesis prevents late audio playback (3.564875ms)
+✔ network timeout clears processing state (0.697667ms)
+✔ microphone denial restores controls (0.924042ms)
+✔ late microphone permission after close releases tracks (0.709625ms)
+✔ pending microphone permission expires without stuck listening (0.46325ms)
+✔ unknown navigation never leaves the application (0.482416ms)
+✔ standalone and integrated widget assets remain identical (0.50975ms)
+✔ HarvestRoute JSON series selections preserve variety and grade (0.435167ms)
+✔ uncertain transcript is editable and never auto-executes a command (1.480417ms)
+✔ unsupported microphone clears a previously pending processing state (0.452209ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 87.682167
+
+Working database SHA256 before and after: 681bedde9da069e26efa302723aee709ca9c18e9f17478ba774643e1e8332db8
+Unchanged: true
+
+Final voice-only verification after decimal-quantity and truncated-transcript guards:
+$ .venv/bin/python -B -m pytest cropmandi_voice_assistant/tests -q -p no:cacheprovider
+........................................................................ [ 93%]
+.....                                                                    [100%]
+77 passed in 8.36s
+
+=== Multilingual retest after speech/date fixes ===
+$ .venv/bin/python -B -m pytest tests cropmandi_voice_assistant/tests -q -p no:cacheprovider
+........................................................................ [ 23%]
+........................................................................ [ 47%]
+........................................................................ [ 71%]
+........................................................................ [ 95%]
+...............                                                          [100%]
+303 passed in 81.56s (0:01:21)
+
+$ node --test cropmandi_voice_assistant/tests/widget.test.cjs
+✔ follow-up does not reintroduce page coffee variety after spoken crop change (28.845959ms)
+✔ changed page selection supersedes conversation selections (0.946125ms)
+✔ identical in-flight commands are suppressed and close cancels stale response (0.727916ms)
+✔ a new command supersedes an older pending command (1.105792ms)
+✔ stopping pending synthesis prevents late audio playback (5.415708ms)
+✔ network timeout clears processing state (0.867541ms)
+✔ microphone denial restores controls (1.187917ms)
+✔ late microphone permission after close releases tracks (1.714875ms)
+✔ pending microphone permission expires without stuck listening (1.086875ms)
+✔ unknown navigation never leaves the application (1.163166ms)
+✔ standalone and integrated widget assets remain identical (0.805625ms)
+✔ HarvestRoute JSON series selections preserve variety and grade (0.602459ms)
+✔ uncertain transcript is editable and never auto-executes a command (3.201167ms)
+✔ unsupported microphone clears a previously pending processing state (0.604958ms)
+✔ uncertain transcript review is spoken and replayable in Kannada (2.58425ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 143.309084
+
+Working database unchanged: 681bedde9da069e26efa302723aee709ca9c18e9f17478ba774643e1e8332db8
+
+Live text/API assertions: 34 passed. Same-clip audio input: 11 passed, 1 Kannada historical-date review required. Price/forecast TTS: 9 valid decodable MP3 responses, user-approved. Browser navigation: all 3 languages; playback/Stop: all 3; Kannada Replay: passed.
+
+Latest Kannada historical-date fix: 323 Python tests and 15 widget tests passed. Six live recorded-audio command checks passed. Previously failing Kannada clip now automatically returns 2026-10-15 Kolar tomato INR 800/quintal without edits. Additional dates passed 2/3 (a damaged spoken 2025 year safely remains unresolved). See KANNADA_DATE_FIX_REPORT.md for complete evidence, limitations and file manifest. Original 8001 PIDs unchanged; duplicate 8766 PID 48708. Working DB hash unchanged.

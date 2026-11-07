@@ -7,6 +7,7 @@ data when that location has no observation for the requested date.
 from __future__ import annotations
 
 import re
+import math
 from statistics import median
 from typing import Any, Callable
 
@@ -15,7 +16,7 @@ from apps.api.market_centres import prices_payload, resolve_location
 from apps.api.services import history_response
 
 SessionFactory = Callable[[], Any]
-SUPPORTED_COMMODITIES = {"coffee", "pepper", "rice"}
+SUPPORTED_COMMODITIES = {"coffee", "pepper", "rice", "paddy", "tomato", "potato", "maize"}
 SERIES_BY_COMMODITY = {
     "coffee": {"arabica parchment", "arabica cherry", "robusta parchment", "robusta cherry"},
     "pepper": {"cochin garbled", "cochin ungarbled", "sirsi"},
@@ -72,7 +73,7 @@ def _number(value: Any) -> float | None:
         if isinstance(value, str):
             value = value.replace(",", "").replace("₹", "").strip()
         number = float(value)
-        return number if number > 0 else None
+        return number if math.isfinite(number) and number > 0 else None
     except (TypeError, ValueError):
         return None
 
@@ -193,6 +194,8 @@ def make_project_price_lookup(session_factory: SessionFactory):
         commodity = str(params.get("commodity") or "").strip().lower()
         if commodity not in SUPPORTED_COMMODITIES:
             return None
+        if commodity in {"paddy", "tomato", "potato", "maize"}:
+            return crop_price_record(session_factory, params)
         market_text = params.get("market") or params.get("district") or params.get("location")
         requested_date = str(params.get("arrival_date") or "").strip() or None
         spoken_series = str(params.get("spoken_series") or "").strip() or None
@@ -221,6 +224,11 @@ def make_project_price_lookup(session_factory: SessionFactory):
 
         # There was no known location match. Here the market text itself may be
         # a named series such as "Arabica Parchment" or "Cochin Garbled".
+        # An explicitly named geographic market must never turn into a different
+        # market's series quotation when the location is unsupported.
+        series_names = {_norm(x) for x in SERIES_BY_COMMODITY.get(commodity, set())}
+        if market_text and _norm(market_text) not in series_names:
+            return None
         selector_candidates = [spoken_series, requested_series, str(market_text or "").strip()]
         seen = set()
         for selector in selector_candidates:
@@ -232,4 +240,56 @@ def make_project_price_lookup(session_factory: SessionFactory):
                 return record
         return None
 
+    # Keep the existing integration signature; voice-only handlers reuse this
+    # factory rather than changing apps/api/main.py or opening another backend.
+    lookup.session_factory = session_factory
     return lookup
+
+
+def crop_rows(session, params):
+    """Read the existing model/table with exact filters, never backend fallbacks."""
+    from sqlalchemy import select, func
+    from cropmandi.db.models import CropMarketObservation as Obs
+    crop = params.get("commodity")
+    crop = "paddy" if crop == "rice" else crop
+    stmt = select(Obs).where(Obs.crop_code == crop)
+    for key, column in (("market", Obs.market_name), ("district", Obs.district), ("variety", Obs.variety), ("grade", Obs.grade)):
+        value = params.get(key)
+        if value:
+            # Normalize only known geographic aliases; varieties remain exact.
+            value = str(value).strip()
+            if key == "market":
+                value = re.sub(r"\s+(APMC|mandi)$", "", value, flags=re.I)
+                available = list(session.scalars(select(Obs.market_name).where(Obs.crop_code == crop).distinct()))
+                exact = next((name for name in available if name.casefold() == value.casefold()), None)
+                alternate = {"bengaluru": "bangalore", "bangalore": "bengaluru", "shivamogga": "shimoga", "shimoga": "shivamogga"}.get(value.casefold())
+                value = exact or next((name for name in available if name.casefold() == alternate), value)
+            stmt = stmt.where(func.lower(column) == value.lower())
+    if params.get("arrival_date"):
+        from datetime import date
+        stmt = stmt.where(Obs.market_date == date.fromisoformat(params["arrival_date"]))
+    return session.scalars(stmt.order_by(Obs.market_date.desc())).all()
+
+
+def crop_price_record(session_factory, params):
+    session = session_factory()
+    try:
+        rows = crop_rows(session, params)
+        if not rows:
+            return None
+        rows = [r for r in rows if r.market_date == rows[0].market_date]
+        identities = {(r.variety, r.grade, r.unit) for r in rows}
+        if len(identities) > 1:
+            return {"needs_variety": True, "available_series": sorted({f"{r.variety} / {r.grade}" for r in rows})}
+        chosen = rows[0]
+        values = [_number(r.modal_price) for r in rows]
+        values = [n for n in values if n is not None]
+        if not values:
+            return None
+        return {"commodity": chosen.crop_code, "market": chosen.market_name,
+                "series": chosen.variety, "grade": chosen.grade,
+                "arrival_date": chosen.market_date.isoformat(), "price": median(values),
+                "unit": chosen.unit, "source": chosen.source_file,
+                "data_status": chosen.data_status, "record_count": len(values)}
+    finally:
+        session.close()
